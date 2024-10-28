@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  name            String?
+  email           String?   @unique
+  emailVerified   Boolean   @default(false) 
+  image           String?
+  password        String?
+  planType        String    @default("premium")
+  planStartDate   DateTime  @default(now())
+  accounts        Account[]
+  sessions        Session[]
+  gradillas       Gradilla[]
+  planEndDate     DateTime?
+  maxGrids        Int       @default(2)
+  maxTubes        Int       @default(162)
+  isUnlimited     Boolean   @default(false)
+  stripeCustomerId String?
+  verificationCode String?
+}
+
+model Gradilla {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  rows      String[]
+  columns   Int[]
+  fields    String[]
+  tubes     Tube[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model Tube {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  position   String
+  data       Json
+  gradilla   Gradilla @relation(fields: [gradillaId], references: [id])
+  gradillaId String   @db.ObjectId
+}
