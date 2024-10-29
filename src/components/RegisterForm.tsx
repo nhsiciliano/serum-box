@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +20,8 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -27,6 +30,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         duration: 3000,
         isClosable: true,
       });
+      setIsLoading(false);
       return;
     }
     if (!validatePassword(password)) {
@@ -44,7 +48,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, name, password }),
       });
 
       if (registerResponse.ok) {
@@ -68,11 +72,12 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         throw new Error(data.message || 'Error en el registro');
       }
     } catch (error) {
+      console.error(error);
       toast({
-        title: "Error en el registro",
-        description: (error as Error).message,
+        title: "Error",
+        description: "No se pudo completar el registro",
         status: "error",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
     } finally {
@@ -99,8 +104,24 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
             <FormControl>
+              <FormLabel color="black">Nombre</FormLabel>
+              <Input 
+                type="text" 
+                textColor="gray.800" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                required 
+              />
+            </FormControl>
+            <FormControl>
               <FormLabel color="black">Email</FormLabel>
-              <Input type="email" textColor="gray.800" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input 
+                type="email" 
+                textColor="gray.800" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
             </FormControl>
             <FormControl>
               <FormLabel color="black">Contraseña</FormLabel>

@@ -57,7 +57,7 @@ const plans = [
 
 export default function PricingPlans() {
   const [selectedDuration, setSelectedDuration] = useState<3 | 6 | 12>(3);
-  const bgColor = useColorModeValue('green.400', 'green.700');
+  const bgColor = useColorModeValue('green.200', 'green.800');
   const headingColor = useColorModeValue('black', 'white');
   const cardBgColor = useColorModeValue('white', 'gray.700');
   const textColor = useColorModeValue('black', 'white');
@@ -69,6 +69,7 @@ export default function PricingPlans() {
         <Heading as="h2" color={headingColor} size="xl">Planes de Suscripción</Heading>
         <Select
           value={selectedDuration}
+          color={textColor}
           onChange={(e) => setSelectedDuration(Number(e.target.value) as 3 | 6 | 12)}
           width="auto"
           mb={4}

@@ -3,10 +3,11 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Box, Flex, VStack, Text, Icon, Link, ChakraProvider, extendTheme, Image, useToast, IconButton } from '@chakra-ui/react';
+import { Box, Flex, VStack, Icon, Link, ChakraProvider, extendTheme, Image, useToast, IconButton } from '@chakra-ui/react';
 import { FiHome, FiDatabase, FiSettings, FiLogOut, FiMenu } from 'react-icons/fi';
 import NextLink from 'next/link';
 import { IconType } from 'react-icons';
+import DashboardHeader from '@/components/DashboardHeader';
 
 // Definimos un tema personalizado
 const theme = extendTheme({
@@ -160,14 +161,7 @@ export default function DashboardLayout({
                     overflowY="auto"
                 >
                     <Box p={8} bg="gray.50" minH="100%">
-                        <Text 
-                            fontSize="2xl" 
-                            fontWeight="bold" 
-                            mb={5} 
-                            color="black"
-                        >
-                            Hola, {session.user?.name || session.user?.email}
-                        </Text>
+                        <DashboardHeader />
                         {children}
                     </Box>
                 </Box>

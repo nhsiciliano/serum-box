@@ -4,8 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
     Box, Text, Button, VStack, Flex, useToast, Spinner, Table, Thead, Tbody, Tr, Th, Td, Container,
-    Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure
+    Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
+    InputGroup,
+    InputLeftElement,
+    Input,
 } from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
 import GrillaVisualization from '@/components/GrillaVisualization';
 
 interface Tube {
@@ -30,6 +34,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
     const [gradilla, setGradilla] = useState<Gradilla | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEmptying, setIsEmptying] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchGradilla = async () => {
@@ -159,7 +164,19 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
         }
     };
 
-    if (!gradilla) return <Text>Cargando...</Text>;
+    const filteredTubes = gradilla?.tubes.filter(tube => {
+        if (searchTerm === '') return true;
+        
+        // Buscar en la posición
+        if (tube.position.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+        
+        // Buscar en todos los campos de datos
+        return Object.values(tube.data).some(value => 
+            value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }) || [];
+
+    if (!gradilla) return <Text color="gray.700">Cargando...</Text>;
 
     return (
         <Container maxW="container.xl" py={6}>
@@ -223,28 +240,50 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                     <ModalHeader color="gray.700">Tabla de Tubos</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Box overflowX="auto">
-                            <Table variant="simple">
-                                <Thead>
-                                    <Tr>
-                                        <Th color="blue.700">Posición</Th>
-                                        {gradilla.fields.map(field => (
-                                            <Th color="blue.700" key={field}>{field}</Th>
-                                        ))}
-                                    </Tr>
-                                </Thead>
-                                <Tbody>
-                                    {gradilla.tubes.map(tube => (
-                                        <Tr key={tube.id}>
-                                            <Td color="gray.700">{tube.position}</Td>
+                        <VStack spacing={4} align="stretch">
+                            <Box>
+                                <InputGroup>
+                                    <InputLeftElement pointerEvents='none'>
+                                        <SearchIcon color='gray.300' />
+                                    </InputLeftElement>
+                                    <Input
+                                        placeholder='Buscar en todos los campos...'
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        mb={4}
+                                    />
+                                </InputGroup>
+                            </Box>
+                            <Box overflowX="auto">
+                                <Table variant="simple">
+                                    <Thead>
+                                        <Tr>
+                                            <Th color="blue.700">Posición</Th>
                                             {gradilla.fields.map(field => (
-                                                <Td key={field} color="gray.700">{tube.data[field] || '-'}</Td>
+                                                <Th color="blue.700" key={field}>{field}</Th>
                                             ))}
                                         </Tr>
-                                    ))}
-                                </Tbody>
-                            </Table>
-                        </Box>
+                                    </Thead>
+                                    <Tbody>
+                                        {filteredTubes.map(tube => (
+                                            <Tr key={tube.id}>
+                                                <Td color="gray.700">{tube.position}</Td>
+                                                {gradilla.fields.map(field => (
+                                                    <Td key={field} color="gray.700">
+                                                        {tube.data[field] || '-'}
+                                                    </Td>
+                                                ))}
+                                            </Tr>
+                                        ))}
+                                    </Tbody>
+                                </Table>
+                                {filteredTubes.length === 0 && (
+                                    <Text textAlign="center" py={4} color="gray.500">
+                                        No se encontraron tubos que coincidan con la búsqueda
+                                    </Text>
+                                )}
+                            </Box>
+                        </VStack>
                     </ModalBody>
                     <ModalFooter>
                         <Button colorScheme="blue" mr={3} onClick={onClose}>

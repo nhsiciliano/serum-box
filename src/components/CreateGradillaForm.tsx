@@ -4,15 +4,16 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Button, FormControl, FormLabel, Input, NumberInput, NumberInputField, VStack, HStack, IconButton, useToast, Spinner } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 
 const CreateGradillaForm = () => {
     const router = useRouter();
     const toast = useToast();
     const [name, setName] = useState('');
-    const [rowCount, setRowCount] = useState(10);
-    const [columnCount, setColumnCount] = useState(10);
-    const [fields, setFields] = useState(['']);
-    const [isLoading, setIsLoading] = useState(false);
+    const [rowCount, setRowCount] = useState(1);
+    const [columnCount, setColumnCount] = useState(1);
+    const [fields, setFields] = useState<string[]>([]);
+    const { restrictions, canCreateGrid } = usePlanRestrictions();
 
     const handleAddField = () => {
         if (fields.length < 5) {
@@ -33,16 +34,31 @@ const CreateGradillaForm = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
 
-        const rows = Array.from({ length: rowCount }, (_, i) => String.fromCharCode(65 + i));
-        const columns = Array.from({ length: columnCount }, (_, i) => i + 1);
+        const currentGrillas = await fetchCurrentGrillasCount();
+        if (!canCreateGrid(currentGrillas)) {
+            toast({
+                title: "Límite de gradillas alcanzado",
+                description: `Tu plan actual permite un máximo de ${restrictions.maxGrids} gradillas. Considera actualizar tu plan para crear más.`,
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+            });
+            return;
+        }
 
         try {
             const response = await fetch('/api/gradillas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, rows, columns, fields: fields.filter(field => field !== '') }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name,
+                    rowCount,
+                    columnCount,
+                    fields,
+                }),
             });
 
             if (!response.ok) throw new Error('Error al crear la gradilla');
@@ -57,7 +73,7 @@ const CreateGradillaForm = () => {
 
             router.push('/dashboard');
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error al crear la gradilla:', error);
             toast({
                 title: "Error",
                 description: "No se pudo crear la gradilla. Por favor, intenta de nuevo.",
@@ -65,8 +81,20 @@ const CreateGradillaForm = () => {
                 duration: 3000,
                 isClosable: true,
             });
-        } finally {
-            setIsLoading(false);
+        }
+    };
+
+    const fetchCurrentGrillasCount = async () => {
+        try {
+            const response = await fetch('/api/user-stats');
+            if (response.ok) {
+                const data = await response.json();
+                return data.gridCount;
+            }
+            return 0;
+        } catch (error) {
+            console.error('Error al obtener estadísticas:', error);
+            return 0;
         }
     };
 
@@ -115,7 +143,7 @@ const CreateGradillaForm = () => {
                 <Button 
                     type="submit" 
                     colorScheme="teal" 
-                    isLoading={isLoading}
+                    isLoading={false}
                     loadingText="Creando Gradilla"
                     spinner={<Spinner />}
                 >

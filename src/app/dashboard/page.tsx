@@ -13,6 +13,7 @@ import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 interface Gradilla {
   id: string;
   name: string;
+  tubes: any[];
 }
 
 export default function DashboardHome() {
@@ -80,7 +81,7 @@ export default function DashboardHome() {
       <Box mb={6} bg="white" borderRadius="lg" boxShadow="sm">
         <PlanInfo 
           currentGrids={grillas.length}
-          currentTubes={grillas.reduce((total, grilla) => total + (grilla.tubeCount || 0), 0)}
+          currentTubes={grillas.reduce((total, grilla) => total + (grilla.tubes?.length || 0), 0)}
         />
       </Box>
 
