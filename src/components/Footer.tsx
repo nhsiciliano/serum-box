@@ -14,8 +14,13 @@ import {
     SimpleGrid,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { useLanguage } from '@/hooks/useLanguage';
+import { translations } from '@/lib/translations';
 
 export default function Footer() {
+    const { language } = useLanguage();
+    const t = translations[language];
+
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const textColor = useColorModeValue("gray.800", "gray.100");
     const headingColor = useColorModeValue("green.600", "green.300");
@@ -43,16 +48,15 @@ export default function Footer() {
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
                     <VStack align="flex-start" spacing={4}>
                         <Heading as="h3" size="lg" color={headingColor}>
-                            Contáctanos
+                            {t.footer.contact.title}
                         </Heading>
                         <Text>
-                            Ante cualquier duda envíanos un mensaje y nos pondremos en
-                            contacto contigo.
+                            {t.footer.contact.description}
                         </Text>
                         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
                             <VStack spacing={4} align="stretch">
                                 <Input
-                                    placeholder="Nombre"
+                                    placeholder={t.footer.contact.name}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     bg={inputBgColor}
@@ -66,7 +70,7 @@ export default function Footer() {
                                     required
                                 />
                                 <Input
-                                    placeholder="Email"
+                                    placeholder={t.footer.contact.email}
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -81,7 +85,7 @@ export default function Footer() {
                                     required
                                 />
                                 <Textarea
-                                    placeholder="Tu consulta"
+                                    placeholder={t.footer.contact.message}
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     bg={inputBgColor}
@@ -100,18 +104,17 @@ export default function Footer() {
                                     bg={headingColor}
                                     _hover={{ bg: useColorModeValue("green.700", "green.400") }}
                                 >
-                                    Enviar mensaje
+                                    {t.footer.contact.send}
                                 </Button>
                             </VStack>
                         </form>
                     </VStack>
                     <VStack align="flex-start" spacing={4}>
                         <Heading as="h3" size="lg" color={headingColor}>
-                            Serum Box
+                            {t.footer.about.title}
                         </Heading>
                         <Text>
-                            Gestiona tus muestras de suero de manera eficiente y segura con
-                            Serum Box.
+                            {t.footer.about.description}
                         </Text>
                         <HStack spacing={4}>
                             {/* Aquí puedes agregar iconos de redes sociales si lo deseas */}
@@ -126,8 +129,7 @@ export default function Footer() {
                     textAlign="center"
                 >
                     <Text>
-                        &copy; {new Date().getFullYear()} Serum Box. Todos los derechos
-                        reservados.
+                        &copy; {new Date().getFullYear()} Serum Box. {t.footer.about.rights}
                     </Text>
                 </Box>
             </Container>

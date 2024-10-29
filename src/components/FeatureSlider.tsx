@@ -1,32 +1,37 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Heading, Text, VStack, HStack, Container, Image, Circle, useColorModeValue } from '@chakra-ui/react';
-
-const features = [
-    {
-        title: "Gestión de Muestras de Suero",
-        description: "Organiza y gestiona eficientemente tus muestras de suero humano para investigación.",
-        image: "/images/gestion-muestras.jpg" // Asegúrate de tener esta imagen en tu carpeta public/images
-    },
-    {
-        title: "Gradillas Personalizables",
-        description: "Crea gradillas personalizadas con ubicaciones flexibles, como A-J y 1-10.",
-        image: "/images/gradillas-personalizables.jpg"
-    },
-    {
-        title: "Información Detallada de Muestras",
-        description: "Registra datos importantes como nombre del paciente, fecha de nacimiento, fecha de muestra y número de protocolo.",
-        image: "/images/informacion-detallada.jpg"
-    },
-    {
-        title: "Búsqueda Avanzada",
-        description: "Localiza rápidamente muestras específicas con nuestro sistema de búsqueda avanzada.",
-        image: "/images/busqueda-avanzada.jpg"
-    }
-];
+import { Box, Heading, Text, VStack, Container, Image, Circle, useColorModeValue, HStack } from '@chakra-ui/react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { translations } from '@/lib/translations';
 
 export default function FeatureSlider() {
+    const { language } = useLanguage();
+    const t = translations[language as 'en' | 'es'];
+
+    const features = [
+        {
+            title: t.features.title1,
+            description: t.features.description1,
+            image: "/images/gestion-muestras.jpg"
+        },
+        {
+            title: t.features.title2,
+            description: t.features.description2,
+            image: "/images/gradillas-personalizables.jpg"
+        },
+        {
+            title: t.features.title3,
+            description: t.features.description3,
+            image: "/images/informacion-detallada.jpg"
+        },
+        {
+            title: t.features.title4,
+            description: t.features.description4,
+            image: "/images/busqueda-avanzada.jpg"
+        }
+    ];
+
     const [currentFeature, setCurrentFeature] = useState(0);
 
     useEffect(() => {
@@ -44,7 +49,7 @@ export default function FeatureSlider() {
         <Box bg={bgColor} py={20}>
             <Container maxW="container.xl">
                 <VStack spacing={12} align="center">
-                    <Heading as="h2" size="xl" color={headingColor}>Descubre el potencial de Serum Box</Heading>
+                    <Heading as="h2" size="xl" color={headingColor}>{t.features.discover}</Heading>
                     <Box width="full">
                         <Image 
                             src={features[currentFeature].image} 

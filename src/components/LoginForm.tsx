@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, Flex, useToast } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
-import { FcGoogle } from 'react-icons/fc'; // Importamos el icono de Google
+import { FcGoogle } from 'react-icons/fc';
 
 export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
   const [email, setEmail] = useState('');
@@ -25,15 +25,15 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
 
     if (result?.error) {
       toast({
-        title: "Error de inicio de sesión",
-        description: "Email o contraseña incorrectos. Por favor, inténtalo de nuevo.",
+        title: "Login Error",
+        description: "Incorrect email or password. Please try again.",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "top",
       });
     } else {
-      // Redirigir al dashboard
+      // Redirect to dashboard
       window.location.href = '/dashboard';
     }
   };
@@ -56,7 +56,7 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
           margin="auto"
         />
         <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
-          Comienza tu experiencia
+          Start your experience
         </Text>
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
@@ -65,7 +65,7 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
               <Input type="email" textColor="gray.800" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </FormControl>
             <FormControl>
-              <FormLabel color="black">Contraseña</FormLabel>
+              <FormLabel color="black">Password</FormLabel>
               <Input type="password" textColor="gray.800" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </FormControl>
             <Button 
@@ -73,9 +73,9 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
               colorScheme="teal" 
               width="full" 
               isLoading={isLoading}
-              loadingText="Iniciando sesión"
+              loadingText="Signing in"
             >
-              Iniciar Sesión
+              Sign In
             </Button>
           </VStack>
         </form>
@@ -90,11 +90,11 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         >
           <Flex align="center" justify="center" width="100%">
             <FcGoogle size="20px" />
-            <Text ml={2}>Iniciar con Google</Text>
+            <Text ml={2}>Sign in with Google</Text>
           </Flex>
         </Button>
         <Text textAlign="center" color="gray.500" fontSize="sm">
-          ¿No tienes una cuenta? <Link color="teal.500" onClick={onSwitchToRegister}>Regístrate aquí</Link>
+          Don&apos;t have an account? <Link color="teal.500" onClick={onSwitchToRegister}>Register here</Link>
         </Text>
       </VStack>
     </Box>

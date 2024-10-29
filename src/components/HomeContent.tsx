@@ -10,8 +10,13 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import Link from 'next/link';
+import { useLanguage } from '@/hooks/useLanguage';
+import { translations } from '@/lib/translations';
 
 export default function HomeContent() {
+  const { language } = useLanguage();
+  const t = translations[language as 'en' | 'es'];
+  
   const bgGradient = useColorModeValue(
     'linear(to-r, teal.300, green.200)',
     'linear(to-r, teal.700, green.600)'
@@ -25,7 +30,7 @@ export default function HomeContent() {
       <Container maxW="container.xl">
         <VStack spacing={8} alignItems="center" textAlign="center">
           <Heading as="h1" size="3xl" color={textColor}>
-            Gestiona tus muestras de suero/plasma con Serum Box
+            {t.home.title}
           </Heading>
           <Text
             fontSize="2xl"
@@ -34,10 +39,10 @@ export default function HomeContent() {
             p={4}
             borderRadius="md"
           >
-            Organiza, almacena y analiza tus muestras de suero de manera eficiente
+            {t.home.subtitle}
           </Text>
           <Text fontSize="lg" color={textColor} maxW="2xl">
-            Comienza tu prueba gratuita y prueba todas las funcionalidades para mejorar la administración de tus muestras.
+            {t.home.description}
           </Text>
           <Link href="/login" passHref legacyBehavior>
             <Button
@@ -52,7 +57,7 @@ export default function HomeContent() {
               rel="noopener noreferrer" 
               size="lg"
             >
-              Comenzar prueba
+              {t.home.startTrial}
             </Button>
           </Link>
         </VStack>

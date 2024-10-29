@@ -3,6 +3,8 @@
 import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, Select } from '@chakra-ui/react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/hooks/useLanguage';
+import { translations } from '@/lib/translations';
 
 const CheckIcon = () => (
   <svg
@@ -16,57 +18,49 @@ const CheckIcon = () => (
   </svg>
 );
 
-const plans = [
-  {
-    name: "Gratis",
-    price: "0",
-    features: [
-      "Funciones premium por 15 días",
-      "Hasta 162 muestras",
-      "2 gradillas personalizables",
-      "Soporte por email"
-    ]
-  },
-  {
-    name: "Standard",
-    prices: {
-      3: 3.8,
-      6: 3,
-      12: 2.3
-    },
-    features: [
-      "Hasta 1000 muestras",
-      "5 gradillas personalizables",
-      "Soporte por email prioritario"
-    ]
-  },
-  {
-    name: "Premium",
-    prices: {
-      3: 4.5,
-      6: 3.8,
-      12: 3
-    },
-    features: [
-      "Muestras ilimitadas",
-      "Gradillas ilimitadas",
-      "Soporte por email prioritario"
-    ]
-  }
-];
-
 export default function PricingPlans() {
   const [selectedDuration, setSelectedDuration] = useState<3 | 6 | 12>(3);
+  const { language } = useLanguage();
+  const t = translations[language];
+
   const bgColor = useColorModeValue('green.200', 'green.800');
   const headingColor = useColorModeValue('black', 'white');
   const cardBgColor = useColorModeValue('white', 'gray.700');
   const textColor = useColorModeValue('black', 'white');
   const checkColor = useColorModeValue('green.500', 'green.300');
 
+  const plans = [
+    {
+      name: t.pricing.planNames.free,
+      price: "0",
+      features: t.pricing.features.free
+    },
+    {
+      name: t.pricing.planNames.standard,
+      prices: {
+        3: 3.8,
+        6: 3,
+        12: 2.3
+      },
+      features: t.pricing.features.standard
+    },
+    {
+      name: t.pricing.planNames.premium,
+      prices: {
+        3: 4.5,
+        6: 3.8,
+        12: 3
+      },
+      features: t.pricing.features.premium
+    }
+  ];
+
   return (
     <Box bg={bgColor} py={12}>
       <VStack spacing={8}>
-        <Heading as="h2" color={headingColor} size="xl">Planes de Suscripción</Heading>
+        <Heading as="h2" color={headingColor} size="xl">
+          {t.pricing.title}
+        </Heading>
         <Select
           value={selectedDuration}
           color={textColor}
@@ -74,9 +68,9 @@ export default function PricingPlans() {
           width="auto"
           mb={4}
         >
-          <option value={3}>3 meses</option>
-          <option value={6}>6 meses</option>
-          <option value={12}>12 meses</option>
+          <option value={3}>3 {t.pricing.duration.months}</option>
+          <option value={6}>6 {t.pricing.duration.months}</option>
+          <option value={12}>12 {t.pricing.duration.months}</option>
         </Select>
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} width="full" maxWidth="5xl">
           {plans.map((plan) => (
@@ -86,12 +80,12 @@ export default function PricingPlans() {
                 <Text fontSize="3xl" color={textColor} fontWeight="bold">
                   ${typeof plan.price === 'string' ? plan.price : plan.prices[selectedDuration].toFixed(2)}
                   <Text as="span" fontSize="sm" fontWeight="normal">
-                    {plan.name !== "Gratis" ? `/mes` : ""}
+                    {plan.name !== t.pricing.planNames.free ? t.pricing.duration.perMonth : ""}
                   </Text>
                 </Text>
-                {plan.name !== "Gratis" && (
+                {plan.name !== t.pricing.planNames.free && (
                   <Text fontSize="sm" color={textColor}>
-                    Contratando {selectedDuration} meses
+                    {t.pricing.duration.contractFor} {selectedDuration} {t.pricing.duration.months}
                   </Text>
                 )}
                 <List spacing={3}>
@@ -108,7 +102,7 @@ export default function PricingPlans() {
                 </List>
                 <Link href="/login" passHref legacyBehavior>
                   <Button colorScheme="blue" size="lg">
-                    {plan.name === "Gratis" ? "Comenzar Gratis" : "Comenzar " + plan.name}
+                    {t.pricing.startButton[plan.name.toLowerCase() as keyof typeof t.pricing.startButton]}
                   </Button>
                 </Link>
               </VStack>

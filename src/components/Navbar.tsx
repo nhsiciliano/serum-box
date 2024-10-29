@@ -1,13 +1,16 @@
 'use client';
 
-import { Box, Flex, Button, useColorMode, IconButton, Image } from '@chakra-ui/react';
-import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { Box, Flex, Button, useColorMode, IconButton, Image, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { MoonIcon, SunIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { translations } from '@/lib/translations';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { colorMode, toggleColorMode } = useColorMode();
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +20,20 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const getButtonStyles = (isScrolled: boolean, colorMode: string) => ({
+    bg: isScrolled 
+      ? (colorMode === 'light' ? 'teal.500' : 'teal.200') 
+      : (colorMode === 'light' ? 'white' : 'gray.800'),
+    color: isScrolled 
+      ? (colorMode === 'light' ? 'white' : 'gray.800') 
+      : (colorMode === 'light' ? 'teal.500' : 'teal.200'),
+    _hover: {
+      bg: isScrolled 
+        ? (colorMode === 'light' ? 'teal.600' : 'teal.300')
+        : (colorMode === 'light' ? 'gray.100' : 'gray.700'),
+    }
+  });
 
   return (
     <Box
@@ -60,7 +77,7 @@ export default function Navbar() {
             />
           </Box>
         </Link>
-        <Flex alignItems="center">
+        <Flex alignItems="center" gap={4}>
           <IconButton
             aria-label="Toggle color mode"
             icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
@@ -68,26 +85,33 @@ export default function Navbar() {
             size="md"
             variant="ghost"
             color={isScrolled ? (colorMode === 'light' ? 'gray.800' : 'white') : 'white'}
-            mr={4}
           />
+          
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<ChevronDownIcon />}
+              {...getButtonStyles(isScrolled, colorMode)}
+              variant="ghost"
+            >
+              {language === 'en' ? 'EN' : 'ES'}
+            </MenuButton>
+            <MenuList>
+              <MenuItem color="teal.500" onClick={() => setLanguage('en')}>English</MenuItem>
+              <MenuItem color="teal.500" onClick={() => setLanguage('es')}>Spanish</MenuItem>
+            </MenuList>
+          </Menu>
+
           <Link href="/login" passHref legacyBehavior>
             <Button
               as="a"
-              bg={isScrolled ? (colorMode === 'light' ? 'teal.500' : 'teal.200') : (colorMode === 'light' ? 'white' : 'gray.800')}
-              color={isScrolled ? (colorMode === 'light' ? 'white' : 'gray.800') : (colorMode === 'light' ? 'teal.500' : 'teal.200')}
-              _hover={{
-                bg: isScrolled 
-                  ? (colorMode === 'light' ? 'teal.600' : 'teal.300')
-                  : (colorMode === 'light' ? 'gray.100' : 'gray.700'),
-              }}
+              {...getButtonStyles(isScrolled, colorMode)}
               size="md"
               fontWeight="bold"
               px={6}
               rounded="md"
-              target="_blank"
-              rel="noopener noreferrer"
             >
-              Comenzar
+              {translations[language as 'en' | 'es'].nav.start}
             </Button>
           </Link>
         </Flex>

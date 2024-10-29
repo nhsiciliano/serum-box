@@ -1,26 +1,13 @@
 "use client"
 
 import { Box, Container, Heading, Text, VStack, SimpleGrid, Avatar, HStack, useColorModeValue } from '@chakra-ui/react';
-
-const testimonials = [
-  {
-    name: "Dra. María García",
-    role: "Investigadora en Inmunología",
-    content: "Serum Box ha transformado la forma en que gestionamos nuestras muestras de suero. La capacidad de personalizar gradillas y registrar información detallada es invaluable para nuestro laboratorio."
-  },
-  {
-    name: "Prof. John Smith",
-    role: "Director de Laboratorio Clínico",
-    content: "La facilidad de uso y la potencia de Serum Box han mejorado significativamente nuestra eficiencia. Ahora podemos rastrear y gestionar miles de muestras sin esfuerzo."
-  },
-  {
-    name: "Dra. Laura Martínez",
-    role: "Coordinadora de Estudios Clínicos",
-    content: "Serum Box ha sido fundamental en la organización de nuestros estudios multicéntricos. La capacidad de acceder a la información de las muestras de forma rápida y precisa ha acelerado nuestros procesos de investigación."
-  }
-];
+import { useLanguage } from '@/hooks/useLanguage';
+import { translations } from '@/lib/translations';
 
 export default function Testimonials() {
+  const { language } = useLanguage();
+  const t = translations[language as 'en' | 'es'];
+
   const bgColor = useColorModeValue('white', 'gray.800');
   const headingColor = useColorModeValue('black', 'white');
   const cardBgColor = useColorModeValue('gray.50', 'gray.700');
@@ -30,17 +17,28 @@ export default function Testimonials() {
     <Box bg={bgColor} py={20}>
       <Container maxW="container.xl">
         <VStack spacing={12}>
-          <Heading as="h2" color={headingColor} size="xl">Lo que dicen nuestros usuarios</Heading>
+          <Heading as="h2" color={headingColor} size="xl">
+            {t.testimonials.title}
+          </Heading>
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
-            {testimonials.map((testimonial, index) => (
+            {t.testimonials.testimonials.map((testimonial, index) => (
               <Box key={index} bg={cardBgColor} p={6} borderRadius="lg" boxShadow="md">
                 <VStack align="start" spacing={4}>
-                  <Text fontSize="md" fontStyle="italic" color={textColor}>"{testimonial.content}"</Text>
+                  <Text fontSize="md" fontStyle="italic" color={textColor}>
+                    &quot;{testimonial.content}&quot;
+                  </Text>
                   <HStack>
-                    <Avatar name={testimonial.name} src={`https://i.pravatar.cc/150?img=${index}`} />
+                    <Avatar 
+                      name={testimonial.name} 
+                      src={`https://i.pravatar.cc/150?img=${index}`} 
+                    />
                     <Box>
-                      <Text fontWeight="bold" color={textColor}>{testimonial.name}</Text>
-                      <Text fontSize="sm" color={textColor}>{testimonial.role}</Text>
+                      <Text fontWeight="bold" color={textColor}>
+                        {testimonial.name}
+                      </Text>
+                      <Text fontSize="sm" color={textColor}>
+                        {testimonial.role}
+                      </Text>
                     </Box>
                   </HStack>
                 </VStack>

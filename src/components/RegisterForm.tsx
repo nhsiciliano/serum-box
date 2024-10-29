@@ -25,7 +25,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
     if (password !== confirmPassword) {
       toast({
         title: "Error",
-        description: "Las contraseñas no coinciden",
+        description: "Passwords do not match",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -36,7 +36,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
     if (!validatePassword(password)) {
       toast({
         title: "Error",
-        description: "La contraseña debe tener al menos 6 caracteres, incluir letras, números y al menos un carácter especial",
+        description: "Password must be at least 6 characters long and include letters, numbers, and at least one special character",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -59,8 +59,8 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         });
 
         toast({
-          title: "Registro exitoso",
-          description: "Por favor, verifica tu correo electrónico",
+          title: "Registration successful",
+          description: "Please verify your email",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -69,13 +69,13 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       } else {
         const data = await registerResponse.json();
-        throw new Error(data.message || 'Error en el registro');
+        throw new Error(data.message || 'Registration error');
       }
     } catch (error) {
       console.error(error);
       toast({
         title: "Error",
-        description: "No se pudo completar el registro",
+        description: "Registration could not be completed",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -99,14 +99,15 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
           margin="auto"
         />
         <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
-          Crea tu cuenta
+          Create your account
         </Text>
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
             <FormControl>
-              <FormLabel color="black">Nombre</FormLabel>
+              <FormLabel color="black">Name</FormLabel>
               <Input 
                 type="text" 
+                placeholder="Michael Scott"
                 textColor="gray.800" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
@@ -117,6 +118,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
               <FormLabel color="black">Email</FormLabel>
               <Input 
                 type="email" 
+                placeholder="michaelscott@gmail.com"
                 textColor="gray.800" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
@@ -124,18 +126,18 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
               />
             </FormControl>
             <FormControl>
-              <FormLabel color="black">Contraseña</FormLabel>
-              <Input type="password" textColor="gray.800" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <FormLabel color="black">Password</FormLabel>
+              <Input type="password" placeholder='********' textColor="gray.800" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </FormControl>
             <FormControl>
-              <FormLabel color="black">Confirmar Contraseña</FormLabel>
-              <Input type="password" textColor="gray.800" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+              <FormLabel color="black">Confirm Password</FormLabel>
+              <Input type="password" placeholder='********' textColor="gray.800" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
             </FormControl>
-            <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Registrarse</Button>
+            <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Register</Button>
           </VStack>
         </form>
         <Text textAlign="center" color="gray.500" fontSize="sm">
-          ¿Ya tienes una cuenta? <Link color="teal.500" onClick={onSwitchToLogin}>Inicia sesión aquí</Link>
+          Already have an account? <Link color="teal.500" onClick={onSwitchToLogin}>Sign in here</Link>
         </Text>
       </VStack>
     </Box>
