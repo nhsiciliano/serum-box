@@ -248,6 +248,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                     </InputLeftElement>
                                     <Input
                                         placeholder='Buscar en todos los campos...'
+                                        color="gray.800"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         mb={4}

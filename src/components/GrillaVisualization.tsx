@@ -30,13 +30,41 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedPosition, setSelectedPosition] = useState('');
 
+    const getNextPosition = (currentPosition: string) => {
+        const currentRow = currentPosition.charAt(0);
+        const currentCol = parseInt(currentPosition.slice(1));
+        
+        // Si estamos en la última columna de la fila actual
+        if (currentCol === columns[columns.length - 1]) {
+            // Encontrar la siguiente fila disponible
+            const currentRowIndex = rows.indexOf(currentRow);
+            if (currentRowIndex < rows.length - 1) {
+                const nextRow = rows[currentRowIndex + 1];
+                const nextPosition = `${nextRow}${columns[0]}`;
+                // Verificar si la posición está ocupada
+                if (!tubes.some(tube => tube.position === nextPosition)) {
+                    return nextPosition;
+                }
+            }
+        } else {
+            // Avanzar a la siguiente columna en la misma fila
+            const nextCol = currentCol + 1;
+            const nextPosition = `${currentRow}${nextCol}`;
+            // Verificar si la posición está ocupada
+            if (!tubes.some(tube => tube.position === nextPosition)) {
+                return nextPosition;
+            }
+        }
+        
+        // Si no se encuentra una siguiente posición disponible
+        return null;
+    };
+
     const handleCellClick = (position: string) => {
         const tube = tubes.find(t => t.position === position);
         if (tube) {
-            // Si hay un tubo, lo eliminamos
             onTubeRemove(tube.id);
         } else {
-            // Si no hay tubo, abrimos el modal para añadir uno
             setSelectedPosition(position);
             onOpen();
         }
@@ -46,9 +74,19 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
         return tubes.some(tube => tube.position === position) ? 'red.500' : 'green.500';
     };
 
-    const handleTubeAdd = (tube: Omit<Tube, 'id'>) => {
-        onTubeAdd(tube);
-        onClose();
+    const handleTubeAdd = async (tube: Omit<Tube, 'id'>, shouldContinue: boolean) => {
+        await onTubeAdd(tube);
+        
+        if (shouldContinue) {
+            const nextPos = getNextPosition(tube.position);
+            if (nextPos) {
+                setSelectedPosition(nextPos);
+            } else {
+                onClose();
+            }
+        } else {
+            onClose();
+        }
     };
 
     const getTubeInfo = (position: string) => {
@@ -64,9 +102,11 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
     };
 
     return (
-        <VStack spacing={4} align="stretch">
-            <Text fontSize="2xl" color="gray.500" fontWeight="bold">{title}</Text>
-            <Grid templateColumns={`auto repeat(${columns.length}, 1fr)`} gap={1}>
+        <Box>
+            <Text fontSize="2xl" fontWeight="bold" mb={4} color="gray.700">
+                {title}
+            </Text>
+            <Grid templateColumns={`auto repeat(${columns.length}, 1fr)`} gap={2}>
                 <GridItem></GridItem>
                 {columns.map(col => (
                     <GridItem key={col} textAlign="center">{col}</GridItem>
@@ -102,14 +142,16 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
                     </React.Fragment>
                 ))}
             </Grid>
+            
             <TubeModal
                 isOpen={isOpen}
                 onClose={onClose}
                 position={selectedPosition}
                 fields={fields}
                 onTubeAdd={handleTubeAdd}
+                nextPosition={getNextPosition(selectedPosition)}
             />
-        </VStack>
+        </Box>
     );
 };
 

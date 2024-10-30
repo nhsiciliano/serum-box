@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+"use client"
+
+import { useEffect, useState } from 'react';
 import {
     Modal,
     ModalOverlay,
@@ -12,29 +14,33 @@ import {
     FormLabel,
     Input,
     VStack,
+    Checkbox,
 } from '@chakra-ui/react';
-
-interface Tube {
-    id?: string;
-    position: string;
-    data: Record<string, string>;
-}
 
 interface TubeModalProps {
     isOpen: boolean;
     onClose: () => void;
     position: string;
     fields: string[];
-    onTubeAdd: (tube: Tube) => void;
+    onTubeAdd: (tube: { position: string; data: Record<string, string> }, continueToNext: boolean) => void;
+    nextPosition?: string;
 }
 
-const TubeModal: React.FC<TubeModalProps> = ({ isOpen, onClose, position, fields, onTubeAdd }) => {
+const TubeModal: React.FC<TubeModalProps> = ({ 
+    isOpen, 
+    onClose, 
+    position, 
+    fields, 
+    onTubeAdd,
+    nextPosition 
+}) => {
     const [tubeData, setTubeData] = useState<Record<string, string>>({});
+    const [continueToNext, setContinueToNext] = useState(true);
 
     useEffect(() => {
-        // Reiniciar los datos del tubo cuando se abre el modal
         if (isOpen) {
             setTubeData({});
+            setContinueToNext(true);
         }
     }, [isOpen]);
 
@@ -46,15 +52,20 @@ const TubeModal: React.FC<TubeModalProps> = ({ isOpen, onClose, position, fields
     };
 
     const handleSubmit = () => {
-        onTubeAdd({ position, data: tubeData });
-        onClose();
+        onTubeAdd({ position, data: tubeData }, continueToNext);
+        
+        if (!continueToNext || !nextPosition) {
+            onClose();
+        } else {
+            setTubeData({});
+        }
     };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader color="gray.800">Agregar tubo en posición {position}</ModalHeader>
+                <ModalHeader color="gray.800">Add tube at position {position}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                     <VStack spacing={4}>
@@ -65,17 +76,26 @@ const TubeModal: React.FC<TubeModalProps> = ({ isOpen, onClose, position, fields
                                     value={tubeData[field] || ''}
                                     color="black"
                                     onChange={(e) => handleInputChange(field, e.target.value)}
-                                    placeholder={`Ingrese ${field}`}
+                                    placeholder={`Enter ${field}`}
                                 />
                             </FormControl>
                         ))}
+                        {nextPosition && (
+                            <Checkbox 
+                                isChecked={continueToNext} 
+                                onChange={(e) => setContinueToNext(e.target.checked)}
+                                color="gray.800"
+                            >
+                                Continue to position {nextPosition}
+                            </Checkbox>
+                        )}
                     </VStack>
                 </ModalBody>
                 <ModalFooter>
                     <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-                        Guardar
+                        Save
                     </Button>
-                    <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>
