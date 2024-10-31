@@ -19,57 +19,52 @@ import { useSession } from 'next-auth/react';
 import { getRemainingDays, formatDate, isTrialExpired } from '@/lib/dateUtils';
 import { PlanInfo } from '@/components/PlanInfo';
 import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
+import { Plan, PLAN_LIMITS } from '@/types/plans';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-const handleSubscription = async (priceId: string) => {
+const handleSubscription = async (priceId: string, planType: string) => {
     try {
         const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ priceId }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                priceId,
+                planType: planType.toLowerCase(),
+                duration: selectedDuration
+            }),
         });
+
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
         const { sessionId } = await response.json();
         const stripe = await stripePromise;
-
+        
         if (stripe) {
             const { error } = await stripe.redirectToCheckout({ sessionId });
-            if (error) {
-                console.error(error);
-            }
+            if (error) throw error;
         }
     } catch (error) {
         console.error('Error:', error);
+        toast({
+            title: "Error",
+            description: "No se pudo procesar el pago. Por favor, intenta de nuevo.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
     }
 };
 
-interface PlanPrices {
-    3: { price: number; priceId: string };
-    6: { price: number; priceId: string };
-    12: { price: number; priceId: string };
-}
-
-interface Plan {
-    name: string;
-    description: string;
-    prices?: PlanPrices;
-    price?: string;
-    priceId?: string;
-}
-
 const plans: Plan[] = [
     {
-        name: "Gratuito",
-        description: "2 gradillas personalizables, máximo 162 tubos en total",
-        price: "Gratis",
-        priceId: "price_free" // Este ID no se usará realmente para pagos
+        name: 'free',
+        description: `${PLAN_LIMITS.free.maxGrids} gradillas personalizables, máximo ${PLAN_LIMITS.free.maxTubes} tubos en total`,
+        price: "Gratis"
     },
     {
-        name: "Standard",
-        description: "5 gradillas personalizables, máximo 1000 tubos en total",
+        name: 'standard',
+        description: `${PLAN_LIMITS.standard.maxGrids} gradillas personalizables, máximo ${PLAN_LIMITS.standard.maxTubes} tubos en total`,
         prices: {
             3: { price: 3.8, priceId: "price_1Q8SYJGpIdSNVSdh4fcsMmRL" },
             6: { price: 3, priceId: "price_1Q8SZGGpIdSNVSdhoyBhQJiG" },
@@ -77,14 +72,14 @@ const plans: Plan[] = [
         }
     },
     {
-        name: "Premium",
+        name: 'premium',
         description: "Gradillas y tubos ilimitados",
         prices: {
             3: { price: 4.5, priceId: "price_1Q8SamGpIdSNVSdhRkzld6me" },
             6: { price: 3.8, priceId: "price_1Q8SbSGpIdSNVSdhXMmnIUa3" },
             12: { price: 3, priceId: "price_1Q8ScGGpIdSNVSdhEOrr0zdU" }
         }
-    },
+    }
 ];
 
 export default function AdminCuenta() {
@@ -140,8 +135,7 @@ export default function AdminCuenta() {
                 return;
             }
 
-            if (selectedPlanData.name === 'Gratuito') {
-                // Lógica para cambiar a plan gratuito
+            if (selectedPlanData.name === 'free') {
                 await fetch('/api/update-plan', {
                     method: 'POST',
                     headers: {
@@ -149,7 +143,8 @@ export default function AdminCuenta() {
                     },
                     body: JSON.stringify({
                         userId: session.user.id,
-                        planType: 'free'
+                        planType: selectedPlanData.name,
+                        ...PLAN_LIMITS.free
                     }),
                 });
                 return;
@@ -157,10 +152,17 @@ export default function AdminCuenta() {
 
             if (selectedPlanData.prices) {
                 const priceId = selectedPlanData.prices[selectedDuration].priceId;
-                await handleSubscription(priceId);
+                await handleSubscription(priceId, selectedPlanData.name);
             }
         } catch (error) {
             console.error('Error al cambiar el plan:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo cambiar el plan. Por favor, intenta de nuevo.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -330,3 +332,7 @@ export default function AdminCuenta() {
         </Box>
     );
 }
+function toast(arg0: { title: string; description: string; status: string; duration: number; isClosable: boolean; }) {
+    throw new Error('Function not implemented.');
+}
+

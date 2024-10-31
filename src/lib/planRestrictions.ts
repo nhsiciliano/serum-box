@@ -1,36 +1,7 @@
-export interface PlanRestrictions {
-    maxGrids: number;
-    maxTubes: number;
-    isUnlimited: boolean;
-}
+import { PlanType, PlanLimits, PLAN_LIMITS } from '@/types/plans';
 
-export function getPlanRestrictions(planType: string): PlanRestrictions {
-    switch (planType) {
-        case 'free':
-            return {
-                maxGrids: 2,
-                maxTubes: 162,
-                isUnlimited: false
-            };
-        case 'standard':
-            return {
-                maxGrids: 5,
-                maxTubes: 1000,
-                isUnlimited: false
-            };
-        case 'premium':
-            return {
-                maxGrids: Infinity,
-                maxTubes: Infinity,
-                isUnlimited: true
-            };
-        default:
-            return {
-                maxGrids: 2,
-                maxTubes: 162,
-                isUnlimited: false
-            };
-    }
+export function getPlanRestrictions(planType: PlanType): PlanLimits {
+    return PLAN_LIMITS[planType] || PLAN_LIMITS.free;
 }
 
 export function isInTrialPeriod(planStartDate: Date): boolean {
@@ -41,18 +12,18 @@ export function isInTrialPeriod(planStartDate: Date): boolean {
 
 interface User {
     id: string;
-    planType: string;
+    planType: PlanType;
     planStartDate: Date;
 }
 
-export function getUserPlanRestrictions(user: User): PlanRestrictions {
+export function getUserPlanRestrictions(user: User): PlanLimits {
     if (!user || !user.planStartDate) {
-        return getPlanRestrictions('free');
+        return PLAN_LIMITS.free;
     }
 
     if (isInTrialPeriod(user.planStartDate)) {
-        return getPlanRestrictions('premium');
+        return PLAN_LIMITS.premium;
     }
     
-    return getPlanRestrictions(user.planType);
+    return PLAN_LIMITS[user.planType] || PLAN_LIMITS.free;
 }

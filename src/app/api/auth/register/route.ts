@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { PLAN_LIMITS } from '@/types/plans';
 
 export async function POST(req: Request) {
     try {
@@ -21,9 +22,7 @@ export async function POST(req: Request) {
                 password: hashedPassword,
                 planType: 'premium',
                 planStartDate: new Date(),
-                isUnlimited: true,
-                maxGrids: 999999, // Usar un número grande en lugar de Infinity
-                maxTubes: 999999  // Usar un número grande en lugar de Infinity
+                ...PLAN_LIMITS.premium
             }
         });
 

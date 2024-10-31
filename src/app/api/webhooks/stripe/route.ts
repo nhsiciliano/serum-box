@@ -1,109 +1,146 @@
 import { NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/mongodb';
 import Stripe from 'stripe';
-import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
-
+import { ObjectId } from 'mongodb';
+import { PLAN_LIMITS, PlanType } from '@/types/plans';
 
 if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('La variable de entorno STRIPE_SECRET_KEY no está definida');
+    throw new Error('STRIPE_SECRET_KEY no está definida');
 }
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2024-09-30.acacia',
 });
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
 export async function POST(req: Request) {
     const payload = await req.text();
-    const sig = req.headers.get('stripe-signature');
-
-    if (!sig || !endpointSecret) {
-        return NextResponse.json(
-            { error: 'Falta stripe-signature o webhook secret' },
-            { status: 400 }
-        );
-    }
-
-    let event: Stripe.Event;
+    const sig = req.headers.get('stripe-signature')!;
+    let event;
 
     try {
-        event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
-    } catch (error) {
-        console.error('Error al verificar webhook:', error instanceof Error ? error.message : 'Error desconocido');
-        return NextResponse.json(
-            { error: 'Error al verificar webhook' },
-            { status: 400 }
+        event = stripe.webhooks.constructEvent(
+            payload,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET!
         );
+    } catch (err) {
+        console.error('Error al verificar webhook:', err);
+        return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
     }
+
+    const { db } = await connectToDatabase();
 
     try {
         switch (event.type) {
             case 'checkout.session.completed': {
                 const session = event.data.object as Stripe.Checkout.Session;
-
+                
                 if (!session.client_reference_id) {
-                    throw new Error('No se encontró client_reference_id en la sesión');
+                    throw new Error('No se encontró client_reference_id');
                 }
 
-                const updateData: Prisma.UserUpdateInput = {
-                    planType: session.metadata?.planType as 'free' | 'standard' | 'premium' || 'standard',
-                    planStartDate: new Date(),
-                    planEndDate: session.metadata?.planEndDate 
-                        ? new Date(session.metadata.planEndDate) 
-                        : null,
-                    stripeCustomerId: typeof session.customer === 'string' 
-                        ? session.customer 
-                        : session.customer?.toString()
-                };
+                const planType = (session.metadata?.planType as PlanType) || 'standard';
+                const limits = PLAN_LIMITS[planType];
 
-                await prisma.user.update({
-                    where: { id: session.client_reference_id },
-                    data: updateData
-                });
-                break;
-            }
-
-            case 'customer.subscription.updated': {
-                const subscription = event.data.object as Stripe.Subscription;
-                if (subscription.customer) {
-                    const customerId = typeof subscription.customer === 'string' 
-                        ? subscription.customer 
-                        : subscription.customer.id;
-                    
-                    const user = await prisma.user.findFirst({
-                        where: { stripeCustomerId: customerId }
-                    });
-
-                    if (user) {
-                        // Implementar lógica de actualización si es necesario
-                        console.log('Subscription updated for user:', user.id);
+                await db.collection('User').updateOne(
+                    { _id: new ObjectId(session.client_reference_id) },
+                    {
+                        $set: {
+                            planType: planType,
+                            planStartDate: new Date(),
+                            planEndDate: session.metadata?.planEndDate 
+                                ? new Date(session.metadata.planEndDate) 
+                                : null,
+                            stripeCustomerId: session.customer,
+                            stripeSubscriptionId: session.subscription,
+                            ...limits
+                        }
                     }
-                }
+                );
                 break;
             }
 
-            case 'customer.subscription.deleted': {
+            case 'customer.subscription.deleted':
+            case 'customer.subscription.expired': {
                 const subscription = event.data.object as Stripe.Subscription;
                 const customerId = typeof subscription.customer === 'string' 
                     ? subscription.customer 
                     : subscription.customer.id;
 
-                await prisma.user.updateMany({
-                    where: { stripeCustomerId: customerId },
-                    data: {
-                        planType: 'free',
-                        planEndDate: new Date()
+                await db.collection('User').updateMany(
+                    { stripeCustomerId: customerId },
+                    {
+                        $set: {
+                            planType: 'free',
+                            planEndDate: new Date(),
+                            stripeSubscriptionId: null,
+                            maxGrids: 2,
+                            maxTubes: 162,
+                            isUnlimited: false
+                        }
                     }
+                );
+                break;
+            }
+
+            case 'invoice.payment_failed': {
+                const invoice = event.data.object as Stripe.Invoice;
+                const customerId = typeof invoice.customer === 'string'
+                    ? invoice.customer
+                    : invoice.customer.id;
+
+                // Obtener el usuario
+                const user = await db.collection('users').findOne({
+                    stripeCustomerId: customerId
                 });
+
+                if (user) {
+                    // Aquí podrías implementar la lógica de notificación
+                    console.log('Payment failed for user:', user._id);
+                    
+                    // Opcional: Actualizar el estado del usuario o agregar una marca de pago fallido
+                    await db.collection('User').updateOne(
+                        { _id: user._id },
+                        {
+                            $set: {
+                                lastPaymentFailed: true,
+                                lastPaymentFailedDate: new Date()
+                            }
+                        }
+                    );
+                }
+                break;
+            }
+
+            case 'customer.subscription.updated': {
+                const subscription = event.data.object as Stripe.Subscription;
+                const customerId = typeof subscription.customer === 'string'
+                    ? subscription.customer
+                    : subscription.customer.id;
+
+                // Obtener el plan actual del metadata de la suscripción
+                const planType = (subscription.metadata?.planType as PlanType) || 'standard';
+                const limits = PLAN_LIMITS[planType];
+
+                await db.collection('User').updateOne(
+                    { stripeCustomerId: customerId },
+                    {
+                        $set: {
+                            planType: planType,
+                            ...limits,
+                            lastPaymentFailed: false // Limpiar la marca de pago fallido si existe
+                        }
+                    }
+                );
                 break;
             }
         }
 
         return NextResponse.json({ received: true });
     } catch (error) {
-        console.error('Error procesando webhook:', error instanceof Error ? error.message : 'Error desconocido');
+        console.error('Error procesando webhook:', error);
         return NextResponse.json(
-            { error: 'Error interno del servidor' },
+            { error: 'Error procesando webhook' },
             { status: 500 }
         );
     }
