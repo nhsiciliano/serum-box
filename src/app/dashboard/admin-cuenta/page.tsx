@@ -23,26 +23,34 @@ import { Plan, PLAN_LIMITS } from '@/types/plans';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-const handleSubscription = async (priceId: string, planType: string) => {
+const handleSubscription = async (priceId: string, planType: string, selectedDuration: 3 | 6 | 12, userId: string) => {
     try {
         const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 priceId,
-                planType: planType.toLowerCase(),
-                duration: selectedDuration
+                planType,
+                duration: selectedDuration,
+                userId: userId
             }),
         });
 
-        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en la respuesta del servidor');
+        }
 
         const { sessionId } = await response.json();
         const stripe = await stripePromise;
         
-        if (stripe) {
-            const { error } = await stripe.redirectToCheckout({ sessionId });
-            if (error) throw error;
+        if (!stripe) {
+            throw new Error('No se pudo inicializar Stripe');
+        }
+
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+        if (error) {
+            throw error;
         }
     } catch (error) {
         console.error('Error:', error);
@@ -152,7 +160,7 @@ export default function AdminCuenta() {
 
             if (selectedPlanData.prices) {
                 const priceId = selectedPlanData.prices[selectedDuration].priceId;
-                await handleSubscription(priceId, selectedPlanData.name);
+                await handleSubscription(priceId, selectedPlanData.name, selectedDuration, session.user.id);
             }
         } catch (error) {
             console.error('Error al cambiar el plan:', error);

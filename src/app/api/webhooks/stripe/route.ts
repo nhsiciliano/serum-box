@@ -34,29 +34,61 @@ export async function POST(req: Request) {
         switch (event.type) {
             case 'checkout.session.completed': {
                 const session = event.data.object as Stripe.Checkout.Session;
+                console.log('Webhook: checkout.session.completed', {
+                    clientReferenceId: session.client_reference_id,
+                    planType: session.metadata?.planType,
+                    customerId: session.customer,
+                    subscriptionId: session.subscription
+                });
                 
                 if (!session.client_reference_id) {
                     throw new Error('No se encontró client_reference_id');
                 }
 
-                const planType = (session.metadata?.planType as PlanType) || 'standard';
-                const limits = PLAN_LIMITS[planType];
+                const planType = session.metadata?.planType as PlanType;
+                if (!planType) {
+                    throw new Error('No se encontró el tipo de plan en metadata');
+                }
 
-                await db.collection('User').updateOne(
+                const limits = PLAN_LIMITS[planType];
+                const duration = parseInt(session.metadata?.duration || '3');
+
+                // Calcular fecha de fin del plan
+                const planEndDate = new Date();
+                planEndDate.setMonth(planEndDate.getMonth() + duration);
+
+                const updateResult = await db.collection('User').updateOne(
                     { _id: new ObjectId(session.client_reference_id) },
                     {
                         $set: {
-                            planType: planType,
+                            planType,
                             planStartDate: new Date(),
-                            planEndDate: session.metadata?.planEndDate 
-                                ? new Date(session.metadata.planEndDate) 
-                                : null,
+                            planEndDate,
                             stripeCustomerId: session.customer,
                             stripeSubscriptionId: session.subscription,
+                            lastPaymentFailed: false,
                             ...limits
                         }
                     }
                 );
+
+                if (updateResult.modifiedCount === 0) {
+                    console.error('No se pudo actualizar el usuario:', session.client_reference_id);
+                    throw new Error('No se pudo actualizar el usuario');
+                }
+
+                // Registrar la transacción
+                await db.collection('Transactions').insertOne({
+                    userId: new ObjectId(session.client_reference_id),
+                    planType,
+                    amount: session.amount_total ? session.amount_total / 100 : 0,
+                    currency: session.currency,
+                    status: 'completed',
+                    date: new Date(),
+                    stripeSessionId: session.id,
+                    metadata: session.metadata
+                });
+
                 break;
             }
 
@@ -90,7 +122,7 @@ export async function POST(req: Request) {
                     : invoice.customer.id;
 
                 // Obtener el usuario
-                const user = await db.collection('users').findOne({
+                const user = await db.collection('User').findOne({
                     stripeCustomerId: customerId
                 });
 

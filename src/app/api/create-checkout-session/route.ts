@@ -21,10 +21,6 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
         }
 
-        // Calcular fecha de fin del plan
-        const planEndDate = new Date();
-        planEndDate.setMonth(planEndDate.getMonth() + duration);
-
         const checkoutSession = await stripe.checkout.sessions.create({
             mode: 'subscription',
             payment_method_types: ['card'],
@@ -35,7 +31,13 @@ export async function POST(req: Request) {
             metadata: {
                 planType,
                 duration: duration.toString(),
-                planEndDate: planEndDate.toISOString()
+                userId: session.user.id
+            },
+            subscription_data: {
+                metadata: {
+                    planType,
+                    userId: session.user.id
+                }
             }
         });
 
