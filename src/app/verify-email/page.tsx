@@ -24,18 +24,18 @@ export default function VerifyEmail() {
             const data = await response.json();
             if (response.ok) {
                 toast({
-                    title: "Cuenta verificada",
-                    description: "Tu cuenta ha sido verificada exitosamente",
+                    title: "Account verified",
+                    description: "Your account has been successfully verified",
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
                 router.push('/dashboard');
             } else {
-                throw new Error(data.message || 'Error al verificar el correo electrónico');
+                throw new Error(data.message || 'Error verifying email');
             }
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Error desconocido al verificar el correo electrónico';
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error verifying email';
             toast({
                 title: "Error",
                 description: errorMessage,
@@ -52,18 +52,18 @@ export default function VerifyEmail() {
         <Box maxWidth="400px" margin="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
             <VStack spacing={6} align="stretch">
                 <Text fontSize="xl" fontWeight="bold" color="teal.500" textAlign="center">
-                    Verifica tu correo electrónico
+                    Verify your email
                 </Text>
                 <Text color="gray.600" textAlign="center">
-                    Se ha enviado un código de verificación a {email}. Por favor, ingresa el código a continuación.
+                    A verification code has been sent to {email}. Please enter the code below.
                 </Text>
                 <form onSubmit={handleSubmit}>
                     <VStack spacing={4}>
                         <FormControl>
-                            <FormLabel color="gray.600">Código de verificación</FormLabel>
+                            <FormLabel color="gray.600">Verification code</FormLabel>
                             <Input type="text" color="gray.600" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} required />
                         </FormControl>
-                        <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Verificar</Button>
+                        <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Verify</Button>
                     </VStack>
                 </form>
             </VStack>

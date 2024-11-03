@@ -78,8 +78,8 @@ export default function DashboardLayout({
             await signOut({ redirect: false });
             router.push('/');
             toast({
-                title: "Sesión cerrada",
-                description: "Has cerrado sesión exitosamente.",
+                title: "Signed out",
+                description: "You have successfully signed out.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -87,19 +87,19 @@ export default function DashboardLayout({
         } catch (error: unknown) {
             toast({
                 title: "Error",
-                description: "Hubo un problema al cerrar sesión. Por favor, intenta de nuevo.",
+                description: "There was a problem signing out. Please try again.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
             });
-            console.error('Error al cerrar sesión:', error);
+            console.error('Error signing out:', error);
         }
     };
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     if (status === 'loading') {
-        return <div>Cargando...</div>;
+        return <div>Loading...</div>;
     }
 
     if (!session) {
@@ -109,9 +109,9 @@ export default function DashboardLayout({
     return (
         <ChakraProvider theme={theme}>
             <Flex h="100vh" bg="white" overflow="hidden">
-                {/* Botón de menú móvil */}
+                {/* Mobile menu button */}
                 <IconButton
-                    aria-label="Abrir menú"
+                    aria-label="Open menu"
                     icon={<FiMenu />}
                     onClick={toggleMenu}
                     display={{ base: "flex", md: "none" }}
@@ -145,14 +145,14 @@ export default function DashboardLayout({
                                 mr={3}
                             />
                         </Flex>
-                        <NavItem icon={FiHome} href="/dashboard">Inicio</NavItem>
-                        <NavItem icon={FiDatabase} href="/dashboard/create-grilla">Crear Gradilla</NavItem>
-                        <NavItem icon={FiSettings} href="/dashboard/admin-cuenta">Administrar Cuenta</NavItem>
-                        <NavItem icon={FiLogOut} onClick={handleSignOut}>Cerrar Sesión</NavItem>
+                        <NavItem icon={FiHome} href="/dashboard">Home</NavItem>
+                        <NavItem icon={FiDatabase} href="/dashboard/create-grilla">Create Grid</NavItem>
+                        <NavItem icon={FiSettings} href="/dashboard/admin-cuenta">Manage Account</NavItem>
+                        <NavItem icon={FiLogOut} onClick={handleSignOut}>Sign Out</NavItem>
                     </VStack>
                 </Box>
 
-                {/* Contenido principal */}
+                {/* Main content */}
                 <Box 
                     flex={1}
                     ml={{ base: 0, md: "250px" }}

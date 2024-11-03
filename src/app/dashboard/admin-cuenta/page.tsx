@@ -56,7 +56,7 @@ const handleSubscription = async (priceId: string, planType: string, selectedDur
         console.error('Error:', error);
         toast({
             title: "Error",
-            description: "No se pudo procesar el pago. Por favor, intenta de nuevo.",
+            description: "Payment could not be processed. Please try again.",
             status: "error",
             duration: 5000,
             isClosable: true,
@@ -67,12 +67,12 @@ const handleSubscription = async (priceId: string, planType: string, selectedDur
 const plans: Plan[] = [
     {
         name: 'free',
-        description: `${PLAN_LIMITS.free.maxGrids} gradillas personalizables, máximo ${PLAN_LIMITS.free.maxTubes} tubos en total`,
-        price: "Gratis"
+        description: `${PLAN_LIMITS.free.maxGrids} customizable grids, maximum ${PLAN_LIMITS.free.maxTubes} tubes in total`,
+        price: "Free"
     },
     {
         name: 'standard',
-        description: `${PLAN_LIMITS.standard.maxGrids} gradillas personalizables, máximo ${PLAN_LIMITS.standard.maxTubes} tubos en total`,
+        description: `${PLAN_LIMITS.standard.maxGrids} customizable grids, maximum ${PLAN_LIMITS.standard.maxTubes} tubes in total`,
         prices: {
             3: { price: 3.8, priceId: "price_1Q8SYJGpIdSNVSdh4fcsMmRL" },
             6: { price: 3, priceId: "price_1Q8SZGGpIdSNVSdhoyBhQJiG" },
@@ -81,7 +81,7 @@ const plans: Plan[] = [
     },
     {
         name: 'premium',
-        description: "Gradillas y tubos ilimitados",
+        description: "Unlimited grids and tubes",
         prices: {
             3: { price: 4.5, priceId: "price_1Q8SamGpIdSNVSdhRkzld6me" },
             6: { price: 3.8, priceId: "price_1Q8SbSGpIdSNVSdhXMmnIUa3" },
@@ -92,7 +92,7 @@ const plans: Plan[] = [
 
 export default function AdminCuenta() {
     const { data: session } = useSession();
-    const [selectedPlan, setSelectedPlan] = useState<string>("Gratuito");
+    const [selectedPlan, setSelectedPlan] = useState<string>("Free");
     const [selectedDuration, setSelectedDuration] = useState<3 | 6 | 12>(3);
     const [isLoading, setIsLoading] = useState(false);
     const [userGrids, setUserGrids] = useState(0);
@@ -130,7 +130,7 @@ export default function AdminCuenta() {
 
     const handleConfirmPlanChange = async () => {
         if (!session?.user?.id) {
-            console.error('Usuario no autenticado');
+            console.error('User not authenticated');
             return;
         }
 
@@ -139,7 +139,7 @@ export default function AdminCuenta() {
             const selectedPlanData = plans.find(plan => plan.name === selectedPlan);
             
             if (!selectedPlanData) {
-                console.error('Plan no encontrado');
+                console.error('Plan not found');
                 return;
             }
 
@@ -163,10 +163,10 @@ export default function AdminCuenta() {
                 await handleSubscription(priceId, selectedPlanData.name, selectedDuration, session.user.id);
             }
         } catch (error) {
-            console.error('Error al cambiar el plan:', error);
+            console.error('Error changing plan:', error);
             toast({
                 title: "Error",
-                description: "No se pudo cambiar el plan. Por favor, intenta de nuevo.",
+                description: "Could not change plan. Please try again.",
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -179,9 +179,9 @@ export default function AdminCuenta() {
     const getPrice = (plan: Plan) => {
         if (plan.price) return plan.price;
         if (plan.prices) {
-            return `$${plan.prices[selectedDuration].price.toFixed(2)}/mes`;
+            return `$${plan.prices[selectedDuration].price.toFixed(2)}/month`;
         }
-        return "Precio no disponible";
+        return "Price not available";
     };
 
     return (
@@ -198,10 +198,10 @@ export default function AdminCuenta() {
                         size="xl" 
                         mb={6}
                     >
-                        Administrar cuenta
+                        Manage Account
                     </Heading>
 
-                    {/* Sección Plan Actual */}
+                    {/* Current Plan Section */}
                     <Box 
                         bg={cardBgColor} 
                         p={6} 
@@ -214,7 +214,7 @@ export default function AdminCuenta() {
                             size="lg" 
                             mb={4}
                         >
-                            Plan actual
+                            Current Plan
                         </Heading>
                         
                         <VStack align="start" spacing={4}>
@@ -229,18 +229,19 @@ export default function AdminCuenta() {
                             {session?.user?.planStartDate && (
                                 <>
                                     <Text color={textColor}>
-                                        Inicio del plan: {formatDate(new Date(session.user.planStartDate))}
+                                        Plan start date: {formatDate(new Date(session.user.planStartDate))}
                                     </Text>
                                     
                                     <Box width="100%">
                                         <TrialExpirationAlert 
                                             planStartDate={new Date(session.user.planStartDate)}
+                                            currentPlan={session.user.planType}
                                         />
                                     </Box>
                                     
                                     {!isTrialExpired(new Date(session.user.planStartDate)) && (
                                         <Text color="blue.500" fontWeight="semibold">
-                                            Período de prueba Premium: {getRemainingDays(new Date(session.user.planStartDate))} días restantes
+                                            Premium trial period: {getRemainingDays(new Date(session.user.planStartDate))} days remaining
                                         </Text>
                                     )}
                                 </>
@@ -255,7 +256,7 @@ export default function AdminCuenta() {
                         </VStack>
                     </Box>
 
-                    {/* Sección Cambio de Plan */}
+                    {/* Plan Change Section */}
                     <Box 
                         bg={cardBgColor} 
                         p={6} 
@@ -268,7 +269,7 @@ export default function AdminCuenta() {
                             size="lg" 
                             mb={4}
                         >
-                            Duración del plan
+                            Plan Duration
                         </Heading>
                         
                         <Select
@@ -278,9 +279,9 @@ export default function AdminCuenta() {
                             color={textColor}
                             mb={6}
                         >
-                            <option value={3}>3 meses</option>
-                            <option value={6}>6 meses</option>
-                            <option value={12}>12 meses</option>
+                            <option value={3}>3 months</option>
+                            <option value={6}>6 months</option>
+                            <option value={12}>12 months</option>
                         </Select>
 
                         <Heading 
@@ -289,7 +290,7 @@ export default function AdminCuenta() {
                             size="lg" 
                             mb={4}
                         >
-                            Cambiar plan
+                            Change Plan
                         </Heading>
 
                         <RadioGroup onChange={setSelectedPlan} value={selectedPlan}>
@@ -328,10 +329,10 @@ export default function AdminCuenta() {
                                 size="lg" 
                                 onClick={handleConfirmPlanChange}
                                 isLoading={isLoading}
-                                loadingText="Procesando..."
+                                loadingText="Processing..."
                                 width={{ base: "100%", md: "auto" }}
                             >
-                                Confirmar cambio de plan
+                                Confirm Plan Change
                             </Button>
                         </Box>
                     </Box>

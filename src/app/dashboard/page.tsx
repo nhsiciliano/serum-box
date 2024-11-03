@@ -32,7 +32,7 @@ export default function DashboardHome() {
     setIsLoading(true);
     try {
       const response = await fetch('/api/gradillas');
-      if (!response.ok) throw new Error('Error al obtener las gradillas');
+      if (!response.ok) throw new Error('Error fetching grids');
       const data: Gradilla[] = await response.json();
       setGrillas(data);
     } catch (error) {
@@ -45,8 +45,8 @@ export default function DashboardHome() {
   const handleCreateGrilla = async () => {
     if (!canCreateGrid(grillas.length)) {
       toast({
-        title: "Límite de gradillas alcanzado",
-        description: `Tu plan actual permite un máximo de ${restrictions.maxGrids} gradillas. Considera actualizar tu plan para crear más.`,
+        title: "Grid limit reached",
+        description: `Your current plan allows a maximum of ${restrictions.maxGrids} grids. Consider upgrading your plan to create more.`,
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -66,18 +66,19 @@ export default function DashboardHome() {
 
   return (
     <Box>
-      <Heading as="h2" color="gray.500" size="xl" mb={6}>Administrador de Gradillas</Heading>
+      <Heading as="h2" color="gray.500" size="xl" mb={6}>Grid Manager</Heading>
       
-      {/* Agregar TrialExpirationAlert */}
+      {/* Add TrialExpirationAlert */}
       {session?.user?.planStartDate && (
         <Box mb={4}>
           <TrialExpirationAlert 
-            planStartDate={new Date(session.user.planStartDate)} 
+            planStartDate={new Date(session.user.planStartDate)}
+            currentPlan={session.user.planType}
           />
         </Box>
       )}
       
-      {/* PlanInfo existente */}
+      {/* Existing PlanInfo */}
       <Box mb={6} bg="white" borderRadius="lg" boxShadow="sm">
         <PlanInfo 
           currentGrids={grillas.length}
@@ -116,15 +117,15 @@ export default function DashboardHome() {
         </SimpleGrid>
       ) : (
         <Box textAlign="center" mt={10} py={10}>
-          <Text fontSize="xl" color="gray.500" mb={8}>Comienza a crear tus gradillas personalizadas</Text>
+          <Text fontSize="xl" color="gray.500" mb={8}>Start creating your custom grids</Text>
           <Button colorScheme="teal" onClick={handleCreateGrilla}>
-            Crear Gradilla
+            Create Grid
           </Button>
         </Box>
       )}
       {grillas.length > 0 && (
         <Button mt={6} colorScheme="teal" onClick={handleCreateGrilla}>
-          Crear Nueva Gradilla
+          Create New Grid
         </Button>
       )}
     </Box>

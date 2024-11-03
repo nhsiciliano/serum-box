@@ -1,8 +1,15 @@
 import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardHeader() {
     const { data: session } = useSession();
+    const router = useRouter();
+
+    const handleSignOut = async () => {
+        await signOut({ redirect: false });
+        router.push('/');
+    };
 
     return (
         <Flex
@@ -15,7 +22,7 @@ export default function DashboardHeader() {
             boxShadow="sm"
         >
             <Text fontSize="xl" color="gray.700">
-                Hola, {session?.user?.name || 'Usuario'}
+                Hello, {session?.user?.name || 'User'}
             </Text>
             <Menu>
                 <MenuButton>
@@ -26,8 +33,19 @@ export default function DashboardHeader() {
                     />
                 </MenuButton>
                 <MenuList>
-                    <MenuItem color="gray.700">Cambiar foto de perfil</MenuItem>
-                    <MenuItem color="gray.700">Configuración</MenuItem>
+                    <MenuItem color="gray.700">Change profile picture</MenuItem>
+                    <MenuItem 
+                        color="gray.700" 
+                        onClick={() => router.push('/dashboard/admin-cuenta')}
+                    >
+                        Manage Account
+                    </MenuItem>
+                    <MenuItem 
+                        color="gray.700"
+                        onClick={handleSignOut}
+                    >
+                        Sign Out
+                    </MenuItem>
                 </MenuList>
             </Menu>
         </Flex>

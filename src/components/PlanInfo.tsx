@@ -18,7 +18,7 @@ export function PlanInfo({ currentGrids, currentTubes }: PlanInfoProps) {
         <VStack spacing={4} align="stretch" p={4}>
             <Box>
                 <Text color="gray.500" mb={2}>
-                    Gradillas: {currentGrids} de {restrictions.isUnlimited ? 'Lo que necesites' : restrictions.maxGrids}
+                    Grids: {currentGrids} of {restrictions.isUnlimited ? 'As many as you need' : restrictions.maxGrids}
                 </Text>
                 {!restrictions.isUnlimited && (
                     <Progress value={gridProgress} colorScheme="green" />
@@ -26,7 +26,7 @@ export function PlanInfo({ currentGrids, currentTubes }: PlanInfoProps) {
             </Box>
             <Box>
                 <Text color="gray.500" mb={2}>
-                    Tubos: {currentTubes} de {restrictions.isUnlimited ? 'Lo que necesites' : restrictions.maxTubes}
+                    Tubes: {currentTubes} of {restrictions.isUnlimited ? 'As many as you need' : restrictions.maxTubes}
                 </Text>
                 {!restrictions.isUnlimited && (
                     <Progress value={tubeProgress} colorScheme="blue" />

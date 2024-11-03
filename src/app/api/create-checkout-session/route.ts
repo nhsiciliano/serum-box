@@ -25,8 +25,8 @@ export async function POST(req: Request) {
             mode: 'subscription',
             payment_method_types: ['card'],
             line_items: [{ price: priceId, quantity: 1 }],
-            success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/admin-cuenta?success=true`,
-            cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/admin-cuenta?canceled=true`,
+            success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/success`,
+            cancel_url: `${process.env.NEXT_PUBLIC_URL}/dashboard/cancel`,
             client_reference_id: session.user.id,
             metadata: {
                 planType,

@@ -40,7 +40,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
         const fetchGradilla = async () => {
             try {
                 const response = await fetch(`/api/gradillas/${params.id}`);
-                if (!response.ok) throw new Error('Error al obtener la gradilla');
+                if (!response.ok) throw new Error('Error fetching grid');
                 const data: Gradilla = await response.json();
                 setGradilla(data);
             } catch (error) {
@@ -58,10 +58,10 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             const response = await fetch(`/api/gradillas/${params.id}`, {
                 method: 'DELETE',
             });
-            if (!response.ok) throw new Error('Error al eliminar la gradilla');
+            if (!response.ok) throw new Error('Error deleting grid');
             toast({
-                title: "Gradilla eliminada",
-                description: "La gradilla se ha eliminado exitosamente.",
+                title: "Grid deleted",
+                description: "The grid has been successfully deleted.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -71,7 +71,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "No se pudo eliminar la gradilla. Por favor, intenta de nuevo.",
+                description: "Could not delete grid. Please try again.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -87,12 +87,12 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(tube),
             });
-            if (!response.ok) throw new Error('Error al añadir el tubo');
+            if (!response.ok) throw new Error('Error adding tube');
             const newTube: Tube = await response.json();
             setGradilla(prev => prev ? { ...prev, tubes: [...prev.tubes, newTube] } : null);
             toast({
-                title: "Tubo añadido",
-                description: "El tubo se ha añadido exitosamente.",
+                title: "Tube added",
+                description: "The tube has been successfully added.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -101,7 +101,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "No se pudo añadir el tubo. Por favor, intenta de nuevo.",
+                description: "Could not add tube. Please try again.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -114,11 +114,11 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             const response = await fetch(`/api/gradillas/${params.id}/tubes/${tubeId}`, {
                 method: 'DELETE',
             });
-            if (!response.ok) throw new Error('Error al eliminar el tubo');
+            if (!response.ok) throw new Error('Error removing tube');
             setGradilla(prev => prev ? { ...prev, tubes: prev.tubes.filter(t => t.id !== tubeId) } : null);
             toast({
-                title: "Tubo eliminado",
-                description: "El tubo se ha eliminado exitosamente.",
+                title: "Tube removed",
+                description: "The tube has been successfully removed.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -127,7 +127,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "No se pudo eliminar el tubo. Por favor, intenta de nuevo.",
+                description: "Could not remove tube. Please try again.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -141,11 +141,11 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             const response = await fetch(`/api/gradillas/${params.id}/tubes`, {
                 method: 'DELETE',
             });
-            if (!response.ok) throw new Error('Error al vaciar la gradilla');
+            if (!response.ok) throw new Error('Error emptying grid');
             setGradilla(prev => prev ? { ...prev, tubes: [] } : null);
             toast({
-                title: "Gradilla vaciada",
-                description: "Todos los tubos han sido eliminados de la gradilla.",
+                title: "Grid emptied",
+                description: "All tubes have been removed from the grid.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -154,7 +154,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "No se pudo vaciar la gradilla. Por favor, intenta de nuevo.",
+                description: "Could not empty grid. Please try again.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -176,7 +176,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
         );
     }) || [];
 
-    if (!gradilla) return <Text color="gray.700">Cargando...</Text>;
+    if (!gradilla) return <Text color="gray.700">Loading...</Text>;
 
     return (
         <Container maxW="container.xl" py={6}>
@@ -201,43 +201,43 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                         colorScheme="red"
                         onClick={handleDeleteGrilla}
                         isLoading={isDeleting}
-                        loadingText="Eliminando"
+                        loadingText="Deleting"
                         spinner={<Spinner />}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Eliminar Gradilla
+                        Delete Grid
                     </Button>
                     <Button
                         colorScheme="orange"
                         onClick={handleEmptyGradilla}
                         isLoading={isEmptying}
-                        loadingText="Vaciando"
+                        loadingText="Emptying"
                         spinner={<Spinner />}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Vaciar Gradilla
+                        Empty Grid
                     </Button>
                     <Button
                         colorScheme="blue"
                         onClick={onOpen}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Tabla de Tubos
+                        Tubes Table
                     </Button>
                     <Button
                         onClick={() => router.push('/dashboard')}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Volver al Dashboard
+                        Back to Dashboard
                     </Button>
                 </Flex>
             </VStack>
 
-            {/* Modal con la tabla de tubos */}
+            {/* Modal with tubes table */}
             <Modal isOpen={isOpen} onClose={onClose} size="xl">
                 <ModalOverlay />
                 <ModalContent maxWidth="90vw">
-                    <ModalHeader color="gray.700">Tabla de Tubos</ModalHeader>
+                    <ModalHeader color="gray.700">Tubes Table</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <VStack spacing={4} align="stretch">
@@ -247,7 +247,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                         <SearchIcon color='gray.300' />
                                     </InputLeftElement>
                                     <Input
-                                        placeholder='Buscar en todos los campos...'
+                                        placeholder='Search in all fields...'
                                         color="gray.800"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -259,7 +259,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                 <Table variant="simple">
                                     <Thead>
                                         <Tr>
-                                            <Th color="blue.700">Posición</Th>
+                                            <Th color="blue.700">Position</Th>
                                             {gradilla.fields.map(field => (
                                                 <Th color="blue.700" key={field}>{field}</Th>
                                             ))}
@@ -280,7 +280,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                 </Table>
                                 {filteredTubes.length === 0 && (
                                     <Text textAlign="center" py={4} color="gray.500">
-                                        No se encontraron tubos que coincidan con la búsqueda
+                                        No tubes found matching the search
                                     </Text>
                                 )}
                             </Box>
@@ -288,7 +288,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                     </ModalBody>
                     <ModalFooter>
                         <Button colorScheme="blue" mr={3} onClick={onClose}>
-                            Cerrar
+                            Close
                         </Button>
                     </ModalFooter>
                 </ModalContent>

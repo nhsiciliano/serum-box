@@ -10,9 +10,9 @@ const CreateGradillaForm = () => {
     const router = useRouter();
     const toast = useToast();
     const [name, setName] = useState('');
-    const [rowCount, setRowCount] = useState(1);
-    const [columnCount, setColumnCount] = useState(1);
-    const [fields, setFields] = useState<string[]>([]);
+    const [rowCount, setRowCount] = useState(10);
+    const [columnCount, setColumnCount] = useState(10);
+    const [fields, setFields] = useState<string[]>(["Name"]);
     const { restrictions, canCreateGrid } = usePlanRestrictions();
 
     const handleAddField = () => {
@@ -35,17 +35,35 @@ const CreateGradillaForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!name.trim()) {
+            toast({
+                title: "Error",
+                description: "Grid name is required",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
         const currentGrillas = await fetchCurrentGrillasCount();
         if (!canCreateGrid(currentGrillas)) {
             toast({
-                title: "Límite de gradillas alcanzado",
-                description: `Tu plan actual permite un máximo de ${restrictions.maxGrids} gradillas. Considera actualizar tu plan para crear más.`,
+                title: "Grid limit reached",
+                description: `Your current plan allows a maximum of ${restrictions.maxGrids} grids. Consider upgrading your plan to create more.`,
                 status: "warning",
                 duration: 5000,
                 isClosable: true,
             });
             return;
         }
+
+        // Create arrays for rows and columns
+        const rows = Array.from({ length: rowCount }, (_, i) => 
+            String.fromCharCode(65 + i)  // Convert numbers to letters: 0->A, 1->B, etc.
+        );
+        
+        const columns = Array.from({ length: columnCount }, (_, i) => i + 1);
 
         try {
             const response = await fetch('/api/gradillas', {
@@ -55,17 +73,17 @@ const CreateGradillaForm = () => {
                 },
                 body: JSON.stringify({
                     name,
-                    rowCount,
-                    columnCount,
-                    fields,
+                    rows,
+                    columns,
+                    fields: fields.length > 0 ? fields : ['Name']
                 }),
             });
 
-            if (!response.ok) throw new Error('Error al crear la gradilla');
+            if (!response.ok) throw new Error('Error creating grid');
 
             toast({
-                title: "Gradilla creada",
-                description: "La gradilla se ha creado exitosamente.",
+                title: "Grid created",
+                description: "The grid has been created successfully.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -73,10 +91,10 @@ const CreateGradillaForm = () => {
 
             router.push('/dashboard');
         } catch (error) {
-            console.error('Error al crear la gradilla:', error);
+            console.error('Error creating grid:', error);
             toast({
                 title: "Error",
-                description: "No se pudo crear la gradilla. Por favor, intenta de nuevo.",
+                description: "Could not create grid. Please try again.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -93,7 +111,7 @@ const CreateGradillaForm = () => {
             }
             return 0;
         } catch (error) {
-            console.error('Error al obtener estadísticas:', error);
+            console.error('Error fetching statistics:', error);
             return 0;
         }
     };
@@ -102,33 +120,33 @@ const CreateGradillaForm = () => {
         <Box as="form" onSubmit={handleSubmit}>
             <VStack spacing={4}>
                 <FormControl isRequired>
-                    <FormLabel color="gray.500">Nombre de la Gradilla</FormLabel>
+                    <FormLabel color="gray.500">Grid Name</FormLabel>
                     <Input value={name} color="gray.500" onChange={(e) => setName(e.target.value)} />
                 </FormControl>
                 <FormControl isRequired>
-                    <FormLabel color="gray.500">Número de Filas (A-Z)</FormLabel>
+                    <FormLabel color="gray.500">Number of Rows (A-Z)</FormLabel>
                     <NumberInput min={1} max={26} color="gray.500" value={rowCount} onChange={(_, value) => setRowCount(value)}>
                         <NumberInputField />
                     </NumberInput>
                 </FormControl>
                 <FormControl isRequired>
-                    <FormLabel color="gray.500">Número de Columnas (1-50)</FormLabel>
+                    <FormLabel color="gray.500">Number of Columns (1-50)</FormLabel>
                     <NumberInput min={1} max={50} color="gray.500" value={columnCount} onChange={(_, value) => setColumnCount(value)}>
                         <NumberInputField />
                     </NumberInput>
                 </FormControl>
                 <FormControl>
-                    <FormLabel color="gray.500">Campos personalizados para tubos (máximo 5)</FormLabel>
+                    <FormLabel color="gray.500">Custom fields for tubes (maximum 5)</FormLabel>
                     {fields.map((field, index) => (
                         <HStack key={index} mt={2}>
                             <Input
                                 value={field}
                                 color="gray.500"
                                 onChange={(e) => handleFieldChange(index, e.target.value)}
-                                placeholder={`Campo ${index + 1}`}
+                                placeholder={`Field ${index + 1}`}
                             />
                             <IconButton
-                                aria-label="Eliminar campo"
+                                aria-label="Delete field"
                                 icon={<DeleteIcon />}
                                 onClick={() => handleRemoveField(index)}
                             />
@@ -136,7 +154,7 @@ const CreateGradillaForm = () => {
                     ))}
                     {fields.length < 5 && (
                         <Button leftIcon={<AddIcon />} onClick={handleAddField} mt={2}>
-                            Agregar campo
+                            Add field
                         </Button>
                     )}
                 </FormControl>
@@ -144,10 +162,10 @@ const CreateGradillaForm = () => {
                     type="submit" 
                     colorScheme="teal" 
                     isLoading={false}
-                    loadingText="Creando Gradilla"
+                    loadingText="Creating Grid"
                     spinner={<Spinner />}
                 >
-                    Crear Gradilla
+                    Create Grid
                 </Button>
             </VStack>
         </Box>
