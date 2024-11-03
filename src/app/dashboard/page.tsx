@@ -13,6 +13,7 @@ import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 interface Gradilla {
   id: string;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tubes: any[];
 }
 

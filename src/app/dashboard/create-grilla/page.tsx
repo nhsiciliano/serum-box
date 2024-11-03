@@ -22,7 +22,7 @@ export default function CreateGrillaPage() {
         };
 
         checkRestrictions();
-    }, []);
+    }, [canCreateGrid, router]);
 
     return (
         <Box>

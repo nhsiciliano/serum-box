@@ -39,7 +39,7 @@ export default function FeatureSlider() {
             setCurrentFeature((prev) => (prev + 1) % features.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [features.length]);
 
     const bgColor = useColorModeValue('white', 'gray.800');
     const headingColor = useColorModeValue('gray.600', 'gray.200');
