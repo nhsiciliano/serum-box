@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from "@/lib/auth";
 
 // Asegúrate de que la clave secreta de Stripe esté definida
 if (!process.env.STRIPE_SECRET_KEY) {

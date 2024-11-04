@@ -30,7 +30,7 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedPosition, setSelectedPosition] = useState('');
 
-    const getNextPosition = (currentPosition: string) => {
+    const getNextPosition = (currentPosition: string): string | undefined => {
         const currentRow = currentPosition.charAt(0);
         const currentCol = parseInt(currentPosition.slice(1));
         
@@ -57,7 +57,7 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
         }
         
         // Si no se encuentra una siguiente posición disponible
-        return null;
+        return undefined;
     };
 
     const handleCellClick = (position: string) => {

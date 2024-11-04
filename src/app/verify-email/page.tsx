@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast } from '@chakra-ui/react';
+import { useState, Suspense } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast, Spinner } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function VerifyEmail() {
+// Componente que usa useSearchParams
+function VerifyEmailForm() {
     const [verificationCode, setVerificationCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const toast = useToast();
@@ -61,12 +62,43 @@ export default function VerifyEmail() {
                     <VStack spacing={4}>
                         <FormControl>
                             <FormLabel color="gray.600">Verification code</FormLabel>
-                            <Input type="text" color="gray.600" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} required />
+                            <Input 
+                                type="text" 
+                                color="gray.600" 
+                                value={verificationCode} 
+                                onChange={(e) => setVerificationCode(e.target.value)} 
+                                required 
+                            />
                         </FormControl>
-                        <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Verify</Button>
+                        <Button 
+                            type="submit" 
+                            colorScheme="teal" 
+                            width="full" 
+                            isLoading={isLoading}
+                        >
+                            Verify
+                        </Button>
                     </VStack>
                 </form>
             </VStack>
         </Box>
+    );
+}
+
+// Componente de carga
+function LoadingState() {
+    return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <Spinner size="xl" color="teal.500" />
+        </Box>
+    );
+}
+
+// Componente principal que envuelve con Suspense
+export default function VerifyEmail() {
+    return (
+        <Suspense fallback={<LoadingState />}>
+            <VerifyEmailForm />
+        </Suspense>
     );
 }

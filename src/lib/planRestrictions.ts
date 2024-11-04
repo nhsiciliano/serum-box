@@ -10,20 +10,18 @@ export function isInTrialPeriod(planStartDate: Date): boolean {
     return currentDate.getTime() - planStartDate.getTime() < trialPeriod;
 }
 
-interface User {
+interface UserPlanInfo {
     id: string;
     planType: PlanType;
     planStartDate: Date;
 }
 
-export function getUserPlanRestrictions(user: User): PlanLimits {
-    if (!user || !user.planStartDate) {
-        return PLAN_LIMITS.free;
-    }
-
-    if (isInTrialPeriod(user.planStartDate)) {
-        return PLAN_LIMITS.premium;
+export function getUserPlanRestrictions(user: UserPlanInfo): PlanLimits {
+    // Validar que el plan existe
+    if (user.planType in PLAN_LIMITS) {
+        return PLAN_LIMITS[user.planType];
     }
     
-    return PLAN_LIMITS[user.planType] || PLAN_LIMITS.free;
+    // Si el plan no existe, devolver el plan gratuito
+    return PLAN_LIMITS.free;
 }

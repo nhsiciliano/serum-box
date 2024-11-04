@@ -14,8 +14,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(req: Request) {
     const payload = await req.text();
-    const sig = req.headers.get('stripe-signature')!;
-    let event;
+    const sig = req.headers.get('stripe-signature');
+    
+    if (!sig) {
+        return NextResponse.json({ error: 'No signature found' }, { status: 400 });
+    }
+
+    let event: Stripe.Event;
 
     try {
         event = stripe.webhooks.constructEvent(
@@ -92,8 +97,7 @@ export async function POST(req: Request) {
                 break;
             }
 
-            case 'customer.subscription.deleted':
-            case 'customer.subscription.expired': {
+            case 'customer.subscription.deleted': {
                 const subscription = event.data.object as Stripe.Subscription;
                 const customerId = typeof subscription.customer === 'string' 
                     ? subscription.customer 
@@ -117,20 +121,15 @@ export async function POST(req: Request) {
 
             case 'invoice.payment_failed': {
                 const invoice = event.data.object as Stripe.Invoice;
-                const customerId = typeof invoice.customer === 'string'
-                    ? invoice.customer
-                    : invoice.customer.id;
+                const customerId = invoice.customer ? typeof invoice.customer === 'string' ? invoice.customer : invoice.customer.id : null;
 
-                // Obtener el usuario
                 const user = await db.collection('User').findOne({
                     stripeCustomerId: customerId
                 });
 
                 if (user) {
-                    // Aquí podrías implementar la lógica de notificación
                     console.log('Payment failed for user:', user._id);
                     
-                    // Opcional: Actualizar el estado del usuario o agregar una marca de pago fallido
                     await db.collection('User').updateOne(
                         { _id: user._id },
                         {
@@ -150,7 +149,6 @@ export async function POST(req: Request) {
                     ? subscription.customer
                     : subscription.customer.id;
 
-                // Obtener el plan actual del metadata de la suscripción
                 const planType = (subscription.metadata?.planType as PlanType) || 'standard';
                 const limits = PLAN_LIMITS[planType];
 
@@ -160,7 +158,7 @@ export async function POST(req: Request) {
                         $set: {
                             planType: planType,
                             ...limits,
-                            lastPaymentFailed: false // Limpiar la marca de pago fallido si existe
+                            lastPaymentFailed: false
                         }
                     }
                 );
