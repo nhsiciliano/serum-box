@@ -1,7 +1,5 @@
 import { NextAuthOptions, DefaultSession, User } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider from "next-auth/providers/google"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import prisma from '@/lib/prisma'
 import { PlanType } from "@/types/plans"
@@ -30,12 +28,7 @@ declare module "next-auth" {
     }
 }
 
-if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    throw new Error('Missing Google OAuth Credentials');
-}
-
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -71,17 +64,14 @@ export const authOptions: NextAuthOptions = {
                 };
             }
         }),
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        }),
     ],
     pages: {
         signIn: '/login',
         error: '/auth/error',
     },
     session: {
-        strategy: "jwt",
+        strategy: 'jwt',
+        maxAge: 30 * 24 * 60 * 60, // 30 días
     },
     callbacks: {
         async jwt({ token, user }) {

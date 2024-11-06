@@ -17,6 +17,7 @@ interface Gradilla {
   tubes: any[];
 }
 
+
 export default function DashboardHome() {
   const router = useRouter();
   const [grillas, setGrillas] = useState<Gradilla[]>([]);

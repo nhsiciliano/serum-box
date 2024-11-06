@@ -1,9 +1,8 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, Flex, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
-import { FcGoogle } from 'react-icons/fc';
 
 export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
   const [email, setEmail] = useState('');
@@ -33,13 +32,8 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         position: "top",
       });
     } else {
-      // Redirect to dashboard
       window.location.href = '/dashboard';
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/dashboard' });
   };
 
   const bgColor = useColorModeValue('white', 'gray.700');
@@ -79,20 +73,6 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
             </Button>
           </VStack>
         </form>
-        <Button 
-          onClick={handleGoogleSignIn} 
-          width="full"
-          bg="white"
-          color="gray.800"
-          border="1px"
-          borderColor="green.700"
-          _hover={{ bg: 'gray.100' }}
-        >
-          <Flex align="center" justify="center" width="100%">
-            <FcGoogle size="20px" />
-            <Text ml={2}>Sign in with Google</Text>
-          </Flex>
-        </Button>
         <Text textAlign="center" color="gray.500" fontSize="sm">
           Don&apos;t have an account? <Link color="teal.500" onClick={onSwitchToRegister}>Register here</Link>
         </Text>

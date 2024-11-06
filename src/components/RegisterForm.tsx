@@ -104,7 +104,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
             <FormControl>
-              <FormLabel color="black">Name</FormLabel>
+              <FormLabel color="black">Name/Company</FormLabel>
               <Input 
                 type="text" 
                 placeholder="Michael Scott"
