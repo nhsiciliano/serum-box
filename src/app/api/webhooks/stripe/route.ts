@@ -1,36 +1,68 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 import Stripe from 'stripe';
 import { ObjectId } from 'mongodb';
 import { PLAN_LIMITS, PlanType } from '@/types/plans';
 
+// Configuración del segmento de ruta usando la nueva sintaxis
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const preferredRegion = 'auto';
+
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error('STRIPE_SECRET_KEY no está definida');
 }
 
+if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error('STRIPE_WEBHOOK_SECRET no está definida');
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-09-30.acacia',
+    apiVersion: '2024-10-28.acacia',
 });
 
 export async function POST(req: Request) {
-    const payload = await req.text();
-    const sig = req.headers.get('stripe-signature');
-    
-    if (!sig) {
-        return NextResponse.json({ error: 'No signature found' }, { status: 400 });
+    const body = await req.text();
+    const headersList = headers();
+    const signature = headersList.get('stripe-signature');
+
+    if (!signature) {
+        console.error('No se encontró la firma del webhook');
+        return NextResponse.json(
+            { error: 'No stripe signature found' },
+            { status: 400 }
+        );
     }
 
     let event: Stripe.Event;
 
     try {
+        // Verifica la firma del webhook
         event = stripe.webhooks.constructEvent(
-            payload,
-            sig,
+            body,
+            signature,
             process.env.STRIPE_WEBHOOK_SECRET!
         );
-    } catch (err) {
-        console.error('Error al verificar webhook:', err);
-        return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
+
+        // Log del evento recibido
+        console.log('Webhook recibido:', {
+            type: event.type,
+            id: event.id,
+            signature: signature.substring(0, 20) + '...' // Log parcial por seguridad
+        });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        console.error('Error al verificar webhook:', {
+            error: err.message,
+            signature: signature.substring(0, 20) + '...',
+            bodyPreview: body.substring(0, 100) + '...'
+        });
+        return NextResponse.json(
+            { error: `Webhook Error: ${err.message}` },
+            { status: 400 }
+        );
     }
 
     const { db } = await connectToDatabase();
@@ -39,13 +71,12 @@ export async function POST(req: Request) {
         switch (event.type) {
             case 'checkout.session.completed': {
                 const session = event.data.object as Stripe.Checkout.Session;
-                console.log('Webhook: checkout.session.completed', {
-                    clientReferenceId: session.client_reference_id,
-                    planType: session.metadata?.planType,
+                console.log('Procesando checkout.session.completed:', {
+                    sessionId: session.id,
                     customerId: session.customer,
-                    subscriptionId: session.subscription
+                    clientReferenceId: session.client_reference_id
                 });
-                
+
                 if (!session.client_reference_id) {
                     throw new Error('No se encontró client_reference_id');
                 }
@@ -167,8 +198,13 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ received: true });
-    } catch (error) {
-        console.error('Error procesando webhook:', error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        console.error('Error procesando webhook:', {
+            type: event.type,
+            error: error.message,
+            stack: error.stack
+        });
         return NextResponse.json(
             { error: 'Error procesando webhook' },
             { status: 500 }

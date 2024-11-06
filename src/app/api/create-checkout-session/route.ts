@@ -7,9 +7,8 @@ import { authOptions } from "@/lib/auth";
 if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error('La clave secreta de Stripe no está definida');
 }
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-09-30.acacia',
+    apiVersion: '2024-10-28.acacia',
 });
 
 export async function POST(req: Request) {
