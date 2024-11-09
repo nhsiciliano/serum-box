@@ -38,47 +38,93 @@ export async function POST(req: Request) {
     let event: Stripe.Event;
 
     try {
-        // Verifica la firma del webhook
+        const isProd = process.env.NODE_ENV === 'production';
+        
+        if (!isProd) {
+            console.log('Webhook recibido en desarrollo:', {
+                signature: signature?.substring(0, 20) + '...',
+                bodyPreview: body.substring(0, 100) + '...'
+            });
+        }
+
         event = stripe.webhooks.constructEvent(
             body,
-            signature,
+            signature!,
             process.env.STRIPE_WEBHOOK_SECRET!
         );
 
-        // Log del evento recibido
-        console.log('Webhook recibido:', {
-            type: event.type,
-            id: event.id,
-            signature: signature.substring(0, 20) + '...' // Log parcial por seguridad
-        });
+        // Solo log básico en producción
+        if (isProd) {
+            console.log('Webhook recibido:', {
+                type: event.type,
+                id: event.id
+            });
+        }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-        console.error('Error al verificar webhook:', {
-            error: err.message,
-            signature: signature.substring(0, 20) + '...',
-            bodyPreview: body.substring(0, 100) + '...'
-        });
-        return NextResponse.json(
-            { error: `Webhook Error: ${err.message}` },
-            { status: 400 }
-        );
-    }
+        const { db } = await connectToDatabase();
 
-    const { db } = await connectToDatabase();
-
-    try {
         switch (event.type) {
             case 'checkout.session.completed': {
                 const session = event.data.object as Stripe.Checkout.Session;
-                console.log('Procesando checkout.session.completed:', {
-                    sessionId: session.id,
-                    customerId: session.customer,
-                    clientReferenceId: session.client_reference_id
+                
+                console.log('Webhook recibido - Datos de la sesión:', {
+                    id: session.id,
+                    metadata: session.metadata,
+                    customer: session.customer,
+                    clientReferenceId: session.client_reference_id,
+                    customerEmail: session.customer_details?.email
                 });
 
-                if (!session.client_reference_id) {
-                    throw new Error('No se encontró client_reference_id');
+                // Intentar obtener el userId de múltiples fuentes
+                let userId: string | undefined;
+
+                // 1. Intentar desde metadata
+                if (session.metadata?.userId) {
+                    userId = session.metadata.userId;
+                }
+
+                // 2. Intentar desde client_reference_id
+                if (!userId && session.client_reference_id) {
+                    userId = session.client_reference_id;
+                }
+
+                // 3. Intentar desde el customer
+                if (!userId && session.customer) {
+                    try {
+                        const customer = await stripe.customers.retrieve(
+                            typeof session.customer === 'string' 
+                                ? session.customer 
+                                : session.customer.id
+                        );
+                        
+                        if (!('deleted' in customer) && customer.metadata?.userId) {
+                            userId = customer.metadata.userId;
+                        }
+                    } catch (error) {
+                        console.error('Error al recuperar cliente:', error);
+                    }
+                }
+
+                // 4. Intentar desde el email del cliente
+                if (!userId && session.customer_details?.email) {
+                    const { db } = await connectToDatabase();
+                    const user = await db.collection('User').findOne({
+                        email: session.customer_details.email
+                    });
+                    
+                    if (user) {
+                        userId = user._id.toString();
+                    }
+                }
+
+                if (!userId) {
+                    console.error('No se pudo determinar el userId:', {
+                        sessionId: session.id,
+                        metadata: session.metadata,
+                        customerDetails: session.customer_details,
+                        customer: session.customer
+                    });
+                    throw new Error('No se pudo determinar el ID del usuario');
                 }
 
                 const planType = session.metadata?.planType as PlanType;
@@ -89,18 +135,19 @@ export async function POST(req: Request) {
                 const limits = PLAN_LIMITS[planType];
                 const duration = parseInt(session.metadata?.duration || '3');
 
-                // Calcular fecha de fin del plan
                 const planEndDate = new Date();
                 planEndDate.setMonth(planEndDate.getMonth() + duration);
 
                 const updateResult = await db.collection('User').updateOne(
-                    { _id: new ObjectId(session.client_reference_id) },
+                    { _id: new ObjectId(userId) },
                     {
                         $set: {
                             planType,
                             planStartDate: new Date(),
                             planEndDate,
-                            stripeCustomerId: session.customer,
+                            stripeCustomerId: typeof session.customer === 'string' 
+                                ? session.customer 
+                                : session.customer?.id,
                             stripeSubscriptionId: session.subscription,
                             lastPaymentFailed: false,
                             ...limits
@@ -109,13 +156,11 @@ export async function POST(req: Request) {
                 );
 
                 if (updateResult.modifiedCount === 0) {
-                    console.error('No se pudo actualizar el usuario:', session.client_reference_id);
                     throw new Error('No se pudo actualizar el usuario');
                 }
 
-                // Registrar la transacción
                 await db.collection('Transactions').insertOne({
-                    userId: new ObjectId(session.client_reference_id),
+                    userId: new ObjectId(userId),
                     planType,
                     amount: session.amount_total ? session.amount_total / 100 : 0,
                     currency: session.currency,
@@ -141,9 +186,7 @@ export async function POST(req: Request) {
                             planType: 'free',
                             planEndDate: new Date(),
                             stripeSubscriptionId: null,
-                            maxGrids: 2,
-                            maxTubes: 162,
-                            isUnlimited: false
+                            ...PLAN_LIMITS.free
                         }
                     }
                 );
@@ -152,24 +195,26 @@ export async function POST(req: Request) {
 
             case 'invoice.payment_failed': {
                 const invoice = event.data.object as Stripe.Invoice;
-                const customerId = invoice.customer ? typeof invoice.customer === 'string' ? invoice.customer : invoice.customer.id : null;
+                const customerId = typeof invoice.customer === 'string' 
+                    ? invoice.customer 
+                    : invoice.customer?.id;
 
-                const user = await db.collection('User').findOne({
-                    stripeCustomerId: customerId
-                });
+                if (customerId) {
+                    const user = await db.collection('User').findOne({
+                        stripeCustomerId: customerId
+                    });
 
-                if (user) {
-                    console.log('Payment failed for user:', user._id);
-                    
-                    await db.collection('User').updateOne(
-                        { _id: user._id },
-                        {
-                            $set: {
-                                lastPaymentFailed: true,
-                                lastPaymentFailedDate: new Date()
+                    if (user) {
+                        await db.collection('User').updateOne(
+                            { _id: user._id },
+                            {
+                                $set: {
+                                    lastPaymentFailed: true,
+                                    lastPaymentFailedDate: new Date()
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
                 }
                 break;
             }
@@ -177,22 +222,24 @@ export async function POST(req: Request) {
             case 'customer.subscription.updated': {
                 const subscription = event.data.object as Stripe.Subscription;
                 const customerId = typeof subscription.customer === 'string'
-                    ? subscription.customer
+                    ? subscription.customer 
                     : subscription.customer.id;
 
-                const planType = (subscription.metadata?.planType as PlanType) || 'standard';
-                const limits = PLAN_LIMITS[planType];
+                if (subscription.metadata?.planType) {
+                    const planType = subscription.metadata.planType as PlanType;
+                    const limits = PLAN_LIMITS[planType];
 
-                await db.collection('User').updateOne(
-                    { stripeCustomerId: customerId },
-                    {
-                        $set: {
-                            planType: planType,
-                            ...limits,
-                            lastPaymentFailed: false
+                    await db.collection('User').updateOne(
+                        { stripeCustomerId: customerId },
+                        {
+                            $set: {
+                                planType,
+                                ...limits,
+                                lastPaymentFailed: false
+                            }
                         }
-                    }
-                );
+                    );
+                }
                 break;
             }
         }
@@ -201,13 +248,15 @@ export async function POST(req: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error procesando webhook:', {
-            type: event.type,
-            error: error.message,
-            stack: error.stack
+            error,
+            signature,
+            webhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.substring(0, 10) + '...',
+            bodyPreview: body.substring(0, 100) + '...'
         });
         return NextResponse.json(
             { error: 'Error procesando webhook' },
-            { status: 500 }
+            { status: 400 }
         );
     }
 }
+
