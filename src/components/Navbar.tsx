@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Flex, Button, useColorMode, IconButton, Image, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Box, Flex, Button, useColorMode, IconButton, Image, Menu, MenuButton, MenuList, MenuItem, useBreakpointValue } from '@chakra-ui/react';
 import { MoonIcon, SunIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -11,6 +11,9 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { colorMode, toggleColorMode } = useColorMode();
   const { language, setLanguage } = useLanguage();
+  
+  // Determinar si estamos en móvil
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,19 +60,28 @@ export default function Navbar() {
       }}
     >
       <Flex
-        h={20}
-        alignItems={'center'}
-        justifyContent={'space-between'}
+        direction={isMobile ? 'column' : 'row'}
+        py={isMobile ? 4 : 2}
+        h={isMobile ? 'auto' : '70px'}
+        alignItems="center"
+        justifyContent={isMobile ? 'center' : 'space-between'}
         maxW="container.xl"
         mx="auto"
         px={4}
+        gap={isMobile ? 4 : 0}
       >
         <Link href="/" passHref legacyBehavior>
-          <Box as="a" display="flex" alignItems="center">
+          <Box 
+            as="a" 
+            display="flex" 
+            alignItems="center"
+            justifyContent={isMobile ? "center" : "flex-start"}
+            width={isMobile ? "100%" : "auto"}
+          >
             <Image
               src="/images/serum-box.png"
               alt="Serum Box Logo"
-              height="50px"
+              height={isMobile ? "60px" : "50px"}
               width="auto"
               objectFit="contain"
               filter={isScrolled && colorMode === 'dark' ? 'invert(1)' : 'none'}
@@ -77,7 +89,14 @@ export default function Navbar() {
             />
           </Box>
         </Link>
-        <Flex alignItems="center" gap={4}>
+
+        <Flex 
+          alignItems="center" 
+          gap={4}
+          width={isMobile ? "100%" : "auto"}
+          justifyContent={isMobile ? "space-evenly" : "flex-end"}
+          mt={isMobile ? 2 : 0}
+        >
           <IconButton
             aria-label="Toggle color mode"
             icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
@@ -93,6 +112,7 @@ export default function Navbar() {
               rightIcon={<ChevronDownIcon />}
               {...getButtonStyles(isScrolled, colorMode)}
               variant="ghost"
+              minW={isMobile ? "auto" : "70px"}
             >
               {language === 'en' ? 'EN' : 'ES'}
             </MenuButton>
@@ -110,6 +130,7 @@ export default function Navbar() {
               fontWeight="bold"
               px={6}
               rounded="md"
+              minW={isMobile ? "auto" : "100px"}
             >
               {translations[language as 'en' | 'es'].nav.start}
             </Button>
