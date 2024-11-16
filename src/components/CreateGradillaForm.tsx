@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box, Button, FormControl, FormLabel, Input, NumberInput, NumberInputField, VStack, HStack, IconButton, useToast, Spinner } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, NumberInput, NumberInputField, VStack, HStack, IconButton, useToast, Spinner, Textarea } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 
@@ -10,6 +10,9 @@ const CreateGradillaForm = () => {
     const router = useRouter();
     const toast = useToast();
     const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [storagePlace, setStoragePlace] = useState('');
+    const [temperature, setTemperature] = useState('');
     const [rowCount, setRowCount] = useState(10);
     const [columnCount, setColumnCount] = useState(10);
     const [fields, setFields] = useState<string[]>(["Name"]);
@@ -58,9 +61,8 @@ const CreateGradillaForm = () => {
             return;
         }
 
-        // Create arrays for rows and columns
         const rows = Array.from({ length: rowCount }, (_, i) => 
-            String.fromCharCode(65 + i)  // Convert numbers to letters: 0->A, 1->B, etc.
+            String.fromCharCode(65 + i)
         );
         
         const columns = Array.from({ length: columnCount }, (_, i) => i + 1);
@@ -73,6 +75,9 @@ const CreateGradillaForm = () => {
                 },
                 body: JSON.stringify({
                     name,
+                    description,
+                    storagePlace,
+                    temperature,
                     rows,
                     columns,
                     fields: fields.length > 0 ? fields : ['Name']
@@ -123,6 +128,37 @@ const CreateGradillaForm = () => {
                     <FormLabel color="gray.500">Grid Name</FormLabel>
                     <Input value={name} color="gray.500" onChange={(e) => setName(e.target.value)} />
                 </FormControl>
+
+                <FormControl>
+                    <FormLabel color="gray.500">Grid Description</FormLabel>
+                    <Textarea 
+                        value={description} 
+                        color="gray.500" 
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Enter a description for your grid..."
+                    />
+                </FormControl>
+
+                <FormControl>
+                    <FormLabel color="gray.500">Storage Place</FormLabel>
+                    <Input 
+                        value={storagePlace} 
+                        color="gray.500" 
+                        onChange={(e) => setStoragePlace(e.target.value)}
+                        placeholder="e.g., Lab Room 101, Freezer #3"
+                    />
+                </FormControl>
+
+                <FormControl>
+                    <FormLabel color="gray.500">Storage Temperature</FormLabel>
+                    <Input 
+                        value={temperature} 
+                        color="gray.500" 
+                        onChange={(e) => setTemperature(e.target.value)}
+                        placeholder="e.g., -20°C, 4°C"
+                    />
+                </FormControl>
+
                 <FormControl isRequired>
                     <FormLabel color="gray.500">Number of Rows (A-Z)</FormLabel>
                     <NumberInput min={1} max={26} color="gray.500" value={rowCount} onChange={(_, value) => setRowCount(value)}>

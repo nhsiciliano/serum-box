@@ -9,12 +9,15 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { name, rows, columns, fields } = await req.json();
+    const { name, rows, columns, fields, description, storagePlace, temperature } = await req.json();
 
     try {
         const gradilla = await prisma.gradilla.create({
             data: {
                 name,
+                description,
+                storagePlace,
+                temperature,
                 rows: rows as string[],
                 columns: columns as number[],
                 fields: fields as string[],

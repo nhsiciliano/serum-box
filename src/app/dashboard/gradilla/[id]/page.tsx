@@ -8,6 +8,7 @@ import {
     InputGroup,
     InputLeftElement,
     Input,
+    Grid, Heading,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import GrillaVisualization from '@/components/GrillaVisualization';
@@ -21,6 +22,9 @@ interface Tube {
 interface Gradilla {
     id: string;
     name: string;
+    description?: string;
+    storagePlace?: string;
+    temperature?: string;
     rows: string[];
     columns: number[];
     fields: string[];
@@ -181,8 +185,36 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
     return (
         <Container maxW="container.xl" py={6}>
             <VStack spacing={6} align="stretch">
+                <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+                    <Heading as="h1" size="xl" mb={4} color="gray.700">
+                        {gradilla.name}
+                    </Heading>
+                    
+                    <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6} mb={6}>
+                        {gradilla.description && (
+                            <Box>
+                                <Text fontWeight="bold" color="gray.600">Description:</Text>
+                                <Text color="gray.700">{gradilla.description}</Text>
+                            </Box>
+                        )}
+                        
+                        {gradilla.storagePlace && (
+                            <Box>
+                                <Text fontWeight="bold" color="gray.600">Storage Place:</Text>
+                                <Text color="gray.700">{gradilla.storagePlace}</Text>
+                            </Box>
+                        )}
+                        
+                        {gradilla.temperature && (
+                            <Box>
+                                <Text fontWeight="bold" color="gray.600">Storage Temperature:</Text>
+                                <Text color="gray.700">{gradilla.temperature}</Text>
+                            </Box>
+                        )}
+                    </Grid>
+                </Box>
+
                 <GrillaVisualization
-                    title={gradilla.name}
                     rows={gradilla.rows}
                     columns={gradilla.columns}
                     fields={gradilla.fields}

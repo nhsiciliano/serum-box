@@ -9,7 +9,6 @@ interface Tube {
 }
 
 interface GrillaVisualizationProps {
-    title: string;
     rows: string[];
     columns: number[];
     fields: string[];
@@ -19,7 +18,6 @@ interface GrillaVisualizationProps {
 }
 
 const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({ 
-    title, 
     rows, 
     columns, 
     fields,
@@ -103,9 +101,6 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
 
     return (
         <Box>
-            <Text fontSize="2xl" fontWeight="bold" mb={4} color="gray.700">
-                {title}
-            </Text>
             <Grid templateColumns={`auto repeat(${columns.length}, 1fr)`} gap={2}>
                 <GridItem></GridItem>
                 {columns.map(col => (
