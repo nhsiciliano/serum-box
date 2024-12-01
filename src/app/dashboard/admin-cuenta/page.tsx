@@ -20,6 +20,7 @@ import { PlanInfo } from '@/components/PlanInfo';
 import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 import { Plan, PLAN_LIMITS } from '@/types/plans';
 import { PlanChangeButton } from '@/components/PlanChangeButton';
+import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 
 const plans: Plan[] = [
@@ -57,6 +58,7 @@ export default function AdminCuenta() {
     const bgColor = useColorModeValue('gray.50', 'gray.900');
     const cardBgColor = useColorModeValue('white', 'gray.700');
     const textColor = useColorModeValue('gray.800', 'gray.100');
+    const { fetchWithAuth } = useFetchWithAuth();
 
     // Usar useEffect para actualizar el plan seleccionado cuando la sesión esté disponible
     useEffect(() => {
@@ -70,12 +72,9 @@ export default function AdminCuenta() {
         const fetchUserStats = async () => {
             if (session?.user?.id) {
                 try {
-                    const response = await fetch('/api/user-stats');
-                    if (response.ok) {
-                        const data = await response.json();
-                        setUserGrids(data.gridCount);
-                        setUserTubes(data.tubeCount);
-                    }
+                    const data = await fetchWithAuth('/api/user-stats');
+                    setUserGrids(data.gridCount);
+                    setUserTubes(data.tubeCount);
                 } catch (error) {
                     console.error('Error al obtener estadísticas del usuario:', error);
                 }
@@ -83,7 +82,7 @@ export default function AdminCuenta() {
         };
 
         fetchUserStats();
-    }, [session]);
+    }, [session, fetchWithAuth]);
 
     const getPrice = (plan: Plan) => {
         if (plan.price) return plan.price;
@@ -244,6 +243,7 @@ export default function AdminCuenta() {
                             )}
                         </Box>
                     </Box>
+
                 </VStack>
             </Container>
         </Box>

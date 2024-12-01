@@ -5,24 +5,27 @@ import { Box, Heading } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import CreateGradillaForm from '@/components/CreateGradillaForm';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 export default function CreateGrillaPage() {
     const router = useRouter();
     const { canCreateGrid } = usePlanRestrictions();
+    const { fetchWithAuth } = useFetchWithAuth();
 
     useEffect(() => {
         const checkRestrictions = async () => {
-            const response = await fetch('/api/user-stats');
-            if (response.ok) {
-                const data = await response.json();
+            try {
+                const data = await fetchWithAuth('/api/user-stats');
                 if (!canCreateGrid(data.gridCount)) {
                     router.push('/dashboard');
                 }
+            } catch (error) {
+                console.error('Error checking restrictions:', error);
             }
         };
 
         checkRestrictions();
-    }, [canCreateGrid, router]);
+    }, [canCreateGrid, router, fetchWithAuth]);
 
     return (
         <Box>

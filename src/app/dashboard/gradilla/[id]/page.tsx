@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import GrillaVisualization from '@/components/GrillaVisualization';
+import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 interface Tube {
     id: string;
@@ -39,13 +40,12 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEmptying, setIsEmptying] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const { fetchWithAuth } = useFetchWithAuth();
 
     useEffect(() => {
         const fetchGradilla = async () => {
             try {
-                const response = await fetch(`/api/gradillas/${params.id}`);
-                if (!response.ok) throw new Error('Error fetching grid');
-                const data: Gradilla = await response.json();
+                const data = await fetchWithAuth(`/api/gradillas/${params.id}`);
                 setGradilla(data);
             } catch (error) {
                 console.error('Error:', error);
@@ -54,21 +54,13 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
         };
 
         fetchGradilla();
-    }, [params.id, router]);
+    }, [params.id, router, fetchWithAuth]);
 
     const handleDeleteGrilla = async () => {
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/gradillas/${params.id}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) throw new Error('Error deleting grid');
-            toast({
-                title: "Grid deleted",
-                description: "The grid has been successfully deleted.",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
+            await fetchWithAuth(`/api/gradillas/${params.id}`, {
+                method: 'DELETE'
             });
             router.push('/dashboard');
         } catch (error) {
@@ -80,72 +72,38 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                 duration: 3000,
                 isClosable: true,
             });
+        } finally {
             setIsDeleting(false);
         }
     };
 
-    const handleAddTube = async (tube: Omit<Tube, 'id'>) => {
-        try {
-            const response = await fetch(`/api/gradillas/${params.id}/tubes`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tube),
-            });
-            if (!response.ok) throw new Error('Error adding tube');
-            const newTube: Tube = await response.json();
-            setGradilla(prev => prev ? { ...prev, tubes: [...prev.tubes, newTube] } : null);
-            toast({
-                title: "Tube added",
-                description: "The tube has been successfully added.",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
-        } catch (error) {
-            console.error('Error:', error);
-            toast({
-                title: "Error",
-                description: "Could not add tube. Please try again.",
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            });
-        }
+    const handleAddTube = (newTube: Tube) => {
+        setGradilla(prev => prev ? {
+            ...prev,
+            tubes: [...prev.tubes, newTube]
+        } : null);
     };
 
-    const handleRemoveTube = async (tubeId: string) => {
-        try {
-            const response = await fetch(`/api/gradillas/${params.id}/tubes/${tubeId}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) throw new Error('Error removing tube');
-            setGradilla(prev => prev ? { ...prev, tubes: prev.tubes.filter(t => t.id !== tubeId) } : null);
-            toast({
-                title: "Tube removed",
-                description: "The tube has been successfully removed.",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
-        } catch (error) {
-            console.error('Error:', error);
-            toast({
-                title: "Error",
-                description: "Could not remove tube. Please try again.",
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            });
-        }
+    const handleRemoveTube = (tubeId: string) => {
+        setGradilla(prev => {
+            if (!prev) return null;
+            const updatedTubes = prev.tubes.filter(t => t.id !== tubeId);
+            return {
+                ...prev,
+                tubes: updatedTubes
+            };
+        });
     };
 
     const handleEmptyGradilla = async () => {
         setIsEmptying(true);
         try {
-            const response = await fetch(`/api/gradillas/${params.id}/tubes`, {
+            await fetchWithAuth(`/api/gradillas/${params.id}/tubes`, {
                 method: 'DELETE',
+                headers: {
+                    'x-active-user-id': localStorage.getItem('currentUserId') || ''
+                }
             });
-            if (!response.ok) throw new Error('Error emptying grid');
             setGradilla(prev => prev ? { ...prev, tubes: [] } : null);
             toast({
                 title: "Grid emptied",
@@ -215,6 +173,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                 </Box>
 
                 <GrillaVisualization
+                    id={params.id}
                     rows={gradilla.rows}
                     columns={gradilla.columns}
                     fields={gradilla.fields}
@@ -303,7 +262,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                                 <Td color="gray.700">{tube.position}</Td>
                                                 {gradilla.fields.map(field => (
                                                     <Td key={field} color="gray.700">
-                                                        {tube.data[field] || '-'}
+                                                        {(tube.data && tube.data[field]) || '-'}
                                                     </Td>
                                                 ))}
                                             </Tr>

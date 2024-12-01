@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Grid, GridItem, Text, VStack, useDisclosure, Tooltip } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Text, VStack, useDisclosure, Tooltip, useToast } from '@chakra-ui/react';
 import TubeModal from './TubeModal';
+import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 interface Tube {
     id: string;
@@ -9,15 +10,17 @@ interface Tube {
 }
 
 interface GrillaVisualizationProps {
+    id: string;
     rows: string[];
     columns: number[];
     fields: string[];
     tubes: Tube[];
-    onTubeAdd: (tube: Omit<Tube, 'id'>) => void;
+    onTubeAdd: (tube: Tube) => void;
     onTubeRemove: (tubeId: string) => void;
 }
 
 const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({ 
+    id, 
     rows, 
     columns, 
     fields,
@@ -27,6 +30,8 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedPosition, setSelectedPosition] = useState('');
+    const { fetchWithAuth } = useFetchWithAuth();
+    const toast = useToast();
 
     const getNextPosition = (currentPosition: string): string | undefined => {
         const currentRow = currentPosition.charAt(0);
@@ -61,7 +66,7 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
     const handleCellClick = (position: string) => {
         const tube = tubes.find(t => t.position === position);
         if (tube) {
-            onTubeRemove(tube.id);
+            handleTubeRemove(tube.id);
         } else {
             setSelectedPosition(position);
             onOpen();
@@ -73,17 +78,84 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
     };
 
     const handleTubeAdd = async (tube: Omit<Tube, 'id'>, shouldContinue: boolean) => {
-        await onTubeAdd(tube);
-        
-        if (shouldContinue) {
-            const nextPos = getNextPosition(tube.position);
-            if (nextPos) {
-                setSelectedPosition(nextPos);
-            } else {
-                onClose();
+        try {
+            const response = await fetchWithAuth(`/api/gradillas/${id}/tubes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-active-user-id': localStorage.getItem('currentUserId') || ''
+                },
+                body: JSON.stringify(tube)
+            });
+
+            if (response.success && response.tube) {
+                // Actualizar el estado del padre con el tubo devuelto por la API
+                onTubeAdd(response.tube);
+                
+                toast({
+                    title: "Tube added",
+                    description: "The tube has been successfully added.",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                if (shouldContinue) {
+                    const nextPos = getNextPosition(tube.position);
+                    if (nextPos) {
+                        setSelectedPosition(nextPos);
+                    } else {
+                        onClose();
+                    }
+                } else {
+                    onClose();
+                }
             }
-        } else {
-            onClose();
+        } catch (error) {
+            console.error('Error adding tube:', error);
+            toast({
+                title: "Error",
+                description: "Could not add tube. Please try again.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+        }
+    };
+
+    const handleTubeRemove = async (tubeId: string) => {
+        try {
+            const response = await fetchWithAuth(`/api/gradillas/${id}/tubes/${tubeId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-active-user-id': localStorage.getItem('currentUserId') || ''
+                }
+            });
+
+            if (response.success) {
+                // Actualizar la UI inmediatamente después de una eliminación exitosa
+                onTubeRemove(tubeId);
+                
+                // Opcional: Mostrar un toast de éxito
+                toast({
+                    title: "Tube removed",
+                    description: "The tube has been successfully removed.",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        } catch (error) {
+            console.error('Error removing tube:', error);
+            // Opcional: Mostrar un toast de error
+            toast({
+                title: "Error",
+                description: "Could not remove tube. Please try again.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
         }
     };
 
@@ -151,3 +223,4 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
 };
 
 export default GrillaVisualization;
+

@@ -11,6 +11,7 @@ declare module 'next-auth' {
             planType: string;
             planStartDate: string;
             emailVerified: boolean;
+            isMainUser: boolean;
         }
     }
 
@@ -21,6 +22,7 @@ declare module 'next-auth' {
         planType: string;
         planStartDate: Date;
         emailVerified: boolean;
+        isMainUser: boolean;
     }
 }
 

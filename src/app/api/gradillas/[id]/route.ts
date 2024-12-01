@@ -2,27 +2,43 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
+import { getActiveUserForAudit } from '@/lib/utils/audit';
 
 export async function GET(
 	req: Request,
 	{ params }: { params: { id: string } }
 ) {
 	const session = await getServerSession(authOptions);
-	if (!session || !session.user?.id) {
+	if (!session?.user?.id) {
 		return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 	}
 
 	try {
-		const gradilla = await prisma.gradilla.findUnique({
-			where: { 
+		// Buscar la gradilla considerando usuario principal y secundarios
+		const gradilla = await prisma.gradilla.findFirst({
+			where: {
 				id: params.id,
-				userId: session.user.id 
+				OR: [
+					{ userId: session.user.id },
+					{ user: { mainUserId: session.user.id } }
+				]
 			},
-			include: { tubes: true },
+			include: { 
+				tubes: true,
+				user: {
+					select: {
+						name: true,
+						email: true,
+						isMainUser: true
+					}
+				}
+			},
 		});
+
 		if (!gradilla) {
 			return NextResponse.json({ error: 'Gradilla no encontrada' }, { status: 404 });
 		}
+
 		return NextResponse.json(gradilla);
 	} catch (error) {
 		console.error('Error al obtener la gradilla:', error);
@@ -41,6 +57,8 @@ export async function PUT(
 
 	const { name, rows, columns, fields, description, storagePlace, temperature } = await req.json();
 
+	const activeUser = await getActiveUserForAudit(req, session.user.id);
+
 	try {
 		const updatedGradilla = await prisma.gradilla.update({
 			where: { 
@@ -57,6 +75,26 @@ export async function PUT(
 				fields: fields as string[]
 			},
 		});
+
+		// Registrar en el log de auditoría
+		await prisma.auditLog.create({
+			data: {
+				action: 'UPDATE_GRID',
+				entityType: 'GRID',
+				entityId: params.id,
+				details: {
+					name,
+					description,
+					storagePlace,
+					temperature,
+					rowCount: rows.length,
+					columnCount: columns.length,
+					activeUser
+				},
+				userId: activeUser?.id || session.user.id
+			}
+		});
+
 		return NextResponse.json(updatedGradilla);
 	} catch (error) {
 		console.error('Error al actualizar la gradilla:', error);
@@ -69,23 +107,60 @@ export async function DELETE(
 	{ params }: { params: { id: string } }
 ) {
 	const session = await getServerSession(authOptions);
-	if (!session || !session.user?.id) {
+	if (!session?.user?.id) {
 		return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 	}
 
 	try {
-		// Primero, eliminamos todos los tubos asociados a esta gradilla
+		const activeUser = await getActiveUserForAudit(req, session.user.id);
+		if (!activeUser) {
+			return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+		}
+
+		// Verificar acceso a la gradilla
+		const gradilla = await prisma.gradilla.findFirst({
+			where: {
+				id: params.id,
+				OR: [
+					{ userId: session.user.id },
+					{ user: { mainUserId: session.user.id } }
+				]
+			}
+		});
+
+		if (!gradilla) {
+			return NextResponse.json({ error: 'Gradilla no encontrada o no autorizada' }, { status: 404 });
+		}
+
+		// Primero, eliminamos todos los tubos asociados
 		await prisma.tube.deleteMany({
 			where: { gradillaId: params.id }
 		});
 
 		// Luego, eliminamos la gradilla
 		await prisma.gradilla.delete({
-			where: { 
-				id: params.id,
-				userId: session.user.id 
-			},
+			where: { id: params.id }
 		});
+
+		// Registrar en audit log
+		await prisma.auditLog.create({
+			data: {
+				action: 'DELETE_GRID',
+				entityType: 'GRID',
+				entityId: params.id,
+				details: {
+					gridId: params.id,
+					activeUser: {
+						id: activeUser.id,
+						name: activeUser.name,
+						email: activeUser.email,
+						isMainUser: activeUser.isMainUser
+					}
+				},
+				userId: activeUser.id
+			}
+		});
+
 		return NextResponse.json({ message: 'Gradilla eliminada con éxito' });
 	} catch (error) {
 		console.error('Error al eliminar la gradilla:', error);

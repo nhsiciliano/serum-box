@@ -12,12 +12,14 @@ declare module "next-auth" {
             planType?: PlanType;
             planStartDate?: string;
             emailVerified?: boolean;
+            isMainUser?: boolean;
         } & DefaultSession["user"]
     }
     interface User {
         planType: PlanType;
         planStartDate: string;
         emailVerified: boolean;
+        isMainUser: boolean;
     }
 
     interface JWT {
@@ -60,7 +62,8 @@ export const authOptions: NextAuthOptions = {
                     name: user.name || '',
                     planType: (user.planType as PlanType) || 'free',
                     planStartDate: user.planStartDate?.toISOString() || '',
-                    emailVerified: user.emailVerified
+                    emailVerified: user.emailVerified,
+                    isMainUser: user.isMainUser || false
                 };
             }
         }),
@@ -77,6 +80,7 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.isMainUser = user.isMainUser;
                 token.planType = user.planType;
                 token.planStartDate = user.planStartDate;
                 token.emailVerified = user.emailVerified as boolean;
@@ -86,6 +90,7 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string;
+                session.user.isMainUser = token.isMainUser as boolean;
                 session.user.planType = (token.planType as PlanType) || 'free';
                 session.user.planStartDate = token.planStartDate as string;
                 session.user.emailVerified = token.emailVerified as boolean;

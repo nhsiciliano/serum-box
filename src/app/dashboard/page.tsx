@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Box, Heading, Text, Button, SimpleGrid, Center, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { PlanInfo } from '@/components/PlanInfo';
 import { useSession } from 'next-auth/react';
 import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
+import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 interface Gradilla {
   id: string;
@@ -25,24 +26,49 @@ export default function DashboardHome() {
   const { restrictions, canCreateGrid } = usePlanRestrictions();
   const toast = useToast();
   const { data: session } = useSession();
+  const { fetchWithAuth } = useFetchWithAuth();
 
-  useEffect(() => {
-    fetchGrillas();
-  }, []);
-
-  const fetchGrillas = async () => {
-    setIsLoading(true);
+  const fetchGrillas = useCallback(async () => {
+    if (!session?.user?.id) return;
+    
     try {
-      const response = await fetch('/api/gradillas');
-      if (!response.ok) throw new Error('Error fetching grids');
-      const data: Gradilla[] = await response.json();
-      setGrillas(data);
+      const data = await fetchWithAuth('/api/gradillas', {
+        headers: {
+          'x-include-secondary': 'true'
+        }
+      });
+      setGrillas(prevGrillas => {
+        const isDifferent = JSON.stringify(prevGrillas) !== JSON.stringify(data);
+        return isDifferent ? data : prevGrillas;
+      });
     } catch (error) {
       console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar las gradillas",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchWithAuth, toast, session?.user?.id]);
+
+  useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    if (session?.user?.id && isMounted) {
+      setIsLoading(true);
+      timeoutId = setTimeout(fetchGrillas, 100);
+    }
+
+    return () => {
+      isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [session?.user?.id, fetchGrillas]);
 
   const handleCreateGrilla = async () => {
     if (!canCreateGrid(grillas.length)) {

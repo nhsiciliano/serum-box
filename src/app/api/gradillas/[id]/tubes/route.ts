@@ -2,22 +2,26 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
+import { getActiveUserForAudit } from '@/lib/utils/audit';
 
 export async function GET(
     req: Request,
     { params }: { params: { id: string } }
 ) {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+    if (!session?.user?.id) {
         return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     try {
-        // Primero, verificamos si la gradilla pertenece al usuario actual
+        // Verificar acceso a la gradilla para usuario principal y secundarios
         const gradilla = await prisma.gradilla.findFirst({
             where: {
                 id: params.id,
-                userId: session.user.id
+                OR: [
+                    { userId: session.user.id },
+                    { user: { mainUserId: session.user.id } }
+                ]
             }
         });
 
@@ -25,7 +29,6 @@ export async function GET(
             return NextResponse.json({ error: 'Gradilla no encontrada o no autorizada' }, { status: 404 });
         }
 
-        // Obtenemos todos los tubos de la gradilla
         const tubes = await prisma.tube.findMany({
             where: {
                 gradillaId: params.id
@@ -44,18 +47,27 @@ export async function POST(
     { params }: { params: { id: string } }
 ) {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+    if (!session?.user?.id) {
         return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { position, data } = await req.json();
-
     try {
-        // Verificamos si la gradilla pertenece al usuario actual
+        // Log headers para debugging
+        console.log('Headers in tube creation:', Object.fromEntries(req.headers.entries()));
+        
+        const activeUser = await getActiveUserForAudit(req, session.user.id);
+        if (!activeUser) {
+            return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+        }
+
+        // Verificar acceso a la gradilla
         const gradilla = await prisma.gradilla.findFirst({
             where: {
                 id: params.id,
-                userId: session.user.id
+                OR: [
+                    { userId: session.user.id },
+                    { user: { mainUserId: session.user.id } }
+                ]
             }
         });
 
@@ -63,18 +75,51 @@ export async function POST(
             return NextResponse.json({ error: 'Gradilla no encontrada o no autorizada' }, { status: 404 });
         }
 
+        const { position, data } = await req.json();
+
+        // Asegurarnos de que data tenga todos los campos necesarios
         const tube = await prisma.tube.create({
             data: {
                 position,
-                data,
-                gradilla: { connect: { id: params.id } }
+                data: data || {},
+                gradillaId: params.id,
+                userId: activeUser.id
             }
         });
 
-        return NextResponse.json(tube);
+        await prisma.auditLog.create({
+            data: {
+                action: 'CREATE_TUBE',
+                entityType: 'TUBE',
+                entityId: tube.id,
+                details: {
+                    position,
+                    data,
+                    gradillaId: params.id,
+                    activeUser: {
+                        id: activeUser.id,
+                        name: activeUser.name,
+                        email: activeUser.email,
+                        isMainUser: activeUser.isMainUser
+                    }
+                },
+                userId: activeUser.id
+            }
+        });
+
+        return NextResponse.json({ 
+            success: true,
+            message: 'Tube successfully created',
+            tube: {
+                id: tube.id,
+                position: tube.position,
+                data: tube.data || {},
+                gradillaId: tube.gradillaId
+            }
+        });
     } catch (error) {
-        console.error('Error al añadir el tubo:', error);
-        return NextResponse.json({ error: 'Error al añadir el tubo' }, { status: 500 });
+        console.error('Error creating tube:', error);
+        return NextResponse.json({ error: 'Error creating tube' }, { status: 500 });
     }
 }
 
@@ -83,16 +128,24 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+    if (!session?.user?.id) {
         return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     try {
-        // Verificamos si la gradilla pertenece al usuario actual
+        const activeUser = await getActiveUserForAudit(req, session.user.id);
+        if (!activeUser) {
+            return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+        }
+
+        // Verificar acceso a la gradilla
         const gradilla = await prisma.gradilla.findFirst({
             where: {
                 id: params.id,
-                userId: session.user.id
+                OR: [
+                    { userId: session.user.id },
+                    { user: { mainUserId: session.user.id } }
+                ]
             }
         });
 
@@ -100,10 +153,27 @@ export async function DELETE(
             return NextResponse.json({ error: 'Gradilla no encontrada o no autorizada' }, { status: 404 });
         }
 
-        // Eliminamos todos los tubos de la gradilla
+        // Eliminar todos los tubos
         await prisma.tube.deleteMany({
-            where: {
-                gradillaId: params.id
+            where: { gradillaId: params.id }
+        });
+
+        // Registrar en audit log con el usuario activo
+        await prisma.auditLog.create({
+            data: {
+                action: 'EMPTY_GRID',
+                entityType: 'GRID',
+                entityId: params.id,
+                details: {
+                    action: 'Removed all tubes',
+                    activeUser: {
+                        id: activeUser.id,
+                        name: activeUser.name,
+                        email: activeUser.email,
+                        isMainUser: activeUser.isMainUser
+                    }
+                },
+                userId: activeUser.id  // Usar el ID del usuario activo
             }
         });
 

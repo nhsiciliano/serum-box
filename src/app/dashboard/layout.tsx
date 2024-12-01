@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Box, Flex, VStack, Icon, Link, ChakraProvider, extendTheme, Image, useToast, IconButton } from '@chakra-ui/react';
 import { FiHome, FiDatabase, FiSettings, FiLogOut, FiMenu } from 'react-icons/fi';
+import { AiOutlineAudit } from 'react-icons/ai';
 import NextLink from 'next/link';
 import { IconType } from 'react-icons';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -147,6 +148,7 @@ export default function DashboardLayout({
                         </Flex>
                         <NavItem icon={FiHome} href="/dashboard">Home</NavItem>
                         <NavItem icon={FiDatabase} href="/dashboard/create-grilla">Create Grid</NavItem>
+                        <NavItem icon={AiOutlineAudit} href="/dashboard/audit-log">Audit Log</NavItem>
                         <NavItem icon={FiSettings} href="/dashboard/admin-cuenta">Manage Account</NavItem>
                         <NavItem icon={FiLogOut} onClick={handleSignOut}>Sign Out</NavItem>
                     </VStack>

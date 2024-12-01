@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Box, Button, FormControl, FormLabel, Input, NumberInput, NumberInputField, VStack, HStack, IconButton, useToast, Spinner, Textarea } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
+import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 const CreateGradillaForm = () => {
     const router = useRouter();
@@ -17,6 +18,8 @@ const CreateGradillaForm = () => {
     const [columnCount, setColumnCount] = useState(10);
     const [fields, setFields] = useState<string[]>(["Name"]);
     const { restrictions, canCreateGrid } = usePlanRestrictions();
+    const { fetchWithAuth } = useFetchWithAuth();
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleAddField = () => {
         if (fields.length < 5) {
@@ -35,8 +38,19 @@ const CreateGradillaForm = () => {
         setFields(newFields);
     };
 
+    const fetchCurrentGrillasCount = async () => {
+        try {
+            const data = await fetchWithAuth('/api/user-stats');
+            return data.gridCount;
+        } catch (error) {
+            console.error('Error fetching statistics:', error);
+            return 0;
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
 
         if (!name.trim()) {
             toast({
@@ -46,6 +60,7 @@ const CreateGradillaForm = () => {
                 duration: 3000,
                 isClosable: true,
             });
+            setIsLoading(false);
             return;
         }
 
@@ -58,33 +73,23 @@ const CreateGradillaForm = () => {
                 duration: 5000,
                 isClosable: true,
             });
+            setIsLoading(false);
             return;
         }
 
-        const rows = Array.from({ length: rowCount }, (_, i) => 
-            String.fromCharCode(65 + i)
-        );
-        
-        const columns = Array.from({ length: columnCount }, (_, i) => i + 1);
-
         try {
-            const response = await fetch('/api/gradillas', {
+            await fetchWithAuth('/api/gradillas', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({
                     name,
                     description,
                     storagePlace,
                     temperature,
-                    rows,
-                    columns,
+                    rows: Array.from({ length: rowCount }, (_, i) => String.fromCharCode(65 + i)),
+                    columns: Array.from({ length: columnCount }, (_, i) => i + 1),
                     fields: fields.length > 0 ? fields : ['Name']
-                }),
+                })
             });
-
-            if (!response.ok) throw new Error('Error creating grid');
 
             toast({
                 title: "Grid created",
@@ -104,20 +109,8 @@ const CreateGradillaForm = () => {
                 duration: 3000,
                 isClosable: true,
             });
-        }
-    };
-
-    const fetchCurrentGrillasCount = async () => {
-        try {
-            const response = await fetch('/api/user-stats');
-            if (response.ok) {
-                const data = await response.json();
-                return data.gridCount;
-            }
-            return 0;
-        } catch (error) {
-            console.error('Error fetching statistics:', error);
-            return 0;
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -126,7 +119,7 @@ const CreateGradillaForm = () => {
             <VStack spacing={4}>
                 <FormControl isRequired>
                     <FormLabel color="gray.500">Grid Name</FormLabel>
-                    <Input value={name} color="gray.500" onChange={(e) => setName(e.target.value)} />
+                    <Input value={name} placeholder="Enter a name for your grid..." color="gray.500" onChange={(e) => setName(e.target.value)} />
                 </FormControl>
 
                 <FormControl>
@@ -197,7 +190,7 @@ const CreateGradillaForm = () => {
                 <Button 
                     type="submit" 
                     colorScheme="teal" 
-                    isLoading={false}
+                    isLoading={isLoading}
                     loadingText="Creating Grid"
                     spinner={<Spinner />}
                 >

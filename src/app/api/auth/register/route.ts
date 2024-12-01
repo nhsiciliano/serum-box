@@ -22,6 +22,7 @@ export async function POST(req: Request) {
                 password: hashedPassword,
                 planType: 'premium',
                 planStartDate: new Date(),
+                isMainUser: true,
                 ...PLAN_LIMITS.premium
             }
         });
