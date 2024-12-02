@@ -46,3 +46,36 @@ export async function sendVerificationEmail(email: string, verificationCode: str
         throw new Error('Error al enviar el correo de verificación');
     }
 }
+
+export async function sendPasswordRecoveryEmail(email: string, resetToken: string) {
+    try {
+        const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+        
+        const mailOptions = {
+            from: process.env.EMAIL_FROM || 'noreply@example.com',
+            to: email,
+            subject: 'Reset your Serum Box password',
+            html: `
+                <h1>Password Reset Request</h1>
+                <p>You requested to reset your password. Click the link below to set a new password:</p>
+                <a href="${resetUrl}" style="
+                    background-color: #319795;
+                    color: white;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    display: inline-block;
+                    margin: 20px 0;
+                ">Reset Password</a>
+                <p>If you didn't request this, please ignore this email.</p>
+                <p>This link will expire in 1 hour.</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('Password recovery email sent to:', email);
+    } catch (error) {
+        console.error('Error sending password recovery email:', error);
+        throw new Error('Error sending password recovery email');
+    }
+}

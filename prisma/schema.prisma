@@ -67,6 +67,8 @@ model User {
   mainUser        User?     @relation("MainToSecondary", fields: [mainUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   auditLogs       AuditLog[]
   tubes          Tube[]
+  resetToken        String?
+  resetTokenExpiry  DateTime?
 }
 
 model Gradilla {
