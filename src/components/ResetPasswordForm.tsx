@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, useToast } from '@chakra-ui/react';
+import { useState, Suspense } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, useToast, Center, Spinner } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ResetPasswordForm() {
+// Componente interno con la lógica del formulario
+const ResetPasswordContent = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +13,8 @@ export default function ResetPasswordForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
+    const bgColor = useColorModeValue('white', 'gray.700');
+    const textColor = useColorModeValue('gray.800', 'white');
 
     const validatePassword = (password: string) => {
         const minLength = 8;
@@ -94,9 +97,6 @@ export default function ResetPasswordForm() {
         }
     };
 
-    const bgColor = useColorModeValue('white', 'gray.700');
-    const textColor = useColorModeValue('gray.800', 'white');
-
     return (
         <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="lg">
             <VStack spacing={6} align="stretch">
@@ -149,5 +149,26 @@ export default function ResetPasswordForm() {
                 </form>
             </VStack>
         </Box>
+    );
+};
+
+// Componente principal envuelto en Suspense
+export default function ResetPasswordForm() {
+    return (
+        <Suspense
+            fallback={
+                <Center py={8}>
+                    <Spinner
+                        thickness="4px"
+                        speed="0.65s"
+                        emptyColor="gray.200"
+                        color="blue.500"
+                        size="xl"
+                    />
+                </Center>
+            }
+        >
+            <ResetPasswordContent />
+        </Suspense>
     );
 } 

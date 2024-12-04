@@ -1,4 +1,4 @@
-import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem, Spinner } from '@chakra-ui/react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -11,6 +11,7 @@ export default function DashboardHeader() {
     const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
     const [isCurrentUserSelectorOpen, setIsCurrentUserSelectorOpen] = useState(false);
     const [activeUser, setActiveUser] = useState<string>('');
+    const [isSigningOut, setIsSigningOut] = useState(false);
 
     useEffect(() => {
         const updateActiveUser = () => {
@@ -31,8 +32,15 @@ export default function DashboardHeader() {
     }, [session]);
 
     const handleSignOut = async () => {
-        await signOut({ redirect: false });
-        router.push('/');
+        setIsSigningOut(true);
+        try {
+            await signOut({ redirect: false });
+            router.push('/');
+        } catch (error) {
+            console.error('Error signing out:', error);
+        } finally {
+            setIsSigningOut(false);
+        }
     };
 
     return (
@@ -81,8 +89,16 @@ export default function DashboardHeader() {
                         <MenuItem 
                             color="gray.700"
                             onClick={handleSignOut}
+                            isDisabled={isSigningOut}
                         >
-                            Sign Out
+                            {isSigningOut ? (
+                                <Flex align="center">
+                                    <Spinner size="sm" mr={2} />
+                                    Signing out...
+                                </Flex>
+                            ) : (
+                                'Sign Out'
+                            )}
                         </MenuItem>
                     </MenuList>
                 </Menu>

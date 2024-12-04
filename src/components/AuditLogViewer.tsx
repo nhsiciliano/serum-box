@@ -13,7 +13,10 @@ import {
     Button,
     Badge,
     Flex,
-    useColorModeValue
+    useColorModeValue,
+    Center,
+    Spinner,
+    VStack,
 } from '@chakra-ui/react';
 import { useFetchWithAuth } from '../hooks/useFetchWithAuth';
 
@@ -61,8 +64,10 @@ export const AuditLogViewer = () => {
     const bgColor = useColorModeValue('white', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.200');
     const { fetchWithAuth } = useFetchWithAuth();
+    const [isLoading, setIsLoading] = useState(true);
 
     const fetchLogs = useCallback(async (page: number = 1) => {
+        setIsLoading(true);
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
@@ -75,6 +80,8 @@ export const AuditLogViewer = () => {
             setPagination(data.pagination);
         } catch (error) {
             console.error('Error fetching audit logs:', error);
+        } finally {
+            setIsLoading(false);
         }
     }, [entityType, fetchWithAuth]);
 
@@ -124,59 +131,70 @@ export const AuditLogViewer = () => {
                 </Select>
             </HStack>
 
-            <Table variant="simple">
-                <Thead>
-                    <Tr>
-                        <Th>Date</Th>
-                        <Th>Applied by</Th>
-                        <Th>Action</Th>
-                        <Th>Details</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {logs.map((log) => (
-                        <Tr key={log.id}>
-                            <Td color="gray.600">
-                                {new Date(log.createdAt).toLocaleString()}
-                            </Td>
-                            <Td color="gray.600">
-                                <Text>
-                                    {log.appliedBy}
-                                    {log.isSecondaryUser && " (Secondary)"}
-                                </Text>
-                            </Td>
-                            <Td>
-                                <Badge colorScheme={getActionColor(log.action)}>
-                                    {getActionText(log.action)}
-                                </Badge>
-                            </Td>
-                            <Td>
-                                <Text fontSize="sm" color={textColor}>
-                                    {JSON.stringify(
-                                        {...log.details, activeUser: undefined},
-                                        null,
-                                        2
-                                    )}
-                                </Text>
-                            </Td>
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
+            {isLoading ? (
+                <Center py={8}>
+                    <VStack spacing={4}>
+                        <Spinner size="xl" color="blue.500" thickness="4px" />
+                        <Text color="gray.500">Loading audit logs...</Text>
+                    </VStack>
+                </Center>
+            ) : (
+                <>
+                    <Table variant="simple">
+                        <Thead>
+                            <Tr>
+                                <Th>Date</Th>
+                                <Th>Applied by</Th>
+                                <Th>Action</Th>
+                                <Th>Details</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {logs.map((log) => (
+                                <Tr key={log.id}>
+                                    <Td color="gray.600">
+                                        {new Date(log.createdAt).toLocaleString()}
+                                    </Td>
+                                    <Td color="gray.600">
+                                        <Text>
+                                            {log.appliedBy}
+                                            {log.isSecondaryUser && " (Secondary)"}
+                                        </Text>
+                                    </Td>
+                                    <Td>
+                                        <Badge colorScheme={getActionColor(log.action)}>
+                                            {getActionText(log.action)}
+                                        </Badge>
+                                    </Td>
+                                    <Td>
+                                        <Text fontSize="sm" color={textColor}>
+                                            {JSON.stringify(
+                                                {...log.details, activeUser: undefined},
+                                                null,
+                                                2
+                                            )}
+                                        </Text>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
 
-            <Flex justify="center" mt={4}>
-                {Array.from({ length: pagination.pages }, (_, i) => (
-                    <Button
-                        key={i + 1}
-                        size="sm"
-                        variant={pagination.currentPage === i + 1 ? "solid" : "outline"}
-                        onClick={() => fetchLogs(i + 1)}
-                        mx={1}
-                    >
-                        {i + 1}
-                    </Button>
-                ))}
-            </Flex>
+                    <Flex justify="center" mt={4}>
+                        {Array.from({ length: pagination.pages }, (_, i) => (
+                            <Button
+                                key={i + 1}
+                                size="sm"
+                                variant={pagination.currentPage === i + 1 ? "solid" : "outline"}
+                                onClick={() => fetchLogs(i + 1)}
+                                mx={1}
+                            >
+                                {i + 1}
+                            </Button>
+                        ))}
+                    </Flex>
+                </>
+            )}
         </Box>
     );
 };

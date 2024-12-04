@@ -15,6 +15,7 @@ import {
     Input,
     VStack,
     Checkbox,
+    Spinner,
 } from '@chakra-ui/react';
 
 interface TubeModalProps {
@@ -22,7 +23,7 @@ interface TubeModalProps {
     onClose: () => void;
     position: string;
     fields: string[];
-    onTubeAdd: (tube: { position: string; data: Record<string, string> }, continueToNext: boolean) => void;
+    onTubeAdd: (tube: { position: string; data: Record<string, string> }, continueToNext: boolean) => Promise<void>;
     nextPosition?: string;
 }
 
@@ -36,11 +37,13 @@ const TubeModal: React.FC<TubeModalProps> = ({
 }) => {
     const [tubeData, setTubeData] = useState<Record<string, string>>({});
     const [continueToNext, setContinueToNext] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             setTubeData({});
             setContinueToNext(true);
+            setIsSaving(false);
         }
     }, [isOpen]);
 
@@ -51,13 +54,18 @@ const TubeModal: React.FC<TubeModalProps> = ({
         }));
     };
 
-    const handleSubmit = () => {
-        onTubeAdd({ position, data: tubeData }, continueToNext);
-        
-        if (!continueToNext || !nextPosition) {
-            onClose();
-        } else {
-            setTubeData({});
+    const handleSubmit = async () => {
+        setIsSaving(true);
+        try {
+            await onTubeAdd({ position, data: tubeData }, continueToNext);
+            
+            if (!continueToNext || !nextPosition) {
+                onClose();
+            } else {
+                setTubeData({});
+            }
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -92,7 +100,14 @@ const TubeModal: React.FC<TubeModalProps> = ({
                     </VStack>
                 </ModalBody>
                 <ModalFooter>
-                    <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+                    <Button 
+                        colorScheme="blue" 
+                        mr={3} 
+                        onClick={handleSubmit}
+                        isLoading={isSaving}
+                        loadingText="Saving"
+                        spinner={<Spinner />}
+                    >
                         Save
                     </Button>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
