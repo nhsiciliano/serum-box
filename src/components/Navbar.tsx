@@ -1,7 +1,19 @@
 'use client';
 
-import { Box, Flex, Button, useColorMode, IconButton, Image, Menu, MenuButton, MenuList, MenuItem, useBreakpointValue } from '@chakra-ui/react';
-import { MoonIcon, SunIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { 
+  Box, 
+  Flex, 
+  Button, 
+  Image, 
+  Menu, 
+  MenuButton, 
+  MenuList, 
+  MenuItem, 
+  useBreakpointValue,
+  IconButton,
+  Collapse
+} from '@chakra-ui/react';
+import { ChevronDownIcon, HamburgerIcon } from '@chakra-ui/icons';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -9,10 +21,8 @@ import { translations } from '@/lib/translations';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { colorMode, toggleColorMode } = useColorMode();
+  const [isOpen, setIsOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
-  
-  // Determinar si estamos en móvil
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
@@ -24,119 +34,147 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const getButtonStyles = (isScrolled: boolean, colorMode: string) => ({
-    bg: isScrolled 
-      ? (colorMode === 'light' ? 'teal.500' : 'teal.200') 
-      : (colorMode === 'light' ? 'white' : 'gray.800'),
-    color: isScrolled 
-      ? (colorMode === 'light' ? 'white' : 'gray.800') 
-      : (colorMode === 'light' ? 'teal.500' : 'teal.200'),
+  const getButtonStyles = (isScrolled: boolean) => ({
+    bg: isScrolled ? 'teal.500' : 'white',
+    color: isScrolled ? 'white' : 'teal.500',
     _hover: {
-      bg: isScrolled 
-        ? (colorMode === 'light' ? 'teal.600' : 'teal.300')
-        : (colorMode === 'light' ? 'gray.100' : 'gray.700'),
+      bg: isScrolled ? 'teal.600' : 'gray.100',
     }
   });
 
   return (
     <Box
       as="nav"
-      position="sticky"
+      position="fixed"
       top={0}
+      left={0}
+      right={0}
+      width="100%"
       zIndex={1000}
       transition="all 0.3s ease-in-out"
-      bg={isScrolled 
-        ? (colorMode === 'light' ? 'rgba(154, 230, 180, 0.8)' : 'rgba(45, 55, 72, 0.8)') 
-        : 'transparent'
-      }
+      bg={isScrolled ? 'rgba(154, 230, 180, 0.8)' : 'transparent'}
       backdropFilter={isScrolled ? 'blur(10px)' : 'none'}
       boxShadow={isScrolled ? 'md' : 'none'}
       css={{
         background: isScrolled
-          ? (colorMode === 'light' ? 'rgba(154, 230, 180, 0.8)' : 'rgba(45, 55, 72, 0.8)')
-          : (colorMode === 'light' 
-              ? 'linear-gradient(to right, #4FD1C5, #9AE6B4)'
-              : 'linear-gradient(to right, #2C7A7B, #276749)')
+          ? 'rgba(154, 230, 180, 0.8)'
+          : 'linear-gradient(to right, #4FD1C5, #9AE6B4)'
       }}
     >
       <Flex
-        direction={isMobile ? 'column' : 'row'}
-        py={isMobile ? 4 : 2}
-        h={isMobile ? 'auto' : '70px'}
+        direction="row"
+        py={2}
+        h={isMobile ? '70px' : '80px'}
         alignItems="center"
-        justifyContent={isMobile ? 'center' : 'space-between'}
+        justifyContent="space-between"
         maxW="container.xl"
         mx="auto"
         px={4}
-        gap={isMobile ? 4 : 0}
       >
         <Link href="/" passHref legacyBehavior>
           <Box 
             as="a" 
             display="flex" 
             alignItems="center"
-            justifyContent={isMobile ? "center" : "flex-start"}
-            width={isMobile ? "100%" : "auto"}
+            justifyContent="flex-start"
+            width="auto"
           >
             <Image
               src="/images/serum-box.png"
               alt="Serum Box Logo"
-              height={isMobile ? "60px" : "50px"}
+              height="50px"
               width="auto"
               objectFit="contain"
-              filter={isScrolled && colorMode === 'dark' ? 'invert(1)' : 'none'}
               transition="filter 0.3s ease-in-out"
             />
           </Box>
         </Link>
 
-        <Flex 
-          alignItems="center" 
-          gap={4}
-          width={isMobile ? "100%" : "auto"}
-          justifyContent={isMobile ? "space-evenly" : "flex-end"}
-          mt={isMobile ? 2 : 0}
-        >
+        {isMobile ? (
           <IconButton
-            aria-label="Toggle color mode"
-            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            onClick={toggleColorMode}
-            size="md"
+            aria-label="Open menu"
+            icon={<HamburgerIcon />}
+            onClick={() => setIsOpen(!isOpen)}
             variant="ghost"
-            color={isScrolled ? (colorMode === 'light' ? 'gray.800' : 'white') : 'white'}
+            color="white"
+            size="lg"
           />
-          
-          <Menu>
-            <MenuButton
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-              {...getButtonStyles(isScrolled, colorMode)}
-              variant="ghost"
-              minW={isMobile ? "auto" : "70px"}
-            >
-              {language === 'en' ? 'EN' : 'ES'}
-            </MenuButton>
-            <MenuList>
-              <MenuItem color="teal.500" onClick={() => setLanguage('en')}>English</MenuItem>
-              <MenuItem color="teal.500" onClick={() => setLanguage('es')}>Spanish</MenuItem>
-            </MenuList>
-          </Menu>
+        ) : (
+          <Flex alignItems="center" gap={4}>
+            <Menu>
+              <MenuButton
+                as={Button}
+                rightIcon={<ChevronDownIcon />}
+                {...getButtonStyles(isScrolled)}
+                variant="ghost"
+                minW="70px"
+              >
+                {language === 'en' ? 'EN' : 'ES'}
+              </MenuButton>
+              <MenuList>
+                <MenuItem color="teal.500" onClick={() => setLanguage('en')}>English</MenuItem>
+                <MenuItem color="teal.500" onClick={() => setLanguage('es')}>Spanish</MenuItem>
+              </MenuList>
+            </Menu>
 
-          <Link href="/login" passHref legacyBehavior>
-            <Button
-              as="a"
-              {...getButtonStyles(isScrolled, colorMode)}
-              size="md"
-              fontWeight="bold"
-              px={6}
-              rounded="md"
-              minW={isMobile ? "auto" : "100px"}
-            >
-              {translations[language as 'en' | 'es'].nav.start}
-            </Button>
-          </Link>
-        </Flex>
+            <Link href="/login" passHref legacyBehavior>
+              <Button
+                as="a"
+                {...getButtonStyles(isScrolled)}
+                size="md"
+                fontWeight="bold"
+                px={6}
+                rounded="md"
+                minW="100px"
+              >
+                {translations[language as 'en' | 'es'].nav.start}
+              </Button>
+            </Link>
+          </Flex>
+        )}
       </Flex>
+
+      {/* Menú móvil colapsable */}
+      {isMobile && (
+        <Collapse in={isOpen} animateOpacity>
+          <Box
+            p={4}
+            bg="white"
+            shadow="md"
+          >
+            <Flex
+              direction="column"
+              gap={4}
+              align="center"
+            >
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  variant="ghost"
+                  w="full"
+                >
+                  {language === 'en' ? 'EN' : 'ES'}
+                </MenuButton>
+                <MenuList>
+                  <MenuItem onClick={() => setLanguage('en')}>English</MenuItem>
+                  <MenuItem onClick={() => setLanguage('es')}>Spanish</MenuItem>
+                </MenuList>
+              </Menu>
+
+              <Link href="/login" passHref legacyBehavior>
+                <Button
+                  as="a"
+                  colorScheme="teal"
+                  w="full"
+                >
+                  {translations[language as 'en' | 'es'].nav.start}
+                </Button>
+              </Link>
+            </Flex>
+          </Box>
+        </Collapse>
+      )}
     </Box>
   );
 }

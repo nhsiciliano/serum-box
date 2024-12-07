@@ -26,7 +26,7 @@ export default function HomeContent() {
   const buttonHoverBg = useColorModeValue('green.700', 'green.500');
 
   return (
-    <Box bgGradient={bgGradient} py={20}>
+    <Box bgGradient={bgGradient} py={28}>
       <Container maxW="container.xl">
         <VStack spacing={8} alignItems="center" textAlign="center">
           <Heading as="h1" size="3xl" color={textColor}>

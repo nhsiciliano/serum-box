@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, Select } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, ButtonGroup } from '@chakra-ui/react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -55,23 +55,32 @@ export default function PricingPlans() {
     }
   ];
 
+  const durations = [
+    { value: 3, label: `3 ${t.pricing.duration.months}` },
+    { value: 6, label: `6 ${t.pricing.duration.months}` },
+    { value: 12, label: `12 ${t.pricing.duration.months}` }
+  ];
+
   return (
     <Box bg={bgColor} py={12}>
       <VStack spacing={8}>
         <Heading as="h2" color={headingColor} size="xl">
           {t.pricing.title}
         </Heading>
-        <Select
-          value={selectedDuration}
-          color={textColor}
-          onChange={(e) => setSelectedDuration(Number(e.target.value) as 3 | 6 | 12)}
-          width="auto"
-          mb={4}
-        >
-          <option value={3}>3 {t.pricing.duration.months}</option>
-          <option value={6}>6 {t.pricing.duration.months}</option>
-          <option value={12}>12 {t.pricing.duration.months}</option>
-        </Select>
+        
+        <ButtonGroup size="md" isAttached variant="outline">
+          {durations.map(duration => (
+            <Button
+              key={duration.value}
+              onClick={() => setSelectedDuration(duration.value as 3 | 6 | 12)}
+              colorScheme={selectedDuration === duration.value ? "teal" : "gray"}
+              variant={selectedDuration === duration.value ? "solid" : "outline"}
+            >
+              {duration.label}
+            </Button>
+          ))}
+        </ButtonGroup>
+
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} width="full" maxWidth="5xl">
           {plans.map((plan) => (
             <Box key={plan.name} bg={cardBgColor} p={6} borderRadius="lg" boxShadow="lg">
@@ -102,7 +111,7 @@ export default function PricingPlans() {
                 </List>
                 <Link href="/login" passHref legacyBehavior>
                   <Button colorScheme="blue" size="lg">
-                    {t.pricing.startButton[plan.name.toLowerCase() as keyof typeof t.pricing.startButton]}
+                    {t.pricing.startButton[plan.name.toLowerCase() === 'gratis' ? 'free' : plan.name.toLowerCase() as keyof typeof t.pricing.startButton]}
                   </Button>
                 </Link>
               </VStack>
