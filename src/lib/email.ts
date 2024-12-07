@@ -45,13 +45,18 @@ export async function sendVerificationEmail(email: string, verificationCode: str
         const mailOptions = {
             from: process.env.EMAIL_FROM || 'noreply@example.com',
             to: email,
-            subject: 'Verifica tu cuenta de Serum Box',
+            subject: 'Verify your Serum Box account',
             html: `
-        <h1>Bienvenido a Serum Box</h1>
-        <p>Gracias por registrarte. Por favor, verifica tu cuenta utilizando el siguiente código:</p>
-        <h2>${verificationCode}</h2>
-        <p>Si no has solicitado esta verificación, por favor ignora este correo.</p>
-    `,
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1 style="color: #319795;">Welcome to Serum Box</h1>
+                    <p>Thank you for signing up. Please verify your account using the following code:</p>
+                    <h2 style="background-color: #E6FFFA; padding: 15px; text-align: center; font-size: 24px; border-radius: 5px;">${verificationCode}</h2>
+                    <p>If you did not request this verification, please ignore this email.</p>
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #E2E8F0;">
+                        <img src="${process.env.NEXTAUTH_URL}/images/serum-box.png" alt="Serum Box Logo" style="width: 150px; height: auto;">
+                    </div>
+                </div>
+            `,
         };
 
         await transporter.sendMail(mailOptions);
@@ -71,19 +76,24 @@ export async function sendPasswordRecoveryEmail(email: string, resetToken: strin
             to: email,
             subject: 'Reset your Serum Box password',
             html: `
-                <h1>Password Reset Request</h1>
-                <p>You requested to reset your password. Click the link below to set a new password:</p>
-                <a href="${resetUrl}" style="
-                    background-color: #319795;
-                    color: white;
-                    padding: 10px 20px;
-                    text-decoration: none;
-                    border-radius: 5px;
-                    display: inline-block;
-                    margin: 20px 0;
-                ">Reset Password</a>
-                <p>If you didn't request this, please ignore this email.</p>
-                <p>This link will expire in 1 hour.</p>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1 style="color: #319795;">Password Reset Request</h1>
+                    <p>You requested to reset your password. Click the link below to set a new password:</p>
+                    <a href="${resetUrl}" style="
+                        background-color: #319795;
+                        color: white;
+                        padding: 10px 20px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        display: inline-block;
+                        margin: 20px 0;
+                    ">Reset Password</a>
+                    <p>If you didn't request this, please ignore this email.</p>
+                    <p>This link will expire in 1 hour.</p>
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #E2E8F0;">
+                        <img src="${process.env.NEXTAUTH_URL}/images/serum-box.png" alt="Serum Box Logo" style="width: 150px; height: auto;">
+                    </div>
+                </div>
             `,
         };
 
