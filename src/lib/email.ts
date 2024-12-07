@@ -3,15 +3,21 @@ import nodemailer from 'nodemailer';
 let transporter: nodemailer.Transporter;
 
 if (process.env.NODE_ENV === 'production') {
-    // Configuración para producción
+    // Configuración para producción usando TLS explícito
     transporter = nodemailer.createTransport({
         host: process.env.EMAIL_SERVER_HOST,
         port: Number(process.env.EMAIL_SERVER_PORT),
+        secure: true, // Usar SSL/TLS
         auth: {
             user: process.env.EMAIL_SERVER_USER,
             pass: process.env.EMAIL_SERVER_PASSWORD,
         },
-        secure: true, // use TLS
+        tls: {
+            // No fallar en certificados inválidos
+            rejectUnauthorized: false,
+            // Forzar uso de TLSv1.2
+            minVersion: 'TLSv1.2'
+        }
     });
 } else {
     // Configuración para desarrollo usando Mailtrap
@@ -24,6 +30,15 @@ if (process.env.NODE_ENV === 'production') {
         },
     });
 }
+
+// Verificar la conexión al iniciar
+transporter.verify(function (error, success) {
+    if (error) {
+        console.log('Error al verificar el transporter:', error);
+    } else {
+        console.log('Servidor de correo listo para enviar mensajes', success);
+    }
+});
 
 export async function sendVerificationEmail(email: string, verificationCode: string) {
     try {
