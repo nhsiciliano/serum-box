@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { getRemainingDays, formatDate, isTrialExpired } from '@/lib/dateUtils';
+import { formatDate } from '@/lib/dateUtils';
 import { PlanInfo } from '@/components/PlanInfo';
 import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 import { Plan, PLAN_LIMITS } from '@/types/plans';
@@ -33,18 +33,18 @@ const plans: Plan[] = [
         name: 'standard',
         description: `${PLAN_LIMITS.standard.maxGrids} customizable grids, maximum ${PLAN_LIMITS.standard.maxTubes} tubes in total`,
         prices: {
-            3: { price: 3.8, priceId: "price_1Q8SYJGpIdSNVSdh4fcsMmRL" },
-            6: { price: 3, priceId: "price_1Q8SZGGpIdSNVSdhoyBhQJiG" },
-            12: { price: 2.3, priceId: "price_1Q8SZxGpIdSNVSdhTmFjxNZF" }
+            3: { price: 8, priceId: "price_1QUCLUGpIdSNVSdhpkG1J2DE" },
+            6: { price: 6, priceId: "price_1QUCRPGpIdSNVSdhx0jr35fa" },
+            12: { price: 4, priceId: "price_1QUCSTGpIdSNVSdhEwE9Uskh" }
         }
     },
     {
         name: 'premium',
         description: "Unlimited grids and tubes",
         prices: {
-            3: { price: 4.5, priceId: "price_1Q8SamGpIdSNVSdhRkzld6me" },
-            6: { price: 3.8, priceId: "price_1Q8SbSGpIdSNVSdhXMmnIUa3" },
-            12: { price: 3, priceId: "price_1Q8ScGGpIdSNVSdhEOrr0zdU" }
+            3: { price: 16, priceId: "price_1QUCXQGpIdSNVSdhn2DVvpKF" },
+            6: { price: 14, priceId: "price_1QUCY5GpIdSNVSdhMUEDrjOL" },
+            12: { price: 12, priceId: "price_1QUCYuGpIdSNVSdhTUwJ7M2v" }
         }
     }
 ];
@@ -147,11 +147,6 @@ export default function AdminCuenta() {
                                         />
                                     </Box>
                                     
-                                    {!isTrialExpired(new Date(session.user.planStartDate)) && (
-                                        <Text color="blue.500" fontWeight="semibold">
-                                            Premium trial period: {getRemainingDays(new Date(session.user.planStartDate))} days remaining
-                                        </Text>
-                                    )}
                                 </>
                             )}
                             

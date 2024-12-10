@@ -18,8 +18,8 @@ export const translations = {
         home: {
             title: "Manage your serum/plasma samples with Serum Box",
             subtitle: "Organize, store and analyze your serum samples efficiently",
-            description: "Start your free trial and test all features to improve your sample management.",
-            startTrial: "Start Trial"
+            description: "Start your free account and test all features to improve your sample management.",
+            startTrial: "Start Free"
         },
         pricing: {
             title: "Subscription Plans",
@@ -30,7 +30,7 @@ export const translations = {
             },
             features: {
                 free: [
-                    "Premium features for 15 days",
+                    "Perfect for small laboratories",
                     "Up to 162 samples",
                     "2 customizable racks",
                     "Email support"
@@ -137,8 +137,8 @@ export const translations = {
         home: {
             title: "Gestiona tus muestras de suero/plasma con Serum Box",
             subtitle: "Organiza, almacena y analiza tus muestras de suero de manera eficiente",
-            description: "Comienza tu prueba gratuita y prueba todas las funcionalidades para mejorar la administración de tus muestras.",
-            startTrial: "Comenzar prueba"
+            description: "Comienza tu cuenta gratuita y prueba todas las funcionalidades para mejorar la administración de tus muestras.",
+            startTrial: "Comenzar gratis"
         },
         pricing: {
             title: "Planes de Suscripción",
@@ -149,7 +149,7 @@ export const translations = {
             },
             features: {
                 free: [
-                    "Funciones premium por 15 días",
+                    "Perfecto para pequeños laboratorios",
                     "Hasta 162 muestras",
                     "2 gradillas personalizables",
                     "Soporte por email"

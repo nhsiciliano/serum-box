@@ -38,18 +38,18 @@ export default function PricingPlans() {
     {
       name: t.pricing.planNames.standard,
       prices: {
-        3: 3.8,
-        6: 3,
-        12: 2.3
+        3: 8,
+        6: 6,
+        12: 4
       },
       features: t.pricing.features.standard
     },
     {
       name: t.pricing.planNames.premium,
       prices: {
-        3: 4.5,
-        6: 3.8,
-        12: 3
+        3: 16,
+        6: 14,
+        12: 12
       },
       features: t.pricing.features.premium
     }

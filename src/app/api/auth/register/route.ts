@@ -14,21 +14,21 @@ export async function POST(req: Request) {
 
         const hashedPassword = await hash(password, 10);
 
-        // Crear usuario con plan Premium de prueba
+        // Crear usuario con plan Free
         const user = await prisma.user.create({
             data: {
                 email,
                 name,
                 password: hashedPassword,
-                planType: 'premium',
+                planType: 'free',
                 planStartDate: new Date(),
                 isMainUser: true,
-                ...PLAN_LIMITS.premium
+                ...PLAN_LIMITS.free
             }
         });
 
         return NextResponse.json({ 
-            message: 'Usuario registrado exitosamente con período de prueba Premium', 
+            message: 'Usuario registrado exitosamente', 
             user 
         }, { status: 201 });
     } catch (error) {

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://serumbox.com',
+    url: 'https://serum-box.com',
     siteName: 'Serum Box',
     title: 'Serum Box - Laboratory Sample Management System',
     description: 'Professional serum and plasma sample management for laboratories and clinical research institutions',
@@ -51,7 +51,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="canonical" href="https://serumbox.com" />
+        <link rel="canonical" href="https://serum-box.com" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </head>

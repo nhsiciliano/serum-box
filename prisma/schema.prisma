@@ -57,6 +57,7 @@ model User {
   maxTubes        Int       @default(162)
   isUnlimited     Boolean   @default(false)
   stripeCustomerId String?
+  stripeSubscriptionId String?
   verificationCode String?
   trialEndsAt     DateTime?
   createdAt       DateTime  @default(now())
