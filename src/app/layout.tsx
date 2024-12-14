@@ -7,11 +7,11 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Serum Box - Laboratory Sample Management',
+    default: 'Serum Box - Laboratory Stock and Sample Management',
     template: '%s | Serum Box'
   },
-  description: 'Professional system for serum and plasma sample management in clinical laboratories, research institutions, and pharmaceutical companies.',
-  keywords: ['sample management', 'clinical laboratory', 'racks', 'test tubes', 'clinical research', 'pharmaceutical', 'laboratory management'],
+  description: 'Professional system for stock and serum sample management in clinical laboratories, research institutions, and pharmaceutical companies.',
+  keywords: ['sample management', 'stock management', 'clinical laboratory', 'racks', 'test tubes', 'clinical research', 'pharmaceutical', 'laboratory management'],
   authors: [{ name: 'Serum Box' }],
   creator: 'Serum Box',
   publisher: 'Serum Box',
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Serum Box - Laboratory Sample Management',
-    description: 'Professional system for sample management in clinical laboratories and research',
+    title: 'Serum Box - Laboratory Stock and Sample Management',
+    description: 'Professional system for stock and serum sample management in clinical laboratories, research institutions, and pharmaceutical companies.',
     images: ['/images/twitter-image.jpg']
   }
 };

@@ -31,7 +31,7 @@ const plans: Plan[] = [
     },
     {
         name: 'standard',
-        description: `${PLAN_LIMITS.standard.maxGrids} customizable grids, maximum ${PLAN_LIMITS.standard.maxTubes} tubes in total`,
+        description: `${PLAN_LIMITS.standard.maxGrids} customizable grids, maximum ${PLAN_LIMITS.standard.maxTubes} tubes in total + Stock Manager`,
         prices: {
             3: { price: 8, priceId: "price_1QUCLUGpIdSNVSdhpkG1J2DE" },
             6: { price: 6, priceId: "price_1QUCRPGpIdSNVSdhx0jr35fa" },
@@ -40,7 +40,7 @@ const plans: Plan[] = [
     },
     {
         name: 'premium',
-        description: "Unlimited grids and tubes",
+        description: "Unlimited grids and tubes + Stock Manager + Stock Analytics",
         prices: {
             3: { price: 16, priceId: "price_1QUCXQGpIdSNVSdhn2DVvpKF" },
             6: { price: 14, priceId: "price_1QUCY5GpIdSNVSdhMUEDrjOL" },

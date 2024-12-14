@@ -29,6 +29,16 @@ export default function FeatureSlider() {
             title: t.features.title4,
             description: t.features.description4,
             image: "/images/busqueda-avanzada.jpg"
+        },
+        {
+            title: t.features.title5,
+            description: t.features.description5,
+            image: "/images/stock-manager.jpg"
+        },
+        {
+            title: t.features.title6,
+            description: t.features.description6,
+            image: "/images/stock-analytics.jpg"
         }
     ];
 
@@ -37,7 +47,7 @@ export default function FeatureSlider() {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentFeature((prev) => (prev + 1) % features.length);
-        }, 5000);
+        }, 7000);
         return () => clearInterval(timer);
     }, [features.length]);
 

@@ -12,6 +12,6 @@ export default function robots(): MetadataRoute.Robots {
                 '/admin-cuenta'
             ]
         },
-        sitemap: 'https://serumbox.com/sitemap.xml'
+        sitemap: 'https://serum-box.com/sitemap.xml'
     }
 }
