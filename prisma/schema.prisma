@@ -72,6 +72,7 @@ model User {
   resetTokenExpiry  DateTime?
   reagents       Reagent[]
   stocks         Stock[]
+  paypalSubscriptionId String?
 }
 
 model Gradilla {
