@@ -1,15 +1,12 @@
 'use client';
 
 import { Button, useToast } from '@chakra-ui/react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Plan, PLAN_LIMITS } from '@/types/plans';
+import { Plan } from '@/types/plans';
 import { useState } from 'react';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface PlanChangeButtonProps {
     selectedPlan: string;
-    selectedDuration: 3 | 6 | 12;
+    selectedDuration: 1 | 12;
     userId: string;
     plans: Plan[];
 }
@@ -23,13 +20,13 @@ export function PlanChangeButton({
     const toast = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubscription = async (priceId: string, planType: string) => {
+    const handleSubscription = async (planType: string) => {
+        setIsLoading(true);
         try {
-            const response = await fetch('/api/create-checkout-session', {
+            const response = await fetch('/api/create-paypal-subscription', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    priceId,
                     planType,
                     duration: selectedDuration,
                     userId
@@ -41,76 +38,13 @@ export function PlanChangeButton({
                 throw new Error(errorData.error || 'Error en la respuesta del servidor');
             }
 
-            const { sessionId } = await response.json();
-            const stripe = await stripePromise;
-            
-            if (!stripe) {
-                throw new Error('No se pudo inicializar Stripe');
-            }
-
-            const { error } = await stripe.redirectToCheckout({ sessionId });
-            if (error) {
-                throw error;
-            }
+            const { approvalUrl } = await response.json();
+            window.location.href = approvalUrl;
         } catch (error) {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "Payment could not be processed. Please try again.",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
-        }
-    };
-
-    const handleConfirmPlanChange = async () => {
-        if (!userId) {
-            console.error('User not authenticated');
-            return;
-        }
-
-        try {
-            setIsLoading(true);
-            const selectedPlanData = plans.find(plan => plan.name === selectedPlan);
-            
-            if (!selectedPlanData) {
-                console.error('Plan not found');
-                return;
-            }
-
-            if (selectedPlanData.name === 'free') {
-                await fetch('/api/update-plan', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        userId,
-                        planType: selectedPlanData.name,
-                        ...PLAN_LIMITS.free
-                    }),
-                });
-                
-                toast({
-                    title: "Success",
-                    description: "Your plan has been updated to Free",
-                    status: "success",
-                    duration: 5000,
-                    isClosable: true,
-                });
-                return;
-            }
-
-            if (selectedPlanData.prices) {
-                const priceId = selectedPlanData.prices[selectedDuration].priceId;
-                await handleSubscription(priceId, selectedPlanData.name);
-            }
-        } catch (error) {
-            console.error('Error changing plan:', error);
-            toast({
-                title: "Error",
-                description: "Could not change plan. Please try again.",
+                description: "No se pudo procesar el pago. Por favor, intente nuevamente.",
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -120,16 +54,18 @@ export function PlanChangeButton({
         }
     };
 
+    const selectedPlanData = plans.find(p => p.name === selectedPlan);
+    if (!selectedPlanData) return null;
+
     return (
-        <Button 
-            colorScheme="blue" 
-            size="lg" 
-            onClick={handleConfirmPlanChange}
+        <Button
+            colorScheme="blue"
+            size="lg"
+            width="full"
             isLoading={isLoading}
-            loadingText="Processing..."
-            width={{ base: "100%", md: "auto" }}
+            onClick={() => handleSubscription(selectedPlan)}
         >
-            Confirm Plan Change
+            PayPal Subscription
         </Button>
     );
 }

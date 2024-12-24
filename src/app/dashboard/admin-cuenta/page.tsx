@@ -1,95 +1,119 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client'
 
+import { useEffect, useState } from 'react';
 import {
     Box,
+    Container,
+    VStack,
     Heading,
     Text,
-    VStack,
     useColorModeValue,
-    SimpleGrid,
-    Radio,
-    RadioGroup,
-    Select,
-    Container,
+    Button,
+    Alert,
+    AlertIcon,
+    useToast
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { formatDate } from '@/lib/dateUtils';
-import { PlanInfo } from '@/components/PlanInfo';
-import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
-import { Plan, PLAN_LIMITS } from '@/types/plans';
 import { PlanChangeButton } from '@/components/PlanChangeButton';
-import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
+import { Plan } from '@/types/plans';
 
-
-const plans: Plan[] = [
-    {
-        name: 'free',
-        description: `${PLAN_LIMITS.free.maxGrids} customizable grids, maximum ${PLAN_LIMITS.free.maxTubes} tubes in total`,
-        price: "Free"
-    },
+const PLANS: Plan[] = [
     {
         name: 'standard',
-        description: `${PLAN_LIMITS.standard.maxGrids} customizable grids, maximum ${PLAN_LIMITS.standard.maxTubes} tubes in total + Stock Manager`,
+        displayName: 'Standard',
+        description: 'Up to 1000 samples, 5 customizable racks + Stock Manager',
         prices: {
-            3: { price: 8, priceId: "price_1QUCLUGpIdSNVSdhpkG1J2DE" },
-            6: { price: 6, priceId: "price_1QUCRPGpIdSNVSdhx0jr35fa" },
-            12: { price: 4, priceId: "price_1QUCSTGpIdSNVSdhEwE9Uskh" }
+            1: { price: 10, priceId: 'price_standard_1' },
+            12: { price: 100, priceId: 'price_standard_12' }
         }
     },
     {
         name: 'premium',
-        description: "Unlimited grids and tubes + Stock Manager + Stock Analytics",
+        displayName: 'Premium',
+        description: 'Unlimited grids and tubes + Stock Manager + Stock Analytics',
         prices: {
-            3: { price: 16, priceId: "price_1QUCXQGpIdSNVSdhn2DVvpKF" },
-            6: { price: 14, priceId: "price_1QUCY5GpIdSNVSdhMUEDrjOL" },
-            12: { price: 12, priceId: "price_1QUCYuGpIdSNVSdhTUwJ7M2v" }
+            1: { price: 18, priceId: 'price_premium_1' },
+            12: { price: 196, priceId: 'price_premium_12' }
         }
     }
 ];
 
 export default function AdminCuenta() {
     const { data: session } = useSession();
-    const [selectedPlan, setSelectedPlan] = useState<string>("Free");
-    const [selectedDuration, setSelectedDuration] = useState<3 | 6 | 12>(3);
-    const [userGrids, setUserGrids] = useState(0);
-    const [userTubes, setUserTubes] = useState(0);
+    const [selectedPlan, setSelectedPlan] = useState<string>('standard');
+    const [selectedDuration, setSelectedDuration] = useState<1 | 12>(1);
+    const [currentPlan, setCurrentPlan] = useState<string>('');
+    const [planEndDate, setPlanEndDate] = useState<Date | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const toast = useToast();
+
     const bgColor = useColorModeValue('gray.50', 'gray.900');
-    const cardBgColor = useColorModeValue('white', 'gray.700');
-    const textColor = useColorModeValue('gray.800', 'gray.100');
-    const { fetchWithAuth } = useFetchWithAuth();
+    const cardBgColor = useColorModeValue('white', 'gray.800');
+    const textColor = useColorModeValue('gray.600', 'gray.200');
 
-    // Usar useEffect para actualizar el plan seleccionado cuando la sesión esté disponible
     useEffect(() => {
-        if (session?.user?.planType) {
-            setSelectedPlan(session.user.planType);
-        }
-    }, [session]);
-
-    // Obtener el número de gradillas y tubos del usuario
-    useEffect(() => {
-        const fetchUserStats = async () => {
-            if (session?.user?.id) {
-                try {
-                    const data = await fetchWithAuth('/api/user-stats');
-                    setUserGrids(data.gridCount);
-                    setUserTubes(data.tubeCount);
-                } catch (error) {
-                    console.error('Error al obtener estadísticas del usuario:', error);
-                }
+        const checkPlanStatus = async () => {
+            try {
+                const response = await fetch('/api/check-payment-status');
+                const data = await response.json();
+                setCurrentPlan(data.planType || 'free');
+                setPlanEndDate(data.subscription?.endDate ? new Date(data.subscription.endDate) : null);
+            } catch (error) {
+                console.error('Error checking plan status:', error);
             }
         };
 
-        fetchUserStats();
-    }, [session, fetchWithAuth]);
+        checkPlanStatus();
+    }, []);
 
-    const getPrice = (plan: Plan) => {
-        if (plan.price) return plan.price;
-        if (plan.prices) {
-            return `$${plan.prices[selectedDuration].price.toFixed(2)}/month`;
+    const handleCancelSubscription = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/cancel-subscription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error canceling subscription');
+            }
+
+            toast({
+                title: "Subscription Canceled",
+                description: "Your subscription will be canceled at the end of the current period",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            });
+
+            // Actualizar el estado local
+            const checkResponse = await fetch('/api/check-payment-status');
+            const data = await checkResponse.json();
+            setCurrentPlan(data.planType);
+            setPlanEndDate(data.subscription?.endDate ? new Date(data.subscription.endDate) : null);
+        } catch (error) {
+            console.error('Error:', error);
+            toast({
+                title: "Error",
+                description: "Could not cancel subscription. Please try again.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setIsLoading(false);
         }
-        return "Price not available";
+    };
+
+    const formatDate = (date: Date) => {
+        return new Intl.DateTimeFormat('en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
     };
 
     return (
@@ -124,121 +148,100 @@ export default function AdminCuenta() {
                         >
                             Current Plan
                         </Heading>
-                        
-                        <VStack align="start" spacing={4}>
-                            <Text 
-                                fontSize="xl" 
-                                color="green.600" 
-                                fontWeight="bold"
-                            >
-                                {selectedPlan}
+                        <Text fontSize="xl" color="green.700" mb={4}>
+                            {currentPlan === 'free' ? 'Free Plan' : `${currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} Plan`}
+                        </Text>
+                        {planEndDate && currentPlan !== 'free' && (
+                            <Text fontSize="md" color="gray.500">
+                                Valid until: {formatDate(planEndDate)}
                             </Text>
-                            
-                            {session?.user?.planStartDate && (
-                                <>
-                                    <Text color={textColor}>
-                                        Plan start date: {formatDate(new Date(session.user.planStartDate))}
-                                    </Text>
-                                    
-                                    <Box width="100%">
-                                        <TrialExpirationAlert 
-                                            planStartDate={new Date(session.user.planStartDate)}
-                                            currentPlan={session.user.planType}
-                                        />
-                                    </Box>
-                                    
-                                </>
-                            )}
-                            
-                            <Box width="100%">
-                                <PlanInfo 
-                                    currentGrids={userGrids}
-                                    currentTubes={userTubes}
-                                />
-                            </Box>
-                        </VStack>
+                        )}
+                        {currentPlan !== 'free' && (
+                            <Button
+                                mt={4}
+                                colorScheme="red"
+                                variant="outline"
+                                onClick={handleCancelSubscription}
+                                isLoading={isLoading}
+                            >
+                                Cancel Subscription
+                            </Button>
+                        )}
                     </Box>
 
-                    {/* Plan Change Section */}
-                    <Box 
-                        bg={cardBgColor} 
-                        p={6} 
-                        borderRadius="lg" 
-                        boxShadow="sm"
-                    >
-                        <Heading 
-                            as="h2" 
-                            color={textColor} 
-                            size="lg" 
-                            mb={4}
+                    {/* Plan Selection Section */}
+                    {currentPlan === 'free' && (
+                        <Box 
+                            bg={cardBgColor} 
+                            p={6} 
+                            borderRadius="lg" 
+                            boxShadow="sm"
                         >
-                            Plan Duration
-                        </Heading>
-                        
-                        <Select
-                            value={selectedDuration}
-                            onChange={(e) => setSelectedDuration(Number(e.target.value) as 3 | 6 | 12)}
-                            bg={cardBgColor}
-                            color={textColor}
-                            mb={6}
-                        >
-                            <option value={3}>3 months</option>
-                            <option value={6}>6 months</option>
-                            <option value={12}>12 months</option>
-                        </Select>
+                            <Heading 
+                                as="h2" 
+                                color={textColor} 
+                                size="lg" 
+                                mb={6}
+                            >
+                                Select Plan
+                            </Heading>
 
-                        <Heading 
-                            as="h2" 
-                            color={textColor} 
-                            size="lg" 
-                            mb={4}
-                        >
-                            Change Plan
-                        </Heading>
-
-                        <RadioGroup onChange={setSelectedPlan} value={selectedPlan}>
-                            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                                {plans.map((plan) => (
+                            <VStack spacing={4} align="stretch">
+                                {PLANS.map((plan) => (
                                     <Box
                                         key={plan.name}
-                                        // eslint-disable-next-line react-hooks/rules-of-hooks
-                                        bg={useColorModeValue('gray.50', 'gray.600')}
-                                        p={6}
-                                        borderRadius="lg"
-                                        boxShadow="md"
+                                        p={4}
+                                        borderWidth={1}
+                                        borderRadius="md"
+                                        borderColor={selectedPlan === plan.name ? 'blue.500' : 'gray.200'}
                                         cursor="pointer"
-                                        _hover={{
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: 'lg',
-                                            transition: 'all 0.2s'
-                                        }}
+                                        onClick={() => setSelectedPlan(plan.name)}
+                                        _hover={{ borderColor: 'blue.500' }}
                                     >
-                                        <Radio value={plan.name} mb={3}>
-                                            <Text fontWeight="bold" color={textColor}>{plan.name}</Text>
-                                        </Radio>
-                                        <Text color={useColorModeValue('gray.600', 'gray.200')} mb={3}>
-                                            {plan.description}
-                                        </Text>
-                                        <Text fontWeight="bold" color={textColor}>
-                                            {getPrice(plan)}
+                                        <Heading size="md" color="green.700" mb={2}>{plan.displayName}</Heading>
+                                        <Text color="gray.700" mb={4}>{plan.description}</Text>
+                                        <Text color="gray.700" fontWeight="bold">
+                                            ${plan.prices?.[selectedDuration]?.price || 0} every {selectedDuration} months
                                         </Text>
                                     </Box>
                                 ))}
-                            </SimpleGrid>
-                        </RadioGroup>
 
-                        <Box mt={8}>
-                            {session?.user?.id && (
-                                <PlanChangeButton 
-                                    selectedPlan={selectedPlan}
-                                    selectedDuration={selectedDuration}
-                                    userId={session.user.id}
-                                    plans={plans}
-                                />
-                            )}
+                                <Box mt={4}>
+                                    <Text color="gray.500" mb={2}>Plan duration:</Text>
+                                    <Button
+                                        mr={2}
+                                        colorScheme={selectedDuration === 1 ? 'blue' : 'gray'}
+                                        onClick={() => setSelectedDuration(1)}
+                                    >
+                                        Monthly
+                                    </Button>
+                                    <Button
+                                        colorScheme={selectedDuration === 12 ? 'blue' : 'gray'}
+                                        onClick={() => setSelectedDuration(12)}
+                                    >
+                                        Annual
+                                    </Button>
+                                </Box>
+
+                                {session?.user?.id && (
+                                    <PlanChangeButton
+                                        selectedPlan={selectedPlan}
+                                        selectedDuration={selectedDuration}
+                                        userId={session.user.id}
+                                        plans={PLANS}
+                                    />
+                                )}
+                            </VStack>
                         </Box>
-                    </Box>
+                    )}
 
+                    {currentPlan !== 'free' && planEndDate && (
+                        <Alert status="info" color="gray.700">
+                            <AlertIcon />
+                            Your current plan will be active until {formatDate(planEndDate)}. 
+                            If you cancel your subscription, you can continue using the plan until this date.
+                        </Alert>
+                    )}
                 </VStack>
             </Container>
         </Box>

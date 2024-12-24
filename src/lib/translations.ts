@@ -30,7 +30,10 @@ export const translations = {
             duration: {
                 months: "months",
                 perMonth: "/month",
-                contractFor: "Contracting for"
+                contractFor: "Contracting for",
+                monthly: "Monthly",
+                yearly: "Yearly",
+                plan: "Plan"
             },
             features: {
                 free: [
@@ -62,6 +65,10 @@ export const translations = {
                 free: "Start Free",
                 standard: "Start Standard",
                 premium: "Start Premium"
+            },
+            trialInfo: {
+                text: "5 days free. Billing starts on day 6.",
+                cancelAnytime: "Cancel anytime"
             }
         },
         testimonials: {
@@ -132,7 +139,11 @@ export const translations = {
                 name: "Name",
                 email: "Email",
                 message: "Your message",
-                send: "Send message"
+                send: "Send message",
+                successTitle: "Message Sent",
+                successMessage: "Your message has been sent successfully.",
+                errorTitle: "Error",
+                errorMessage: "Failed to send message. Please try again."
             },
             about: {
                 title: "Serum Box",
@@ -172,7 +183,10 @@ export const translations = {
             duration: {
                 months: "meses",
                 perMonth: "/mes",
-                contractFor: "Contratando por"
+                contractFor: "Contratando por",
+                monthly: "Mensual",
+                yearly: "Anual",
+                plan: "Plan"
             },
             features: {
                 free: [
@@ -204,6 +218,10 @@ export const translations = {
                 free: "Comenzar Gratis",
                 standard: "Comenzar Standard",
                 premium: "Comenzar Premium"
+            },
+            trialInfo: {
+                text: "5 días gratis. Se cobra a partir del día 6.",
+                cancelAnytime: "Cancela en cualquier momento"
             }
         },
         testimonials: {
@@ -270,11 +288,15 @@ export const translations = {
         footer: {
             contact: {
                 title: "Contáctanos",
-                description: "Ante cualquier duda envíanos un mensaje y nos pondremos en contacto contigo.",
+                description: "Si tienes alguna pregunta, envíanos un mensaje y te responderemos.",
                 name: "Nombre",
-                email: "Email",
-                message: "Tu consulta",
-                send: "Enviar mensaje"
+                email: "Correo electrónico",
+                message: "Tu mensaje",
+                send: "Enviar mensaje",
+                successTitle: "Mensaje Enviado",
+                successMessage: "Tu mensaje se ha enviado con éxito.",
+                errorTitle: "Error",
+                errorMessage: "No se pudo enviar el mensaje. Por favor, intenta de nuevo."
             },
             about: {
                 title: "Serum Box",

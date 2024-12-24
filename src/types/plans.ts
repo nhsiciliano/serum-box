@@ -19,9 +19,14 @@ export interface PlanPricing {
 }
 
 export interface Plan {
-    name: PlanType;
+    name: string;
+    displayName: string;
     description: string;
-    prices?: PlanPricing;
     price?: string;
-    priceId?: string;
+    prices?: {
+        [key in 1 | 12]: {
+            price: number;
+            priceId: string;
+        };
+    };
 }

@@ -85,7 +85,6 @@ export default function DashboardHeader() {
                                 Users Management
                             </MenuItem>
                         )}
-                        <MenuItem color="gray.700">Change profile picture</MenuItem>
                         <MenuItem 
                             color="gray.700"
                             onClick={handleSignOut}

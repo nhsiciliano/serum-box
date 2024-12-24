@@ -12,6 +12,7 @@ import {
     Heading,
     Container,
     SimpleGrid,
+    useToast
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useLanguage } from '@/hooks/useLanguage';
@@ -20,6 +21,7 @@ import { translations } from '@/lib/translations';
 export default function Footer() {
     const { language } = useLanguage();
     const t = translations[language];
+    const toast = useToast();
 
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const textColor = useColorModeValue("gray.800", "gray.100");
@@ -31,15 +33,51 @@ export default function Footer() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Aquí puedes agregar la lógica para enviar el formulario
-        console.log("Formulario enviado:", { name, email, message });
-        // Reiniciar los campos después del envío
-        setName("");
-        setEmail("");
-        setMessage("");
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, message }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                toast({
+                    title: t.footer.contact.successTitle || "Message Sent",
+                    description: t.footer.contact.successMessage || "Your message has been sent successfully.",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+                
+                // Reiniciar los campos
+                setName("");
+                setEmail("");
+                setMessage("");
+            } else {
+                throw new Error(result.error || "Failed to send message");
+            }
+        } catch (error) {
+            toast({
+                title: t.footer.contact.errorTitle || "Error",
+                description: t.footer.contact.errorMessage || "Failed to send message. Please try again.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+            console.error("Contact form error:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -102,6 +140,7 @@ export default function Footer() {
                                     type="submit"
                                     colorScheme="green"
                                     bg={headingColor}
+                                    isLoading={isSubmitting}
                                     _hover={{ bg: useColorModeValue("green.700", "green.400") }}
                                 >
                                     {t.footer.contact.send}

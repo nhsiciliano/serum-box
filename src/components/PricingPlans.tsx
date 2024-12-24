@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, ButtonGroup } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, ButtonGroup, Flex } from '@chakra-ui/react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -19,7 +19,7 @@ const CheckIcon = () => (
 );
 
 export default function PricingPlans() {
-  const [selectedDuration, setSelectedDuration] = useState<3 | 6 | 12>(3);
+  const [selectedDuration, setSelectedDuration] = useState<1 | 12>(1);
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -38,27 +38,24 @@ export default function PricingPlans() {
     {
       name: t.pricing.planNames.standard,
       prices: {
-        3: 8,
-        6: 6,
-        12: 4
+        1: 10,
+        12: 100
       },
       features: t.pricing.features.standard
     },
     {
       name: t.pricing.planNames.premium,
       prices: {
-        3: 16,
-        6: 14,
-        12: 12
+        1: 18,
+        12: 196
       },
       features: t.pricing.features.premium
     }
   ];
 
   const durations = [
-    { value: 3, label: `3 ${t.pricing.duration.months}` },
-    { value: 6, label: `6 ${t.pricing.duration.months}` },
-    { value: 12, label: `12 ${t.pricing.duration.months}` }
+    { value: 1, label: t.pricing.duration.monthly },
+    { value: 12, label: t.pricing.duration.yearly }
   ];
 
   return (
@@ -72,7 +69,7 @@ export default function PricingPlans() {
           {durations.map(duration => (
             <Button
               key={duration.value}
-              onClick={() => setSelectedDuration(duration.value as 3 | 6 | 12)}
+              onClick={() => setSelectedDuration(duration.value as 1 | 12)}
               colorScheme={selectedDuration === duration.value ? "teal" : "gray"}
               variant={selectedDuration === duration.value ? "solid" : "outline"}
             >
@@ -88,14 +85,19 @@ export default function PricingPlans() {
                 <Heading as="h3" color={textColor} size="lg">{plan.name}</Heading>
                 <Text fontSize="3xl" color={textColor} fontWeight="bold">
                   ${typeof plan.price === 'string' ? plan.price : plan.prices[selectedDuration].toFixed(2)}
-                  <Text as="span" fontSize="sm" fontWeight="normal">
-                    {plan.name !== t.pricing.planNames.free ? t.pricing.duration.perMonth : ""}
-                  </Text>
                 </Text>
                 {plan.name !== t.pricing.planNames.free && (
-                  <Text fontSize="sm" color={textColor}>
-                    {t.pricing.duration.contractFor} {selectedDuration} {t.pricing.duration.months}
-                  </Text>
+                  <Flex direction="column">
+                    <Text fontSize="sm" color={textColor}>
+                      {selectedDuration === 1 ? t.pricing.duration.monthly : t.pricing.duration.yearly} {t.pricing.duration.plan}
+                    </Text>
+                    <Text fontSize="xs" color="green.500" mt={1}>
+                      {t.pricing.trialInfo.text}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" mt={1}>
+                      {t.pricing.trialInfo.cancelAnytime}
+                    </Text>
+                  </Flex>
                 )}
                 <List spacing={3}>
                   {plan.features.map((feature, index) => (
