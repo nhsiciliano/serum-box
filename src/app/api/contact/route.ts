@@ -14,21 +14,37 @@ export async function POST(req: Request) {
             );
         }
 
-        // Configurar transporte de Mailtrap
-        const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_SERVER_HOST,
-            port: parseInt(process.env.EMAIL_SERVER_PORT || '2525'),
-            auth: {
-                user: process.env.EMAIL_SERVER_USER,
-                pass: process.env.EMAIL_SERVER_PASSWORD
-            }
-        });
+        // Configurar transporte de correo
+        let transporter: nodemailer.Transporter;
+
+        if (process.env.NODE_ENV === 'production') {
+            // Configuración para producción usando Gmail SMTP
+            transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465, // Puerto seguro para SSL
+                secure: true, // Usar SSL
+                auth: {
+                    user: process.env.EMAIL_SERVER_USER_GMAIL, // Tu email de Gmail
+                    pass: process.env.EMAIL_SERVER_PASSWORD_GMAIL // Contraseña de aplicación
+                }
+            });
+        } else {
+            // Configuración para desarrollo usando Mailtrap
+            transporter = nodemailer.createTransport({
+                host: "smtp.mailtrap.io",
+                port: 2525,
+                auth: {
+                    user: process.env.MAILTRAP_USER,
+                    pass: process.env.MAILTRAP_PASSWORD,
+                },
+            });
+        }
 
         // Configurar opciones de correo
         const mailOptions = {
-            from: `"Serum Box Contact" <${email}>`,
+            from: `"Serum Box Contact" <${process.env.EMAIL_FROM}>`,
             to: process.env.CONTACT_EMAIL || 'contact@serum-box.com',
-            subject: 'New Serum Box Contact',
+            subject: 'Nueva Consulta de Serum Box',
             text: `
 Nombre: ${name}
 Email: ${email}
@@ -39,11 +55,13 @@ ${message}
             html: `
 <html>
 <body>
-    <h2>New Serum Box Contact</h2>
-    <p><strong>Name:</strong> ${name}</p>
-    <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Message:</strong></p>
+    <h2>Nueva Consulta de Serum Box</h2>
+    <p><strong>Nombre:</strong> ${name}</p>
+    <p><strong>Email de contacto:</strong> ${email}</p>
+    <p><strong>Mensaje:</strong></p>
     <p>${message}</p>
+    <hr>
+    <small>Recibido a través del formulario de contacto de Serum Box</small>
 </body>
 </html>
             `
