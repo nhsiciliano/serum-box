@@ -89,8 +89,6 @@ export async function POST(req: Request) {
                     brand_name: "Serum Box",
                     shipping_preference: "NO_SHIPPING",
                     user_action: "SUBSCRIBE_NOW",
-                    payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
-                    payment_method_selected: "DEBIT_OR_CREDIT_CARD",
                     return_url: `${process.env.NEXTAUTH_URL}/dashboard/success`,
                     cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/cancel`,
                 },

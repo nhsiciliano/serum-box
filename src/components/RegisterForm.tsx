@@ -1,14 +1,17 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const toast = useToast();
@@ -127,11 +130,45 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
             </FormControl>
             <FormControl>
               <FormLabel color="black">Password</FormLabel>
-              <Input type="password" placeholder='********' textColor="gray.800" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <InputGroup>
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='********'
+                  textColor="gray.800"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    onClick={() => setShowPassword(!showPassword)}
+                    variant="ghost"
+                  />
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
             <FormControl>
               <FormLabel color="black">Confirm Password</FormLabel>
-              <Input type="password" placeholder='********' textColor="gray.800" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+              <InputGroup>
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder='********'
+                  textColor="gray.800"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    variant="ghost"
+                  />
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
             <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Register</Button>
           </VStack>

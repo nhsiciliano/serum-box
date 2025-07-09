@@ -1,5 +1,4 @@
 import {
-    VStack,
     Button,
     Table,
     Thead,
@@ -13,6 +12,7 @@ import {
     ModalContent,
     ModalHeader,
     ModalBody,
+    ModalFooter,
     ModalCloseButton,
     Select,
     FormControl,
@@ -25,8 +25,26 @@ import {
     Box,
     Text,
     HStack,
+    Flex,
+    InputGroup,
+    InputLeftElement,
+    Icon,
+    Card,
+    CardBody,
+    TableContainer,
+    useColorModeValue,
+    Alert,
+    AlertIcon,
+    Heading,
+    SimpleGrid,
+    Spinner,
+    Tag,
+    TagLabel,
+    TagLeftIcon,
+    VStack
 } from '@chakra-ui/react';
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, SearchIcon, CheckIcon } from '@chakra-ui/icons';
+import { FiDatabase, FiCalendar, FiAlertTriangle, FiPackage, FiClock } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
@@ -68,9 +86,20 @@ export default function StockControl() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'disposed'>('all');
     const [reagentFilter, setReagentFilter] = useState<string>('all');
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    // Theme colors
+    const bgColor = useColorModeValue('white', 'gray.800');
+    const borderColor = useColorModeValue('gray.200', 'gray.600');
+    const hoverBg = useColorModeValue('gray.50', 'gray.700');
+    const thColor = useColorModeValue('gray.600', 'gray.400');
+    const tdColor = useColorModeValue('gray.800', 'gray.200');
+    const labelColor = useColorModeValue('gray.600', 'gray.300');
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
             try {
                 const [stocksData, reagentsData] = await Promise.all([
                     fetchWithAuth('/api/stock'),
@@ -87,6 +116,8 @@ export default function StockControl() {
                     duration: 3000,
                     isClosable: true,
                 });
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -204,119 +235,310 @@ export default function StockControl() {
         return matchesStatus && matchesReagent;
     });
 
+    // Calcular estadísticas
+    const activeStocks = stocks.filter(s => s.isActive);
+    const expirationThreshold = new Date();
+    expirationThreshold.setDate(expirationThreshold.getDate() + 30); // 30 días desde hoy
+    
+    const stats = {
+        total: activeStocks.length,
+        expiringSoon: activeStocks.filter(s => 
+            s.expirationDate && new Date(s.expirationDate) <= expirationThreshold && 
+            new Date(s.expirationDate) >= new Date()
+        ).length,
+        expired: activeStocks.filter(s => 
+            s.expirationDate && new Date(s.expirationDate) < new Date()
+        ).length,
+        disposed: stocks.filter(s => !s.isActive).length
+    };
+    
     return (
-        <VStack spacing={4} align="stretch">
-            <HStack spacing={4} justify="space-between">
-                <Button
-                    leftIcon={<AddIcon />}
-                    colorScheme="teal"
-                    onClick={onOpen}
+        <VStack spacing={5} align="stretch">
+            {/* Header con título y botón de añadir */}
+            <Flex justifyContent="space-between" alignItems="center">
+                <Heading as="h4" size="md" color={tdColor}>
+                    Stock Control
+                </Heading>
+                
+                <HStack spacing={2}>
+                    <InputGroup maxW="250px">
+                        <InputLeftElement pointerEvents="none">
+                            <SearchIcon color="gray.400" />
+                        </InputLeftElement>
+                        <Input
+                            placeholder="Search stocks..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            size="md"
+                            borderRadius="md"
+                        />
+                    </InputGroup>
+                    
+                    <Tooltip label="Add new stock entry" hasArrow placement="top">
+                        <Button
+                            leftIcon={<AddIcon />}
+                            colorScheme="teal"
+                            size="md"
+                            onClick={onOpen}
+                            _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
+                            transition="all 0.2s"
+                        >
+                            Add
+                        </Button>
+                    </Tooltip>
+                </HStack>
+            </Flex>
+            
+            {/* Tarjetas de estadísticas */}
+            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={4}>
+                <Card
+                    p={4}
+                    bg={bgColor}
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    borderRadius="lg"
+                    shadow="sm"
+                    transition="all 0.3s"
+                    _hover={{ shadow: 'md' }}
                 >
-                    Add Stock Entry
-                </Button>
-
-                <HStack spacing={4}>
-                    <FormControl maxW="200px">
+                    <CardBody p={0} display="flex" alignItems="center">
+                        <Icon as={FiDatabase} boxSize={8} color="blue.500" mr={4} />
+                        <Box>
+                            <Text fontSize="sm" color={thColor}>Active Stock</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.total}</Text>
+                        </Box>
+                    </CardBody>
+                </Card>
+                
+                <Card
+                    p={4}
+                    bg={bgColor}
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    borderRadius="lg"
+                    shadow="sm"
+                    transition="all 0.3s"
+                    _hover={{ shadow: 'md' }}
+                >
+                    <CardBody p={0} display="flex" alignItems="center">
+                        <Icon as={FiAlertTriangle} boxSize={8} color="yellow.500" mr={4} />
+                        <Box>
+                            <Text fontSize="sm" color={thColor}>Expiring Soon</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.expiringSoon}</Text>
+                        </Box>
+                    </CardBody>
+                </Card>
+                
+                <Card
+                    p={4}
+                    bg={bgColor}
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    borderRadius="lg"
+                    shadow="sm"
+                    transition="all 0.3s"
+                    _hover={{ shadow: 'md' }}
+                >
+                    <CardBody p={0} display="flex" alignItems="center">
+                        <Icon as={FiClock} boxSize={8} color="red.500" mr={4} />
+                        <Box>
+                            <Text fontSize="sm" color={thColor}>Expired</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.expired}</Text>
+                        </Box>
+                    </CardBody>
+                </Card>
+                
+                <Card
+                    p={4}
+                    bg={bgColor}
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    borderRadius="lg"
+                    shadow="sm"
+                    transition="all 0.3s"
+                    _hover={{ shadow: 'md' }}
+                >
+                    <CardBody p={0} display="flex" alignItems="center">
+                        <Icon as={FiPackage} boxSize={8} color="gray.500" mr={4} />
+                        <Box>
+                            <Text fontSize="sm" color={thColor}>Disposed</Text>
+                            <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.disposed}</Text>
+                        </Box>
+                    </CardBody>
+                </Card>
+            </SimpleGrid>
+            
+            {/* Filtros */}
+            <Flex wrap="wrap" gap={4} mb={4}>
+                <Box>
+                    <VStack direction="row" spacing={2} align="center">
+                        <Text fontWeight="medium" color={labelColor}>Status:</Text>
                         <Select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'disposed')}
-                            bg="white"
-                            color="gray.700"
+                            w="150px"
+                            size="sm"
+                            color={labelColor}
+                            borderRadius="md"
                         >
-                            <option value="all">All Status</option>
+                            <option value="all">All</option>
                             <option value="active">Active</option>
                             <option value="disposed">Disposed</option>
                         </Select>
-                    </FormControl>
-
-                    <FormControl maxW="200px">
+                    </VStack>
+                </Box>
+                
+                <Box>
+                    <VStack direction="row" spacing={2} align="center">
+                        <Text fontWeight="medium" color={labelColor}>Reagent:</Text>
                         <Select
                             value={reagentFilter}
                             onChange={(e) => setReagentFilter(e.target.value)}
-                            bg="white"
-                            color="gray.700"
+                            w="180px"
+                            size="sm"
+                            color={labelColor}
+                            borderRadius="md"
                         >
                             <option value="all">All Reagents</option>
                             {reagents.map(reagent => (
-                                <option key={reagent.id} value={reagent.id}>
-                                    {reagent.name}
-                                </option>
+                                <option key={reagent.id} value={reagent.id}>{reagent.name}</option>
                             ))}
                         </Select>
-                    </FormControl>
-                </HStack>
-            </HStack>
-
-            <Table variant="simple">
-                <Thead>
-                    <Tr>
-                        <Th>Reagent</Th>
-                        <Th>Quantity</Th>
-                        <Th>Lot Number</Th>
-                        <Th>Expiration Date</Th>
-                        <Th>Entry Date</Th>
-                        <Th>Status</Th>
-                        <Th>Disposal Info</Th>
-                        <Th>Actions</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {filteredStocks.map((stock) => (
-                        <Tr key={stock.id}>
-                            <Td fontWeight="bold" color="gray.600">{stock.reagent.name}</Td>
-                            <Td color="gray.600">1 {stock.reagent.unit}</Td>
-                            <Td color="gray.600">{stock.lotNumber}</Td>
-                            <Td color="gray.600">{new Date(stock.expirationDate).toLocaleDateString()}</Td>
-                            <Td color="gray.600">{new Date(stock.entryDate).toLocaleDateString()}</Td>
-                            <Td>
-                                <Badge 
-                                    colorScheme={stock.isActive ? 'green' : 'red'}
-                                >
-                                    {stock.isActive ? 'Active' : 'Disposed'}
-                                </Badge>
-                            </Td>
-                            <Td>
-                                {stock.disposalDate && (
-                                    <Text color="gray.600">
-                                        {new Date(stock.disposalDate).toLocaleDateString()}
-                                        {stock.durationDays && ` (${stock.durationDays} days)`}
-                                    </Text>
-                                )}
-                            </Td>
-                            <Td>
-                                {stock.isActive && (
-                                    <Tooltip label="Dispose Stock">
-                                        <IconButton
-                                            aria-label="Dispose stock"
-                                            icon={<DeleteIcon />}
-                                            size="sm"
-                                            colorScheme="red"
-                                            onClick={() => handleDispose(stock.id)}
-                                        />
-                                    </Tooltip>
-                                )}
-                            </Td>
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
-
-            {filteredStocks.length === 0 && (
-                <Box textAlign="center" py={4}>
-                    <Text color="gray.500">No stocks found with the selected filters</Text>
+                    </VStack>
                 </Box>
+                
+                {/* Etiquetas activas de filtro */}
+                {statusFilter !== 'all' && (
+                    <Tag size="sm" variant="subtle" colorScheme={statusFilter === 'active' ? 'green' : 'red'} borderRadius="md">
+                        <TagLeftIcon as={statusFilter === 'active' ? CheckIcon : DeleteIcon} />
+                        <TagLabel>{statusFilter === 'active' ? 'Active Only' : 'Disposed Only'}</TagLabel>
+                    </Tag>
+                )}
+                
+                {reagentFilter !== 'all' && (
+                    <Tag size="sm" variant="subtle" colorScheme="blue" borderRadius="md">
+                        <TagLeftIcon as={FiPackage} />
+                        <TagLabel>
+                            {reagents.find(r => r.id === reagentFilter)?.name || 'Selected Reagent'}
+                        </TagLabel>
+                    </Tag>
+                )}
+            </Flex>
+
+            {/* Tabla de stocks */}
+            {isLoading ? (
+                <Flex justifyContent="center" py={8}>
+                    <Spinner size="xl" color="brand.500" thickness="4px" />
+                </Flex>
+            ) : filteredStocks.length > 0 ? (
+                <Box
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    borderRadius="lg"
+                    overflow="hidden"
+                    shadow="sm"
+                    bg={bgColor}
+                >
+                    <TableContainer>
+                        <Table variant="simple" size="md">
+                            <Thead bg={hoverBg}>
+                                <Tr>
+                                    <Th color={thColor}>Reagent</Th>
+                                    <Th color={thColor}>Quantity</Th>
+                                    <Th color={thColor}>Lot Number</Th>
+                                    <Th color={thColor}>Expiration Date</Th>
+                                    <Th color={thColor}>Status</Th>
+                                    <Th color={thColor} width="80px" textAlign="center">Actions</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {filteredStocks.map(stock => {
+                                    // Calcular días hasta expiración
+                                    const daysToExpire = stock.expirationDate ? 
+                                        Math.ceil((new Date(stock.expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
+                                        null;
+                                    
+                                    return (
+                                        <Tr 
+                                            key={stock.id}
+                                            _hover={{ bg: hoverBg }}
+                                            transition="background-color 0.2s"
+                                        >
+                                            <Td fontWeight="medium" color={tdColor}>{stock.reagent?.name || 'Unknown'}</Td>
+                                            <Td color={tdColor}>{stock.quantity} {stock.reagent?.unit || ''}</Td>
+                                            <Td color={tdColor}>{stock.lotNumber}</Td>
+                                            <Td color={tdColor}>
+                                                <HStack>
+                                                    <Icon as={FiCalendar} color="gray.500" />
+                                                    <Text>{stock.expirationDate ? new Date(stock.expirationDate).toLocaleDateString() : '-'}</Text>
+                                                    
+                                                    {daysToExpire && daysToExpire < 30 && daysToExpire > 0 && (
+                                                        <Badge colorScheme="yellow" variant="subtle" borderRadius="full" px={2}>
+                                                            {daysToExpire} days left
+                                                        </Badge>
+                                                    )}
+                                                    {daysToExpire && daysToExpire <= 0 && (
+                                                        <Badge colorScheme="red" variant="subtle" borderRadius="full" px={2}>
+                                                            Expired
+                                                        </Badge>
+                                                    )}
+                                                </HStack>
+                                            </Td>
+                                            <Td color={tdColor}>
+                                                <Badge 
+                                                    colorScheme={stock.isActive ? "green" : "red"}
+                                                    variant="subtle"
+                                                    borderRadius="full"
+                                                    px={2}
+                                                >
+                                                    {stock.isActive ? 'Active' : 'Disposed'}
+                                                </Badge>
+                                            </Td>
+                                            <Td color={tdColor} textAlign="center">
+                                                {stock.isActive && (
+                                                    <Tooltip label="Dispose stock" hasArrow placement="top">
+                                                        <IconButton
+                                                            aria-label="Dispose stock"
+                                                            icon={<DeleteIcon />}
+                                                            size="sm"
+                                                            colorScheme="red"
+                                                            variant="ghost"
+                                                            onClick={() => handleDispose(stock.id)}
+                                                        />
+                                                    </Tooltip>
+                                                )}
+                                            </Td>
+                                        </Tr>
+                                    );
+                                })}
+                            </Tbody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            ) : (
+                <Alert status="info" borderRadius="md">
+                    <AlertIcon />
+                    {searchTerm || statusFilter !== 'all' || reagentFilter !== 'all' ? 
+                        "No stock entries match your filters" : 
+                        "No stock entries added yet"}
+                </Alert>
             )}
 
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader color="gray.500">Add Stock Entry</ModalHeader>
+            {/* Modal para añadir stock */}
+            <Modal 
+                isOpen={isOpen} 
+                onClose={onClose}
+                motionPreset="slideInBottom"
+            >
+                <ModalOverlay backdropFilter="blur(4px)" />
+                <ModalContent borderRadius="lg" shadow="xl">
+                    <ModalHeader color="gray.700">Add Stock Entry</ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody>
-                        <form onSubmit={handleSubmit}>
-                            <VStack spacing={4}>
+                    <ModalBody pb={6}>
+                        <form id="add-stock-form" onSubmit={handleSubmit}>
+                            <VStack spacing={4} align="stretch">
                                 <FormControl isRequired>
-                                    <FormLabel color="gray.500">Reagent</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Reagent</FormLabel>
                                     <Select
                                         value={formData.reagentId}
                                         onChange={(e) => setFormData(prev => ({
@@ -324,7 +546,10 @@ export default function StockControl() {
                                             reagentId: e.target.value
                                         }))}
                                         placeholder="Select reagent"
-                                        color="gray.500"
+                                        color={labelColor}
+                                        focusBorderColor="brand.500"
+                                        size="md"
+                                        borderRadius="md"
                                     >
                                         {reagents.map(reagent => (
                                             <option key={reagent.id} value={reagent.id}>
@@ -334,12 +559,14 @@ export default function StockControl() {
                                     </Select>
                                 </FormControl>
                                 <FormControl isRequired>
-                                    <FormLabel color="gray.500">Quantity</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Quantity</FormLabel>
                                     <Input
                                         type="number"
                                         step="0.01"
                                         value={formData.quantity}
-                                        color="gray.500"
+                                        borderRadius="md"
+                                        focusBorderColor="brand.500"
+                                        size="md"
                                         onChange={(e) => setFormData(prev => ({
                                             ...prev,
                                             quantity: e.target.value
@@ -347,10 +574,13 @@ export default function StockControl() {
                                     />
                                 </FormControl>
                                 <FormControl isRequired>
-                                    <FormLabel color="gray.500">Lot Number</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Lot Number</FormLabel>
                                     <Input
                                         value={formData.lotNumber}
-                                        color="gray.500"
+                                        borderRadius="md"
+                                        focusBorderColor="brand.500"
+                                        size="md"
+                                        color={labelColor}
                                         onChange={(e) => setFormData(prev => ({
                                             ...prev,
                                             lotNumber: e.target.value
@@ -358,10 +588,13 @@ export default function StockControl() {
                                     />
                                 </FormControl>
                                 <FormControl isRequired>
-                                    <FormLabel color="gray.500">Expiration Date</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Expiration Date</FormLabel>
                                     <Input
                                         type="date"
-                                        color="gray.500"
+                                        borderRadius="md"
+                                        focusBorderColor="brand.500"
+                                        size="md"
+                                        color={labelColor}
                                         value={formData.expirationDate}
                                         onChange={(e) => setFormData(prev => ({
                                             ...prev,
@@ -369,14 +602,24 @@ export default function StockControl() {
                                         }))}
                                     />
                                 </FormControl>
-                                <Button type="submit" marginBottom={4} colorScheme="teal" width="full" isLoading={isSubmitting} loadingText="Adding">
-                                    Add
-                                </Button>
                             </VStack>
                         </form>
                     </ModalBody>
+                    <ModalFooter gap={2}>
+                        <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                        <Button 
+                            type="submit" 
+                            form="add-stock-form"
+                            colorScheme="teal" 
+                            isLoading={isSubmitting} 
+                            loadingText="Adding"
+                            leftIcon={<AddIcon />}
+                        >
+                            Add Entry
+                        </Button>
+                    </ModalFooter>
                 </ModalContent>
             </Modal>
         </VStack>
     );
-} 
+}

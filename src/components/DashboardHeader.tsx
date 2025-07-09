@@ -1,4 +1,6 @@
-import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem, Spinner } from '@chakra-ui/react';
+import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem, Spinner, IconButton, HStack, Link } from '@chakra-ui/react';
+import NextLink from 'next/link';
+import { FiHome } from 'react-icons/fi';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -62,8 +64,18 @@ export default function DashboardHeader() {
                         Active User: {activeUser}
                     </Text>
                 </Flex>
-                <Menu>
-                    <MenuButton>
+                <HStack spacing={4}>
+                    <Link as={NextLink} href="/dashboard">
+                        <IconButton
+                            aria-label="Home"
+                            icon={<FiHome />}
+                            variant="ghost"
+                            color="gray.600"
+                            fontSize="22px"
+                        />
+                    </Link>
+                    <Menu>
+                        <MenuButton>
                         <Avatar
                             size="md"
                             src={session?.user?.image || '/images/default-avatar.png'}
@@ -101,6 +113,7 @@ export default function DashboardHeader() {
                         </MenuItem>
                     </MenuList>
                 </Menu>
+            </HStack>
             </Flex>
 
             <UserManagement 

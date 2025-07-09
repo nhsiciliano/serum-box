@@ -176,11 +176,11 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
             <Grid templateColumns={`auto repeat(${columns.length}, 1fr)`} gap={2}>
                 <GridItem></GridItem>
                 {columns.map(col => (
-                    <GridItem key={col} textAlign="center">{col}</GridItem>
+                    <GridItem key={col} textAlign="center" color="gray.500">{col}</GridItem>
                 ))}
                 {rows.map(row => (
                     <React.Fragment key={row}>
-                        <GridItem>{row}</GridItem>
+                        <GridItem color="gray.500">{row}</GridItem>
                         {columns.map(col => {
                             const position = `${row}${col}`;
                             const tubeInfo = getTubeInfo(position);

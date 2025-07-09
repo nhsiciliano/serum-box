@@ -15,14 +15,21 @@ import {
     Stat,
     StatLabel,
     StatNumber,
-    StatGroup,
-    Card,
-    CardBody,
+    SimpleGrid,
+    Flex,
+    Icon,
+    useColorModeValue,
+    Heading,
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
 } from '@chakra-ui/react';
 import { useState, useEffect, useMemo } from 'react';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 import { useSession } from 'next-auth/react';
-import { Link } from '@chakra-ui/react';
+import NextLink from 'next/link';
+import { FiBarChart2, FiCalendar, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
 interface Stock {
     id: string;
@@ -33,6 +40,13 @@ interface Stock {
     };
     disposalDate: string | null;
     isActive: boolean;
+}
+
+interface StatCardProps {
+    title: string;
+    value: number;
+    icon: React.ElementType;
+    color: string;
 }
 
 interface Reagent {
@@ -47,6 +61,34 @@ interface AnalyticsPeriod {
     yearly: number;
 }
 
+const StatCard = ({ title, value, icon, color }: StatCardProps) => (
+    <Stat
+        p={4}
+        bg={useColorModeValue('white', 'gray.700')}
+        borderWidth="1px"
+        borderColor={useColorModeValue('gray.200', 'gray.600')}
+        borderRadius="lg"
+        shadow="sm"
+        _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+        transition="all 0.2s"
+    >
+        <Flex alignItems="center">
+            <Box
+                bg={`${color}.100`}
+                borderRadius="full"
+                p={3}
+                mr={4}
+            >
+                <Icon as={icon} w={6} h={6} color={`${color}.500`} />
+            </Box>
+            <Box>
+                <StatLabel color={useColorModeValue('gray.500', 'gray.400')} fontSize="sm">{title}</StatLabel>
+                <StatNumber fontWeight="bold" fontSize="2xl">{value}</StatNumber>
+            </Box>
+        </Flex>
+    </Stat>
+);
+
 export default function StockAnalytics() {
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [reagents, setReagents] = useState<Reagent[]>([]);
@@ -54,6 +96,15 @@ export default function StockAnalytics() {
     const { fetchWithAuth } = useFetchWithAuth();
     const { data: session } = useSession();
     const planType = session?.user?.planType || 'free';
+
+    // Define colors and styles at the top level
+    const hoverBg = useColorModeValue('gray.100', 'gray.700');
+    const textColor = useColorModeValue('gray.700', 'gray.200');
+    const selectBg = useColorModeValue('white', 'gray.700');
+    const selectBorder = useColorModeValue('gray.300', 'gray.600');
+    const emptyStateBg = useColorModeValue('gray.50', 'gray.800');
+    const alertBg = useColorModeValue('blue.50', 'blue.900');
+    const alertColor = useColorModeValue('blue.800', 'blue.100');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -114,35 +165,49 @@ export default function StockAnalytics() {
 
     if (planType !== 'premium') {
         return (
-            <Box 
-                bg="white" 
-                p={6} 
-                borderRadius="lg" 
-                boxShadow="sm"
+            <Alert
+                status="info"
+                variant="subtle"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
                 textAlign="center"
+                borderRadius="lg"
+                p={6}
+                bg={alertBg}
+                color={alertColor}
             >
-                <Text color="gray.600" mb={4}>
-                    Stock Analytics is only available in the Premium plan
-                </Text>
-                <Link href="/dashboard/admin-cuenta">
-                    <Button colorScheme="teal" size="sm">
+                <AlertIcon as={FiBarChart2} boxSize="40px" mr={0} />
+                <AlertTitle mt={4} mb={1} fontSize="lg">
+                    Premium Feature
+                </AlertTitle>
+                <AlertDescription maxWidth="sm">
+                    Detailed stock analytics are available on the Premium plan. Upgrade to unlock valuable insights into your inventory usage.
+                </AlertDescription>
+                <NextLink href="/dashboard/admin-cuenta" passHref>
+                    <Button as="a" mt={4} colorScheme="blue" size="sm">
                         Upgrade to Premium
                     </Button>
-                </Link>
-            </Box>
+                </NextLink>
+            </Alert>
         );
     }
 
     return (
-        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-            <VStack spacing={6} align="stretch">
-                <FormControl maxW="300px">
-                    <FormLabel color="gray.600">Filter by Reagent</FormLabel>
+        <VStack spacing={6} align="stretch">
+            <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ base: 'stretch', md: 'center' }} mb={2}>
+                <Heading as="h3" size="md" color={textColor} mb={{ base: 4, md: 0 }}>
+                    Disposal Overview
+                </Heading>
+                <FormControl maxW={{ base: '100%', md: '300px' }}>
+                    <FormLabel htmlFor='reagent-filter' srOnly>Filter by Reagent</FormLabel>
                     <Select
+                        id='reagent-filter'
                         value={selectedReagent}
                         onChange={(e) => setSelectedReagent(e.target.value)}
-                        bg="white"
-                        color="gray.700"
+                        bg={selectBg}
+                        borderColor={selectBorder}
+                        focusBorderColor="brand.500"
                     >
                         <option value="all">All Reagents</option>
                         {reagents.map(reagent => (
@@ -152,40 +217,30 @@ export default function StockAnalytics() {
                         ))}
                     </Select>
                 </FormControl>
+            </Flex>
 
-                <StatGroup>
-                    <Card flex="1">
-                        <CardBody>
-                            <Stat>
-                                <StatLabel color="gray.600">Weekly Disposals</StatLabel>
-                                <StatNumber color="blue.500">
-                                    {Object.values(analytics).reduce((sum, curr) => sum + curr.weekly, 0)}
-                                </StatNumber>
-                            </Stat>
-                        </CardBody>
-                    </Card>
-                    <Card flex="1">
-                        <CardBody>
-                            <Stat>
-                                <StatLabel color="gray.600">Monthly Disposals</StatLabel>
-                                <StatNumber color="green.500">
-                                    {Object.values(analytics).reduce((sum, curr) => sum + curr.monthly, 0)}
-                                </StatNumber>
-                            </Stat>
-                        </CardBody>
-                    </Card>
-                    <Card flex="1">
-                        <CardBody>
-                            <Stat>
-                                <StatLabel color="gray.600">Yearly Disposals</StatLabel>
-                                <StatNumber color="purple.500">
-                                    {Object.values(analytics).reduce((sum, curr) => sum + curr.yearly, 0)}
-                                </StatNumber>
-                            </Stat>
-                        </CardBody>
-                    </Card>
-                </StatGroup>
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
+                <StatCard 
+                    title="Weekly Disposals" 
+                    value={Object.values(analytics).reduce((sum, curr) => sum + curr.weekly, 0)}
+                    icon={FiCalendar}
+                    color="blue"
+                />
+                <StatCard 
+                    title="Monthly Disposals" 
+                    value={Object.values(analytics).reduce((sum, curr) => sum + curr.monthly, 0)}
+                    icon={FiTrendingUp}
+                    color="green"
+                />
+                <StatCard 
+                    title="Yearly Disposals" 
+                    value={Object.values(analytics).reduce((sum, curr) => sum + curr.yearly, 0)}
+                    icon={FiBarChart2}
+                    color="purple"
+                />
+            </SimpleGrid>
 
+            <Box overflowX="auto">
                 <Table variant="simple">
                     <Thead>
                         <Tr>
@@ -197,8 +252,8 @@ export default function StockAnalytics() {
                     </Thead>
                     <Tbody>
                         {Object.entries(analytics).map(([reagentName, data]) => (
-                            <Tr key={reagentName}>
-                                <Td fontWeight="bold" color="gray.700">{reagentName}</Td>
+                            <Tr key={reagentName} _hover={{ bg: hoverBg }}>
+                                <Td fontWeight="medium" color={textColor}>{reagentName}</Td>
                                 <Td isNumeric color="blue.500">{data.weekly}</Td>
                                 <Td isNumeric color="green.500">{data.monthly}</Td>
                                 <Td isNumeric color="purple.500">{data.yearly}</Td>
@@ -206,13 +261,15 @@ export default function StockAnalytics() {
                         ))}
                     </Tbody>
                 </Table>
+            </Box>
 
-                {Object.keys(analytics).length === 0 && (
-                    <Box textAlign="center" py={4}>
-                        <Text color="gray.500">No disposal data available for the selected filter</Text>
-                    </Box>
-                )}
-            </VStack>
-        </Box>
+            {Object.keys(analytics).length === 0 && (
+                <Flex direction="column" align="center" justify="center" p={10} bg={emptyStateBg} borderRadius="lg">
+                    <Icon as={FiInfo} boxSize={8} color="gray.400" />
+                    <Text mt={4} fontSize="lg" color="gray.500">No Disposal Data</Text>
+                    <Text color="gray.500">There is no disposal data available for the selected filter.</Text>
+                </Flex>
+            )}
+        </VStack>
     );
 } 

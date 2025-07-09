@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useState, useCallback } from 'react';
-import { Box, Heading, Text, Button, SimpleGrid, Center, useToast, VStack } from '@chakra-ui/react';
+import { 
+  Box, 
+  useToast, 
+} from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { PlanInfo } from '@/components/PlanInfo';
@@ -12,6 +14,9 @@ import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 import StockManager from '@/components/StockManager';
 import StockAnalytics from '@/components/StockAnalytics';
+import DashboardOverview from '@/components/DashboardOverview';
+import GridManager from '@/components/GridManager';
+import { DashboardSection } from '@/components/ResponsiveContainers';
 
 interface Gradilla {
   id: string;
@@ -86,6 +91,41 @@ export default function DashboardHome() {
     }
     router.push('/dashboard/create-grilla');
   };
+  
+  const handleDeleteGrid = async (gridId: string) => {
+    if (!gridId) return;
+    
+    try {
+      const response = await fetchWithAuth(`/api/gradillas/${gridId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-active-user-id': localStorage.getItem('currentUserId') || ''
+        }
+      });
+      
+      if (response.success) {
+        // Actualiza el estado local eliminando la grilla
+        setGrillas(prev => prev.filter(g => g.id !== gridId));
+        
+        toast({
+          title: "Grid deleted successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting grid:', error);
+      toast({
+        title: "Error",
+        description: "Could not delete grid. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -97,91 +137,50 @@ export default function DashboardHome() {
 
   return (
     <Box>
-      <VStack spacing={8} align="stretch">
-        {/* Grid Manager Section */}
-        <Box>
-          <Heading as="h2" color="gray.500" size="xl" mb={6}>
-            Grid Manager
-          </Heading>
-          
-          {session?.user?.planStartDate && (
-            <Box mb={4}>
-              <TrialExpirationAlert 
-                planStartDate={new Date(session.user.planStartDate)}
-                currentPlan={session.user.planType}
-              />
-            </Box>
-          )}
-          
-          <Box mb={6} bg="white" borderRadius="lg" boxShadow="sm">
-            <PlanInfo 
-              currentGrids={grillas.length}
-              currentTubes={grillas.reduce((total, grilla) => total + (grilla.tubes?.length || 0), 0)}
-            />
-          </Box>
-
-          {grillas.length > 0 ? (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-              {grillas.map((grilla) => (
-                <Link href={`/dashboard/gradilla/${grilla.id}`} key={grilla.id} passHref>
-                  <Box 
-                    as="button"
-                    bg="green.700"
-                    color="white"
-                    borderRadius="lg" 
-                    p={4} 
-                    height="150px"
-                    width="100%"
-                    _hover={{ 
-                      bg: "green.600",
-                      transform: 'scale(1.05)',
-                      transition: 'all 0.2s ease-in-out'
-                    }}
-                    _active={{
-                      bg: "green.800",
-                      transform: 'scale(0.95)',
-                    }}
-                  >
-                    <Center height="100%">
-                      <Text fontSize="xl" fontWeight="bold">{grilla.name}</Text>
-                    </Center>
-                  </Box>
-                </Link>
-              ))}
-            </SimpleGrid>
-          ) : (
-            <Box textAlign="center" mt={10} py={10}>
-              <Text fontSize="xl" color="gray.500" mb={8}>Start creating your custom grids</Text>
-              <Button colorScheme="teal" onClick={handleCreateGrilla}>
-                Create Grid
-              </Button>
-            </Box>
-          )}
-          {grillas.length > 0 && (
-            <Button mt={6} colorScheme="teal" onClick={handleCreateGrilla}>
-              Create New Grid
-            </Button>
-          )}
+      {/* Alert for trial users */}
+      {session?.user?.planStartDate && (
+        <Box mb={6}>
+          <TrialExpirationAlert 
+            planStartDate={new Date(session.user.planStartDate)}
+            currentPlan={session.user.planType}
+          />
         </Box>
+      )}
 
-        {/* Stock Manager Section */}
-        <Box width="100%">
-          <Heading as="h2" color="gray.500" size="xl" mb={6}>
-            Stock Manager
-          </Heading>
-          <StockManager />
-        </Box>
+      {/* Dashboard Overview Section */}
+      <Box mb={8}>
+        <DashboardOverview />
+      </Box>
+      
+      {/* Plan Info Card */}
+      <Box mb={8} bg="white" borderRadius="lg" boxShadow="md" p={4}>
+        <PlanInfo 
+          currentGrids={grillas.length}
+          currentTubes={grillas.reduce((total, grilla) => total + (grilla.tubes?.length || 0), 0)}
+        />
+      </Box>
 
-        {/* Stock Analytics Section - Solo mostrar si el usuario tiene plan Premium */}
-        {planType === 'premium' && (
-          <Box width="100%">
-            <Heading as="h2" color="gray.500" size="xl" mb={6}>
-              Stock Analytics
-            </Heading>
-            <StockAnalytics />
-          </Box>
-        )}
-      </VStack>
+      {/* Grid Manager Section */}
+      <DashboardSection title="Grid Manager" fullWidth>
+        <GridManager 
+          grids={grillas} 
+          canCreateGrid={canCreateGrid(grillas.length)}
+          onCreateGrid={handleCreateGrilla}
+          onDeleteGrid={handleDeleteGrid}
+        />
+      </DashboardSection>
+
+      {/* Stock Manager Section */}
+      <DashboardSection title="Stock Manager" fullWidth>
+        <StockManager />
+      </DashboardSection>
+
+      {/* Analytics Section (Premium only) */}
+      {planType === 'premium' && (
+        <DashboardSection title="Stock Analytics" fullWidth>
+          <StockAnalytics />
+        </DashboardSection>
+      )}
     </Box>
   );
 }

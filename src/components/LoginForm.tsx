@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 export default function LoginForm({
   onSwitchToRegister,
@@ -13,6 +14,7 @@ export default function LoginForm({
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
@@ -66,7 +68,23 @@ export default function LoginForm({
             </FormControl>
             <FormControl>
               <FormLabel color="black">Password</FormLabel>
-              <Input type="password" textColor="gray.800" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <InputGroup>
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  textColor="gray.800"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    onClick={() => setShowPassword(!showPassword)}
+                    variant="ghost"
+                  />
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
             <Button
               type="submit"

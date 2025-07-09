@@ -22,6 +22,7 @@ export interface Plan {
     name: string;
     displayName: string;
     description: string;
+    features?: string[];
     price?: string;
     prices?: {
         [key in 1 | 12]: {
