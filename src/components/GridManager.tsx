@@ -71,6 +71,7 @@ export default function GridManager({
   const [sortBy, setSortBy] = useState('name');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedGridId, setSelectedGridId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -107,10 +108,18 @@ export default function GridManager({
     }
   };
   
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (selectedGridId && onDeleteGrid) {
-      onDeleteGrid(selectedGridId);
-      onClose();
+      setIsDeleting(true);
+      try {
+        await onDeleteGrid(selectedGridId);
+      } catch (error) {
+        console.error("Failed to delete grid:", error);
+        // Optionally, add a toast notification for the error
+      } finally {
+        setIsDeleting(false);
+        onClose();
+      }
     }
   };
 
@@ -314,9 +323,9 @@ export default function GridManager({
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Confirm Deletion</ModalHeader>
+          <ModalHeader color="brand.700">Confirm Deletion</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody color="gray.700">
             Are you sure you want to delete this grid? This action cannot be undone.
             All associated tubes and data will be permanently removed.
           </ModalBody>
@@ -324,7 +333,12 @@ export default function GridManager({
             <Button variant="ghost" mr={3} onClick={onClose}>
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={handleDeleteConfirm}>
+            <Button 
+              colorScheme="red" 
+              onClick={handleDeleteConfirm}
+              isLoading={isDeleting}
+              loadingText="Deleting..."
+            >
               Delete Grid
             </Button>
           </ModalFooter>

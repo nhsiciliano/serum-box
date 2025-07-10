@@ -96,7 +96,7 @@ export default function DashboardHome() {
     if (!gridId) return;
     
     try {
-      const response = await fetchWithAuth(`/api/gradillas/${gridId}`, {
+      await fetchWithAuth(`/api/gradillas/${gridId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -104,17 +104,17 @@ export default function DashboardHome() {
         }
       });
       
-      if (response.success) {
-        // Actualiza el estado local eliminando la grilla
-        setGrillas(prev => prev.filter(g => g.id !== gridId));
-        
-        toast({
-          title: "Grid deleted successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
+      // Asumimos que la eliminación fue exitosa si la llamada a la API no arrojó un error.
+      // Actualizamos el estado local para reflejar el cambio en la UI.
+      setGrillas(prev => prev.filter(g => g.id !== gridId));
+      
+      toast({
+        title: "Grid Deleted",
+        description: "The grid has been successfully removed.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error deleting grid:', error);
       toast({

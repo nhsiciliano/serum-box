@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from 'react';
-import { Box, Heading } from '@chakra-ui/react';
+import { Box, Heading, VStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import CreateGradillaForm from '@/components/CreateGradillaForm';
 import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
@@ -28,9 +28,13 @@ export default function CreateGrillaPage() {
     }, [canCreateGrid, router, fetchWithAuth]);
 
     return (
-        <Box>
-            <Heading as="h2" color="gray.500" size="xl" mb={6}>Create New Grid</Heading>
-            <CreateGradillaForm />
+        <Box p={{ base: 4, md: 8 }} display="flex" justifyContent="center">
+            <VStack spacing={8} align="stretch" width="100%" maxWidth="800px">
+                <Heading as="h1" size="xl" color="brand.700">
+                    Create a New Grid
+                </Heading>
+                <CreateGradillaForm />
+            </VStack>
         </Box>
     );
 }

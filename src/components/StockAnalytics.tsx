@@ -83,7 +83,7 @@ const StatCard = ({ title, value, icon, color }: StatCardProps) => (
             </Box>
             <Box>
                 <StatLabel color={useColorModeValue('gray.500', 'gray.400')} fontSize="sm">{title}</StatLabel>
-                <StatNumber fontWeight="bold" fontSize="2xl">{value}</StatNumber>
+                <StatNumber fontWeight="bold" fontSize="2xl" color="brand.600">{value}</StatNumber>
             </Box>
         </Flex>
     </Stat>
@@ -207,6 +207,7 @@ export default function StockAnalytics() {
                         onChange={(e) => setSelectedReagent(e.target.value)}
                         bg={selectBg}
                         borderColor={selectBorder}
+                        color={textColor}
                         focusBorderColor="brand.500"
                     >
                         <option value="all">All Reagents</option>
