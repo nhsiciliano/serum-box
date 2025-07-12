@@ -187,11 +187,11 @@ export default function AdminCuenta() {
     useEffect(() => {
         const checkPlanStatus = async () => {
             try {
-                const response = await fetch('/api/check-payment-status');
-                if (!response.ok) throw new Error('Failed to fetch status');
+                const response = await fetch('/api/paypal/plan-status');
+                if (!response.ok) throw new Error('Failed to fetch plan status');
                 const data = await response.json();
                 setCurrentPlan(data.planType || 'free');
-                setPlanEndDate(data.subscription?.endDate ? new Date(data.subscription.endDate) : null);
+                setPlanEndDate(data.planEndDate ? new Date(data.planEndDate) : null);
             } catch (error) {
                 console.error('Error checking plan status:', error);
                 toast({ title: 'Error', description: 'Could not fetch plan status.', status: 'error' });
@@ -203,7 +203,7 @@ export default function AdminCuenta() {
     const handleCancelSubscription = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('/api/cancel-subscription', { method: 'POST' });
+            const response = await fetch('/api/paypal/cancel-subscription', { method: 'POST' });
             if (!response.ok) throw new Error('Failed to cancel subscription');
             toast({ title: 'Success', description: 'Your subscription will be canceled at the end of the current period.', status: 'success' });
             const data = await response.json();

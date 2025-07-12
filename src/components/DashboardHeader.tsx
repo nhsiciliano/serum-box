@@ -1,6 +1,6 @@
-import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem, Spinner, IconButton, HStack, Link } from '@chakra-ui/react';
+import { Flex, Text, Avatar, Menu, MenuButton, MenuList, MenuItem, Spinner, IconButton, HStack, Link, Box, VStack, MenuDivider } from '@chakra-ui/react';
 import NextLink from 'next/link';
-import { FiHome } from 'react-icons/fi';
+import { FiHome, FiSettings, FiUsers, FiUserCheck, FiLogOut } from 'react-icons/fi';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -82,25 +82,52 @@ export default function DashboardHeader() {
                             cursor="pointer"
                         />
                     </MenuButton>
-                    <MenuList>
-                        <MenuItem 
+                    <MenuList borderRadius="lg" boxShadow="lg" p={2} bg="white">
+                        <Box px={3} py={2}>
+                            <VStack align="start" spacing={1}>
+                                <Text fontWeight="bold" color="gray.800">
+                                    {session?.user?.name || 'User'}
+                                </Text>
+                                <Text fontSize="sm" color="gray.500">
+                                    {session?.user?.email}
+                                </Text>
+                            </VStack>
+                        </Box>
+                        <MenuDivider />
+                        <MenuItem
+                            icon={<FiSettings />}
+                            onClick={() => router.push('/dashboard/admin-cuenta')}
+                            borderRadius="md"
                             color="gray.700"
+                        >
+                            Manage Account
+                        </MenuItem>
+                        <MenuItem
+                            icon={<FiUserCheck />}
                             onClick={() => setIsCurrentUserSelectorOpen(true)}
+                            borderRadius="md"
+                            color="gray.700"
                         >
                             Select Current User
                         </MenuItem>
                         {session?.user?.isMainUser && (
                             <MenuItem
-                                color="gray.700"
+                                icon={<FiUsers />}
                                 onClick={() => setIsUserManagementOpen(true)}
+                                borderRadius="md"
+                                color="gray.700"
                             >
                                 Users Management
                             </MenuItem>
                         )}
-                        <MenuItem 
-                            color="gray.700"
+                        <MenuDivider />
+                        <MenuItem
+                            icon={<FiLogOut />}
                             onClick={handleSignOut}
                             isDisabled={isSigningOut}
+                            color="red.500"
+                            _hover={{ bg: 'red.50', color: 'red.600' }}
+                            borderRadius="md"
                         >
                             {isSigningOut ? (
                                 <Flex align="center">

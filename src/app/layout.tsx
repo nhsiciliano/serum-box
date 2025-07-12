@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -59,6 +60,11 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Script id="metricool-tracker" strategy="afterInteractive">
+          {`
+            function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"28960ca2e51d80f2e3f34a842e352b17"})});
+          `}
+        </Script>
       </body>
     </html>
   );
