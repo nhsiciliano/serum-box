@@ -81,6 +81,7 @@ export default function StockControl() {
         expirationDate: '',
         notes: ''
     });
+    const [stats, setStats] = useState({ total: 0, expiringSoon: 0, expired: 0, disposed: 0, lowStock: 0 });
     const { fetchWithAuth } = useFetchWithAuth();
     const toast = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,6 +124,34 @@ export default function StockControl() {
 
         fetchData();
     }, [fetchWithAuth, toast]);
+
+    useEffect(() => {
+        const now = new Date();
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(now.getDate() + 30);
+
+        const activeStocks = stocks.filter(s => s.isActive);
+
+        const expiringSoonCount = activeStocks.filter(stock => {
+            const expirationDate = new Date(stock.expirationDate);
+            return expirationDate >= now && expirationDate <= thirtyDaysFromNow;
+        }).length;
+
+        const expiredCount = stocks.filter(stock => {
+            const expirationDate = new Date(stock.expirationDate);
+            return expirationDate < now;
+        }).length;
+
+        const disposedCount = stocks.filter(s => !s.isActive).length;
+
+        setStats({
+            total: activeStocks.length,
+            expiringSoon: expiringSoonCount,
+            expired: expiredCount,
+            disposed: disposedCount,
+            lowStock: 0 // Placeholder for future implementation
+        });
+    }, [stocks]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -235,22 +264,7 @@ export default function StockControl() {
         return matchesStatus && matchesReagent;
     });
 
-    // Calcular estadísticas
-    const activeStocks = stocks.filter(s => s.isActive);
-    const expirationThreshold = new Date();
-    expirationThreshold.setDate(expirationThreshold.getDate() + 30); // 30 días desde hoy
-    
-    const stats = {
-        total: activeStocks.length,
-        expiringSoon: activeStocks.filter(s => 
-            s.expirationDate && new Date(s.expirationDate) <= expirationThreshold && 
-            new Date(s.expirationDate) >= new Date()
-        ).length,
-        expired: activeStocks.filter(s => 
-            s.expirationDate && new Date(s.expirationDate) < new Date()
-        ).length,
-        disposed: stocks.filter(s => !s.isActive).length
-    };
+
     
     return (
         <VStack spacing={5} align="stretch">
@@ -533,7 +547,7 @@ export default function StockControl() {
                 <ModalOverlay backdropFilter="blur(4px)" />
                 <ModalContent borderRadius="lg" shadow="xl">
                     <ModalHeader color="gray.700">Add Stock Entry</ModalHeader>
-                    <ModalCloseButton />
+                    <ModalCloseButton color="gray.700"/>
                     <ModalBody pb={6}>
                         <form id="add-stock-form" onSubmit={handleSubmit}>
                             <VStack spacing={4} align="stretch">
@@ -566,6 +580,7 @@ export default function StockControl() {
                                         value={formData.quantity}
                                         borderRadius="md"
                                         focusBorderColor="brand.500"
+                                        color={labelColor}
                                         size="md"
                                         onChange={(e) => setFormData(prev => ({
                                             ...prev,

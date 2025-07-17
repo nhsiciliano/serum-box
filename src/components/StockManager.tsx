@@ -21,7 +21,7 @@ import {
     useColorModeValue,
     Tooltip
 } from '@chakra-ui/react';
-import { FiDatabase, FiActivity, FiAlertCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiDatabase, FiActivity } from 'react-icons/fi';
 import ReagentInventory from './ReagentInventory';
 import StockControl from './StockControl';
 import { DashboardSection } from './ResponsiveContainers';
@@ -34,7 +34,6 @@ export default function StockManager() {
     // Theme colors for consistency
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.600');
-    const statCardBg = useColorModeValue('gray.50', 'gray.700');
     const tabColor = useColorModeValue('gray.600', 'gray.400');
 
     if (planType === 'free') {
@@ -97,33 +96,6 @@ export default function StockManager() {
                     </Tooltip>
                 </HStack>
             </Flex>
-
-            {/* Quick Stats Cards */}
-            <Box mb={6} display={tabIndex === 0 ? 'block' : 'none'}>
-                <HStack spacing={4} overflowX="auto" pb={2}>
-                    <StatCard 
-                        icon={FiActivity} 
-                        title="Total Reagents" 
-                        value="24" 
-                        color="blue.500" 
-                        bg={statCardBg} 
-                    />
-                    <StatCard 
-                        icon={FiAlertCircle} 
-                        title="Expiring Soon" 
-                        value="3" 
-                        color="orange.500" 
-                        bg={statCardBg} 
-                    />
-                    <StatCard 
-                        icon={FiTrendingUp} 
-                        title="Low Stock" 
-                        value="5" 
-                        color="purple.500" 
-                        bg={statCardBg} 
-                    />
-                </HStack>
-            </Box>
 
             {/* Main Content with Tabs */}
             <Box
@@ -188,38 +160,3 @@ export default function StockManager() {
     );
 }
 
-// Componente para tarjetas de estadísticas
-interface StatCardProps {
-    icon: React.ElementType;
-    title: string;
-    value: string;
-    color: string;
-    bg: string;
-}
-
-function StatCard({ icon, title, value, color, bg }: StatCardProps) {
-    return (
-        <Box 
-            borderRadius="lg" 
-            p={4} 
-            bg={bg} 
-            minW="150px"
-            display="flex"
-            alignItems="center"
-            borderWidth="1px"
-            borderColor="gray.200"
-            transition="all 0.3s"
-            _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
-        >
-            <Icon as={icon} boxSize={8} color={color} mr={3} />
-            <Box>
-                <Text fontSize="xs" color="gray.500">
-                    {title}
-                </Text>
-                <Text fontSize="xl" fontWeight="bold" color="gray.700">
-                    {value}
-                </Text>
-            </Box>
-        </Box>
-    );
-}

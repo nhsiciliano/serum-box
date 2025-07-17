@@ -184,7 +184,7 @@ export default function DashboardOverview() {
             p={cardPadding}
           />
           <StatCard 
-            title="Low Inventory" 
+            title="Low Stock" 
             value={dashboardData.lowInventory} 
             icon={FiAlertTriangle} 
             iconBg="orange.500"

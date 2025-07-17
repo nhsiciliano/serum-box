@@ -17,13 +17,46 @@ export async function GET() {
             where: { userId },
         });
 
-        const totalTubes = await prisma.tube.count({
+        const grids = await prisma.gradilla.findMany({
             where: { userId },
+            include: {
+                tubes: {
+                    select: { id: true }
+                }
+            }
         });
 
-        // Placeholder for low inventory and expiring soon logic
-        const lowInventory = 0; // Replace with actual logic
-        const expiringSoon = 0; // Replace with actual logic
+        const totalTubes = grids.reduce((sum, grid) => sum + grid.tubes.length, 0);
+
+        const reagentsWithStock = await prisma.reagent.findMany({
+            where: { userId },
+            include: {
+                stocks: {
+                    where: { isActive: true },
+                    select: { quantity: true },
+                },
+            },
+        });
+
+        const lowInventory = reagentsWithStock.filter(reagent => {
+            const totalStock = reagent.stocks.reduce((sum, stock) => sum + stock.quantity, 0);
+            return reagent.lowStockAlert && reagent.lowStockAlert > 0 && totalStock <= reagent.lowStockAlert;
+        }).length;
+
+        const today = new Date();
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+        const expiringSoon = await prisma.stock.count({
+            where: {
+                userId,
+                isActive: true,
+                expirationDate: {
+                    gte: today,
+                    lte: thirtyDaysFromNow,
+                },
+            },
+        });
 
         return NextResponse.json({
             totalGrids,
