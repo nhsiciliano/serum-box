@@ -291,7 +291,7 @@ export default function StockControl() {
                     <Tooltip label="Add new stock entry" hasArrow placement="top">
                         <Button
                             leftIcon={<AddIcon />}
-                            colorScheme="teal"
+                            colorScheme="brand"
                             size="md"
                             onClick={onOpen}
                             _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
@@ -530,7 +530,7 @@ export default function StockControl() {
                     </TableContainer>
                 </Box>
             ) : (
-                <Alert status="info" borderRadius="md">
+                <Alert status="info" borderRadius="md" color="gray.600">
                     <AlertIcon />
                     {searchTerm || statusFilter !== 'all' || reagentFilter !== 'all' ? 
                         "No stock entries match your filters" : 

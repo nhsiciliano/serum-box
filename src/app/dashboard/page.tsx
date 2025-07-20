@@ -138,11 +138,12 @@ export default function DashboardHome() {
   return (
     <Box>
       {/* Alert for trial users */}
-      {session?.user?.planStartDate && (
+      {session?.user && (
         <Box mb={6}>
           <TrialExpirationAlert 
-            planStartDate={new Date(session.user.planStartDate)}
-            currentPlan={session.user.planType}
+            trialEndsAt={session.user.trialEndsAt ? new Date(session.user.trialEndsAt) : null}
+            planType={session.user.planType || 'free'}
+            paypalSubscriptionId={session.user.paypalSubscriptionId}
           />
         </Box>
       )}

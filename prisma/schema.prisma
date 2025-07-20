@@ -60,6 +60,7 @@ model User {
   stripeSubscriptionId String?
   verificationCode String?
   trialEndsAt     DateTime?
+  trialEndsAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   isMainUser      Boolean   @default(true)

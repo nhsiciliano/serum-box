@@ -14,16 +14,20 @@ export async function POST(req: Request) {
 
         const hashedPassword = await hash(password, 10);
 
-        // Crear usuario con plan Free
+        const trialEndsAt = new Date();
+        trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+
+        // Crear usuario con período de prueba de 30 días del plan Premium
         const user = await prisma.user.create({
             data: {
                 email,
-                name,
                 password: hashedPassword,
-                planType: 'free',
+                name,
+                planType: 'premium', // Asignar plan premium durante el trial
                 planStartDate: new Date(),
+                trialEndsAt: trialEndsAt, // Establecer la fecha de fin del trial
                 isMainUser: true,
-                ...PLAN_LIMITS.free
+                ...PLAN_LIMITS.premium // Aplicar los límites del plan premium
             }
         });
 

@@ -71,15 +71,17 @@ interface CurrentPlanCardProps {
     planEndDate: Date | null;
     onCancel: () => void;
     isLoading: boolean;
+    isTrialActive: boolean;
+    trialEndsAt: Date | null;
 }
 
-const CurrentPlanCard = ({ currentPlan, planEndDate, onCancel, isLoading }: CurrentPlanCardProps) => {
+const CurrentPlanCard = ({ currentPlan, planEndDate, onCancel, isLoading, isTrialActive, trialEndsAt }: CurrentPlanCardProps) => {
     const cardBg = useColorModeValue('white', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
     const headingColor = useColorModeValue('gray.800', 'white');
 
-    const isFree = currentPlan === 'free';
-    const isActive = !isFree && planEndDate && new Date(planEndDate) > new Date();
+    const isFree = currentPlan === 'free' && !isTrialActive;
+    const hasActiveSubscription = !isFree && !isTrialActive && planEndDate && new Date(planEndDate) > new Date();
 
     return (
         <Box p={6} bg={cardBg} borderRadius="lg" boxShadow="md" h="100%">
@@ -89,14 +91,25 @@ const CurrentPlanCard = ({ currentPlan, planEndDate, onCancel, isLoading }: Curr
                     <Icon as={FiPackage} mr={3} w={6} h={6} color="brand.500" />
                     <Box>
                         <Text fontWeight="bold" fontSize="lg" textTransform="capitalize" color={headingColor}> 
-                            {currentPlan} Plan
+                            {isTrialActive ? 'Trial Plan' : `${currentPlan} Plan`}
                         </Text>
-                        <Badge colorScheme={isActive ? 'green' : 'gray'} >
-                            {isActive ? 'Active' : 'Inactive'}
+                        <Badge colorScheme={hasActiveSubscription || isTrialActive ? 'green' : 'gray'} >
+                            {isTrialActive ? 'Active' : hasActiveSubscription ? 'Active' : 'Inactive'}
                         </Badge>
                     </Box>
                 </Flex>
-                {isActive && planEndDate && (
+                
+                {isTrialActive && trialEndsAt && (
+                     <Flex align="center">
+                        <Icon as={FiCalendar} mr={3} w={6} h={6} color="gray.500" />
+                        <Box>
+                            <Text color={textColor}>Trial ends on</Text>
+                            <Text fontWeight="medium" color={headingColor}>{formatDate(new Date(trialEndsAt))}</Text>
+                        </Box>
+                    </Flex>
+                )}
+
+                {hasActiveSubscription && planEndDate && (
                     <Flex align="center">
                         <Icon as={FiCalendar} mr={3} w={6} h={6} color="gray.500" />
                         <Box>
@@ -105,7 +118,8 @@ const CurrentPlanCard = ({ currentPlan, planEndDate, onCancel, isLoading }: Curr
                         </Box>
                     </Flex>
                 )}
-                {isActive && (
+
+                {hasActiveSubscription && (
                     <Button 
                         leftIcon={<FiXCircle />} 
                         colorScheme="red" 
@@ -235,6 +249,8 @@ export default function AdminCuenta() {
                                 planEndDate={planEndDate}
                                 onCancel={handleCancelSubscription}
                                 isLoading={isLoading}
+                                isTrialActive={!!(!session?.user?.paypalSubscriptionId && session?.user?.trialEndsAt && new Date(session.user.trialEndsAt) > new Date())}
+                                trialEndsAt={session?.user?.trialEndsAt ? new Date(session.user.trialEndsAt) : null}
                            />
                         </Box>
 

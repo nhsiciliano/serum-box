@@ -10,21 +10,28 @@ declare module "next-auth" {
         user: {
             id: string;
             planType?: PlanType;
+            trialEndsAt?: string | null;
+            paypalSubscriptionId?: string | null;
+            isMainUser?: boolean;
             planStartDate?: string;
             emailVerified?: boolean;
-            isMainUser?: boolean;
         } & DefaultSession["user"]
     }
     interface User {
         planType: PlanType;
+        trialEndsAt?: string | null;
+        paypalSubscriptionId?: string | null;
+        isMainUser: boolean;
         planStartDate: string;
         emailVerified: boolean;
-        isMainUser: boolean;
     }
 
     interface JWT {
         id?: string;
         planType?: PlanType;
+        trialEndsAt?: string | null;
+        paypalSubscriptionId?: string | null;
+        isMainUser?: boolean;
         planStartDate?: string;
         emailVerified?: boolean;
     }
@@ -61,9 +68,11 @@ export const authOptions: NextAuthOptions = {
                     email: user.email || '',
                     name: user.name || '',
                     planType: (user.planType as PlanType) || 'free',
+                    trialEndsAt: user.trialEndsAt?.toISOString() || null,
+                    paypalSubscriptionId: user.paypalSubscriptionId || null,
+                    isMainUser: user.isMainUser || false,
                     planStartDate: user.planStartDate?.toISOString() || '',
-                    emailVerified: user.emailVerified,
-                    isMainUser: user.isMainUser || false
+                    emailVerified: !!user.emailVerified, // Corregido a booleano
                 };
             }
         }),
@@ -82,16 +91,20 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id;
                 token.isMainUser = user.isMainUser;
                 token.planType = user.planType;
+                token.trialEndsAt = user.trialEndsAt;
+                token.paypalSubscriptionId = user.paypalSubscriptionId;
                 token.planStartDate = user.planStartDate;
-                token.emailVerified = user.emailVerified as boolean;
+                token.emailVerified = !!user.emailVerified; // Asegurar que siempre sea booleano
             }
             return token;
         },
         async session({ session, token }) {
-            if (session.user) {
+            if (session.user && token) {
                 session.user.id = token.id as string;
                 session.user.isMainUser = token.isMainUser as boolean;
-                session.user.planType = (token.planType as PlanType) || 'free';
+                session.user.planType = token.planType as PlanType;
+                session.user.trialEndsAt = token.trialEndsAt as string | null;
+                session.user.paypalSubscriptionId = token.paypalSubscriptionId as string | null;
                 session.user.planStartDate = token.planStartDate as string;
                 session.user.emailVerified = token.emailVerified as boolean;
             }
