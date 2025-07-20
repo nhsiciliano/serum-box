@@ -8,9 +8,9 @@ export function usePlanRestrictions() {
     const getPlanRestrictions = (): PlanLimits => {
         if (!session?.user) {
             return getUserPlanRestrictions({
-                id: '',
                 planType: 'free' as PlanType,
-                planStartDate: new Date()
+                trialEndsAt: null,
+                paypalSubscriptionId: null
             });
         }
 
@@ -18,9 +18,9 @@ export function usePlanRestrictions() {
         const validPlanTypes: PlanType[] = ['free', 'standard', 'premium'];
         
         return getUserPlanRestrictions({
-            id: session.user.id,
             planType: validPlanTypes.includes(planType as PlanType) ? planType : 'free',
-            planStartDate: new Date(session.user.planStartDate || Date.now())
+            trialEndsAt: session.user.trialEndsAt ? new Date(session.user.trialEndsAt) : null,
+            paypalSubscriptionId: session.user.paypalSubscriptionId || null
         });
     };
 
@@ -40,4 +40,3 @@ export function usePlanRestrictions() {
         canAddTubes
     };
 }
-
