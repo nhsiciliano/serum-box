@@ -35,6 +35,7 @@ const PLANS: Plan[] = [
             '1,000 samples',
             '5 customizable racks',
             'Stock Manager',
+            'Priority Email Support'
         ],
         prices: {
             1: { price: 10, priceId: 'price_standard_1' },
@@ -50,6 +51,7 @@ const PLANS: Plan[] = [
             'Unlimited racks',
             'Stock Manager',
             'Stock Analytics',
+            'Priority Email Support'
         ],
         prices: {
             1: { price: 18, priceId: 'price_premium_1' },

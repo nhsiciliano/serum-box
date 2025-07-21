@@ -26,15 +26,15 @@ export const translations = {
             startTrial: "Start Free"
         },
         pricing: {
-            title: "Subscription Plans",
-            duration: {
-                months: "months",
-                perMonth: "/month",
-                contractFor: "Contracting for",
-                monthly: "Monthly",
-                yearly: "Yearly",
-                plan: "Plan"
-            },
+            title: "Find the perfect plan for your lab",
+            trialSubtitle: "Start with a 30-day free trial of our Premium plan. No credit card required.",
+            forever: "forever",
+            month: "month",
+            year: "year",
+            monthly: "Monthly",
+            yearly: "Yearly",
+            postTrialPlan: "Current Plan after Trial",
+            startTrial: "Start 30-Day Free Trial",
             features: {
                 free: [
                     "Perfect for small laboratories",
@@ -53,22 +53,13 @@ export const translations = {
                     "Unlimited racks",
                     "Stock Manager",
                     "Stock Analytics",
-                    "Priority email support"
+                    "Dedicated support"
                 ]
             },
             planNames: {
                 free: "Free",
                 standard: "Standard",
                 premium: "Premium"
-            },
-            startButton: {
-                free: "Start Free",
-                standard: "Start Standard",
-                premium: "Start Premium"
-            },
-            trialInfo: {
-                text: "5 days free. Billing starts on day 6.",
-                cancelAnytime: "Cancel anytime"
             }
         },
         testimonials: {
@@ -179,15 +170,15 @@ export const translations = {
             startTrial: "Comenzar gratis"
         },
         pricing: {
-            title: "Planes de Suscripción",
-            duration: {
-                months: "meses",
-                perMonth: "/mes",
-                contractFor: "Contratando por",
-                monthly: "Mensual",
-                yearly: "Anual",
-                plan: "Plan"
-            },
+            title: "Encuentra el plan perfecto para tu laboratorio",
+            trialSubtitle: "Comienza con una prueba gratuita de 30 días de nuestro plan Premium. No se requiere tarjeta de crédito.",
+            forever: "para siempre",
+            month: "mes",
+            year: "año",
+            monthly: "Mensual",
+            yearly: "Anual",
+            postTrialPlan: "Plan actual tras la prueba",
+            startTrial: "Comenzar prueba de 30 días",
             features: {
                 free: [
                     "Perfecto para pequeños laboratorios",
@@ -206,22 +197,13 @@ export const translations = {
                     "Gradillas ilimitadas",
                     "Stock Manager",
                     "Stock Analytics",
-                    "Soporte por email prioritario"
+                    "Soporte dedicado"
                 ]
             },
             planNames: {
                 free: "Gratis",
                 standard: "Standard",
                 premium: "Premium"
-            },
-            startButton: {
-                free: "Comenzar Gratis",
-                standard: "Comenzar Standard",
-                premium: "Comenzar Premium"
-            },
-            trialInfo: {
-                text: "5 días gratis. Se cobra a partir del día 6.",
-                cancelAnytime: "Cancela en cualquier momento"
             }
         },
         testimonials: {

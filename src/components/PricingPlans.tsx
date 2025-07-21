@@ -1,7 +1,7 @@
 "use client"
 
-import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, ButtonGroup, Flex } from '@chakra-ui/react';
 import { useState } from 'react';
+import { Box, Heading, Text, VStack, HStack, Button, SimpleGrid, List, ListItem, useColorModeValue, ButtonGroup } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useLanguage } from '@/hooks/useLanguage';
 import { translations } from '@/lib/translations';
@@ -19,108 +19,133 @@ const CheckIcon = () => (
 );
 
 export default function PricingPlans() {
-  const [selectedDuration, setSelectedDuration] = useState<1 | 12>(1);
   const { language } = useLanguage();
   const t = translations[language];
+  const [billingCycle, setBillingCycle] = useState('monthly');
 
-  const bgColor = useColorModeValue('green.200', 'green.800');
-  const headingColor = useColorModeValue('black', 'white');
+  const bgColor = useColorModeValue('gray.50', 'gray.800');
+  const headingColor = useColorModeValue('gray.800', 'white');
+  const textColor = useColorModeValue('gray.600', 'gray.400');
   const cardBgColor = useColorModeValue('white', 'gray.700');
-  const textColor = useColorModeValue('black', 'white');
-  const checkColor = useColorModeValue('green.500', 'green.300');
+  const popularBorderColor = useColorModeValue('brand.500', 'brand.300');
 
   const plans = [
     {
       name: t.pricing.planNames.free,
-      price: "0",
-      features: t.pricing.features.free
+      prices: { monthly: '$0', yearly: '$0' },
+      period: t.pricing.forever,
+      features: t.pricing.features.free,
+      buttonText: t.pricing.postTrialPlan,
+      isDisabled: true,
+      isPopular: false,
     },
     {
       name: t.pricing.planNames.standard,
-      prices: {
-        1: 10,
-        12: 100
-      },
-      features: t.pricing.features.standard
+      prices: { monthly: '$10', yearly: '$100' },
+      features: t.pricing.features.standard,
+      buttonText: t.pricing.startTrial,
+      isDisabled: false,
+      isPopular: false,
     },
     {
       name: t.pricing.planNames.premium,
-      prices: {
-        1: 18,
-        12: 196
-      },
-      features: t.pricing.features.premium
-    }
-  ];
-
-  const durations = [
-    { value: 1, label: t.pricing.duration.monthly },
-    { value: 12, label: t.pricing.duration.yearly }
+      prices: { monthly: '$18', yearly: '$196' },
+      features: t.pricing.features.premium,
+      buttonText: t.pricing.startTrial,
+      isDisabled: false,
+      isPopular: true,
+    },
   ];
 
   return (
-    <Box bg={bgColor} py={12}>
-      <VStack spacing={8}>
-        <Heading as="h2" color={headingColor} size="xl">
+    <Box bg={bgColor} py={{ base: 16, md: 24 }}>
+      <VStack spacing={6} textAlign="center" maxW="6xl" mx="auto">
+        <Heading as="h1" size="2xl" color={headingColor}>
           {t.pricing.title}
         </Heading>
-        
-        <ButtonGroup size="md" isAttached variant="outline">
-          {durations.map(duration => (
-            <Button
-              key={duration.value}
-              onClick={() => setSelectedDuration(duration.value as 1 | 12)}
-              colorScheme={selectedDuration === duration.value ? "teal" : "gray"}
-              variant={selectedDuration === duration.value ? "solid" : "outline"}
-            >
-              {duration.label}
-            </Button>
-          ))}
+        <Text fontSize="xl" color={textColor} maxW="2xl">
+          {t.pricing.trialSubtitle}
+        </Text>
+        <ButtonGroup isAttached variant="outline" size="md">
+          <Button 
+            onClick={() => setBillingCycle('monthly')}
+            isActive={billingCycle === 'monthly'}
+            _active={{ bg: 'brand.500', color: 'green.600' }}
+          >
+            {t.pricing.monthly}
+          </Button>
+          <Button 
+            onClick={() => setBillingCycle('yearly')}
+            isActive={billingCycle === 'yearly'}
+            _active={{ bg: 'brand.500', color: 'green.600' }}
+          >
+            {t.pricing.yearly}
+          </Button>
         </ButtonGroup>
+      </VStack>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} width="full" maxWidth="5xl">
-          {plans.map((plan) => (
-            <Box key={plan.name} bg={cardBgColor} p={6} borderRadius="lg" boxShadow="lg">
-              <VStack spacing={4} align="stretch">
-                <Heading as="h3" color={textColor} size="lg">{plan.name}</Heading>
-                <Text fontSize="3xl" color={textColor} fontWeight="bold">
-                  ${typeof plan.price === 'string' ? plan.price : plan.prices[selectedDuration].toFixed(2)}
-                </Text>
-                {plan.name !== t.pricing.planNames.free && (
-                  <Flex direction="column">
-                    <Text fontSize="sm" color={textColor}>
-                      {selectedDuration === 1 ? t.pricing.duration.monthly : t.pricing.duration.yearly} {t.pricing.duration.plan}
-                    </Text>
-                    <Text fontSize="xs" color="green.500" mt={1}>
-                      {t.pricing.trialInfo.text}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500" mt={1}>
-                      {t.pricing.trialInfo.cancelAnytime}
-                    </Text>
-                  </Flex>
-                )}
-                <List spacing={3}>
-                  {plan.features.map((feature, index) => (
-                    <ListItem key={index}>
-                      <HStack>
-                        <Box as="span" color={checkColor}>
-                          <CheckIcon />
-                        </Box>
-                        <Text color={textColor}>{feature}</Text>
-                      </HStack>
-                    </ListItem>
-                  ))}
-                </List>
-                <Link href="/login" passHref legacyBehavior>
-                  <Button colorScheme="blue" size="lg">
-                    {t.pricing.startButton[plan.name.toLowerCase() === 'gratis' ? 'free' : plan.name.toLowerCase() as keyof typeof t.pricing.startButton]}
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} width="full" maxWidth="6xl" mx="auto" mt={16}>
+        {plans.map((plan) => {
+          const price = billingCycle === 'monthly' ? plan.prices.monthly : plan.prices.yearly;
+          let periodText = '';
+          if (plan.name !== t.pricing.planNames.free) {
+            periodText = billingCycle === 'monthly' ? `/ ${t.pricing.month}` : `/ ${t.pricing.year}`;
+          }
+
+          return (
+            <Box
+              key={plan.name}
+              bg={cardBgColor}
+              p={8}
+              borderRadius="xl"
+              boxShadow="lg"
+              border="2px solid"
+              borderColor={plan.isPopular ? popularBorderColor : 'transparent'}
+              transform={plan.isPopular ? 'scale(1.05)' : 'none'}
+              transition="transform 0.2s, box-shadow 0.2s"
+              _hover={!plan.isDisabled ? {
+                transform: 'translateY(-5px)',
+                boxShadow: 'xl',
+              } : {}}
+            >
+              <VStack spacing={6} align="stretch" h="100%">
+                <Box flexGrow={1}>
+                  <Heading as="h3" size="lg" color={headingColor}>{plan.name}</Heading>
+                  <HStack alignItems="baseline" mt={4}>
+                    <Text fontSize="4xl" fontWeight="bold" color={headingColor}>{price}</Text>
+                    <Text color={textColor}>{plan.name === t.pricing.planNames.free ? plan.period : periodText}</Text>
+                  </HStack>
+                  <List spacing={3} mt={6} textAlign="start">
+                    {plan.features.map((feature: string) => (
+                      <ListItem key={feature}>
+                        <HStack align="center">
+                          <Box as="span" color="green.500">
+                            <CheckIcon />
+                          </Box>
+                          <Text color={textColor}>{feature}</Text>
+                        </HStack>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+                <Link href="/register" passHref legacyBehavior>
+                  <Button 
+                    as="a"
+                    colorScheme={'green'}
+                    size="lg" 
+                    w="100%"
+                    isDisabled={plan.isDisabled}
+                    bg={plan.isPopular ? 'brand.500' : 'brand.400'}
+                    _hover={!plan.isDisabled ? { bg: plan.isPopular ? 'brand.600' : 'brand.500' } : {}}
+                  >
+                    {plan.buttonText}
                   </Button>
                 </Link>
               </VStack>
             </Box>
-          ))}
-        </SimpleGrid>
-      </VStack>
+          )
+        })}
+      </SimpleGrid>
     </Box>
   );
 }

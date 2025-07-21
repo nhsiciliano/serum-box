@@ -12,8 +12,10 @@ import {
     Heading,
     Container,
     SimpleGrid,
-    useToast
+    useToast,
+    IconButton
 } from "@chakra-ui/react";
+import { FaInstagram, FaFacebook, FaLinkedin } from 'react-icons/fa';
 import { useState } from "react";
 import { useLanguage } from '@/hooks/useLanguage';
 import { translations } from '@/lib/translations';
@@ -156,7 +158,36 @@ export default function Footer() {
                             {t.footer.about.description}
                         </Text>
                         <HStack spacing={4}>
-                            {/* Aquí puedes agregar iconos de redes sociales si lo deseas */}
+                            <IconButton
+                                as="a"
+                                href="https://www.instagram.com/serumbox.lab"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Instagram"
+                                icon={<FaInstagram size="24px" />}
+                                variant="ghost"
+                                _hover={{ color: useColorModeValue('brand.500', 'brand.300') }}
+                            />
+                            <IconButton
+                                as="a"
+                                href="https://www.facebook.com/61578118567393"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Facebook"
+                                icon={<FaFacebook size="24px" />}
+                                variant="ghost"
+                                _hover={{ color: useColorModeValue('brand.500', 'brand.300') }}
+                            />
+                            <IconButton
+                                as="a"
+                                href="https://www.linkedin.com/company/serum-box"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="LinkedIn"
+                                icon={<FaLinkedin size="24px" />}
+                                variant="ghost"
+                                _hover={{ color: useColorModeValue('brand.500', 'brand.300') }}
+                            />
                         </HStack>
                     </VStack>
                 </SimpleGrid>

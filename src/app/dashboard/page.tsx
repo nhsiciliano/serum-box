@@ -14,6 +14,7 @@ import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 import StockManager from '@/components/StockManager';
 import StockAnalytics from '@/components/StockAnalytics';
+import { EmailSupport } from '@/components/EmailSupport';
 import DashboardOverview from '@/components/DashboardOverview';
 import GridManager from '@/components/GridManager';
 import { DashboardSection } from '@/components/ResponsiveContainers';
@@ -182,6 +183,9 @@ export default function DashboardHome() {
           <StockAnalytics />
         </DashboardSection>
       )}
+      <DashboardSection title="Email Support" fullWidth>
+        <EmailSupport />
+      </DashboardSection>
     </Box>
   );
 }
