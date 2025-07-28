@@ -128,14 +128,17 @@ export default function PricingPlans() {
                     ))}
                   </List>
                 </Box>
-                <Link href="/register" passHref legacyBehavior>
+                <Link href="/login" passHref legacyBehavior>
                   <Button 
                     as="a"
                     colorScheme={'green'}
-                    size="lg" 
+                    size="lg"
+                    color="gray.600"
+                    borderColor="gray.600"
+                    border="1px solid"
                     w="100%"
                     isDisabled={plan.isDisabled}
-                    bg={plan.isPopular ? 'brand.500' : 'brand.400'}
+                    bg={plan.isPopular ? 'brand.500' : 'brand.600'}
                     _hover={!plan.isDisabled ? { bg: plan.isPopular ? 'brand.600' : 'brand.500' } : {}}
                   >
                     {plan.buttonText}

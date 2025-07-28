@@ -102,10 +102,6 @@ export const translations = {
                     a: "Yes, Serum Box prioritizes data security. We use state-of-the-art encryption and comply with all relevant regulations to protect sensitive patient and sample information."
                 },
                 {
-                    q: "Can I integrate Serum Box with other laboratory systems?",
-                    a: "Yes, Serum Box offers integration options with common LIMS (Laboratory Information Management System) and other laboratory software. Contact us for more information about specific integrations."
-                },
-                {
                     q: "What is Stock Manager and how does it work?",
                     a: "Stock Manager is a comprehensive tool that allows you to efficiently manage your laboratory reagents inventory. It consists of two main components: Reagent Inventory for managing your list of reagents, and Stock Control for tracking individual stock entries with details like lot numbers, expiration dates, and usage history."
                 },
@@ -244,10 +240,6 @@ export const translations = {
                 {
                     q: "¿Es seguro almacenar información sensible en Serum Box?",
                     a: "Sí, Serum Box prioriza la seguridad de los datos. Utilizamos encriptación de última generación y cumplimos con todas las regulaciones pertinentes para proteger la información sensible de los pacientes y las muestras."
-                },
-                {
-                    q: "¿Puedo integrar Serum Box con otros sistemas de laboratorio?",
-                    a: "Sí, Serum Box ofrece opciones de integración con sistemas LIMS (Laboratory Information Management System) comunes y otros software de laboratorio. Contáctanos para obtener más información sobre integraciones específicas."
                 },
                 {
                     q: "¿Qué es Stock Manager y cómo funciona?",
