@@ -1,20 +1,47 @@
 "use client"
 
-import { useState, Suspense } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, useToast, Center, Spinner } from '@chakra-ui/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useColorModeValue, useToast, Center, Spinner } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import NextImage from 'next/image';
+import type { Session } from '@supabase/supabase-js';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 
-// Componente interno con la lógica del formulario
-const ResetPasswordContent = () => {
+export default function ResetPasswordForm() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isCheckingSession, setIsCheckingSession] = useState(true);
+    const [canReset, setCanReset] = useState(false);
     const toast = useToast();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const token = searchParams.get('token');
     const bgColor = useColorModeValue('white', 'gray.700');
     const textColor = useColorModeValue('gray.800', 'white');
+    const supabase = createSupabaseBrowserClient();
+
+    useEffect(() => {
+        const initializeRecoverySession = async () => {
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) {
+                console.error('Error validating recovery session:', error);
+            }
+
+            setCanReset(Boolean(data.session));
+            setIsCheckingSession(false);
+        };
+
+        initializeRecoverySession();
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+            setCanReset(Boolean(session));
+            setIsCheckingSession(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [supabase.auth]);
 
     const validatePassword = (password: string) => {
         const minLength = 8;
@@ -61,15 +88,11 @@ const ResetPasswordContent = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch('/api/auth/reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword: password }),
+            const { error } = await supabase.auth.updateUser({
+                password,
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
+            if (!error) {
                 toast({
                     title: "Password reset successful",
                     description: "Your password has been updated. Please log in with your new password.",
@@ -78,9 +101,10 @@ const ResetPasswordContent = () => {
                     isClosable: true,
                     position: "top",
                 });
+                await supabase.auth.signOut();
                 router.push('/login');
             } else {
-                throw new Error(data.error || 'Error resetting password');
+                throw new Error(error.message || 'Error resetting password');
             }
         } catch (error) {
             console.error('Error:', error);
@@ -97,16 +121,51 @@ const ResetPasswordContent = () => {
         }
     };
 
+    if (isCheckingSession) {
+        return (
+            <Center py={8}>
+                <Spinner
+                    thickness="4px"
+                    speed="0.65s"
+                    emptyColor="gray.200"
+                    color="blue.500"
+                    size="xl"
+                />
+            </Center>
+        );
+    }
+
+    if (!canReset) {
+        return (
+            <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="lg">
+                <VStack spacing={4} align="stretch">
+                    <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
+                        Recovery link required
+                    </Text>
+                    <Text textAlign="center" color="gray.500" fontSize="sm">
+                        Open the password recovery link sent to your email to set a new password.
+                    </Text>
+                    <Button colorScheme="teal" onClick={() => router.push('/login')}>
+                        Back to Login
+                    </Button>
+                </VStack>
+            </Box>
+        );
+    }
+
     return (
         <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="lg">
             <VStack spacing={6} align="stretch">
-                <Image 
-                    src="/images/serum-box.png" 
-                    alt="Serum Box Logo" 
-                    width="200px" 
-                    height="auto" 
-                    margin="auto"
-                />
+                <Box position="relative" width="200px" height="56px" mx="auto">
+                    <NextImage
+                        src="/images/serum-box.png"
+                        alt="Serum Box Logo"
+                        fill
+                        sizes="200px"
+                        priority
+                        style={{ objectFit: 'contain' }}
+                    />
+                </Box>
                 <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
                     Reset Your Password
                 </Text>
@@ -150,25 +209,4 @@ const ResetPasswordContent = () => {
             </VStack>
         </Box>
     );
-};
-
-// Componente principal envuelto en Suspense
-export default function ResetPasswordForm() {
-    return (
-        <Suspense
-            fallback={
-                <Center py={8}>
-                    <Spinner
-                        thickness="4px"
-                        speed="0.65s"
-                        emptyColor="gray.200"
-                        color="blue.500"
-                        size="xl"
-                    />
-                </Center>
-            }
-        >
-            <ResetPasswordContent />
-        </Suspense>
-    );
-} 
+}

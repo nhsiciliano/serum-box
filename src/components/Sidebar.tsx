@@ -7,11 +7,11 @@ import {
   Icon,
   Link,
   Text,
-  Image,
   Divider,
   Tooltip
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import NextImage from 'next/image';
 import { IconType } from 'react-icons';
 import { FiHome, FiDatabase, FiSettings, FiLogOut } from 'react-icons/fi';
 import { AiOutlineAudit } from 'react-icons/ai';
@@ -162,13 +162,17 @@ export default function Sidebar({ onSignOut }: { onSignOut: () => void }) {
       <VStack spacing={6} align="stretch" p={5}>
         <Flex align="center" mb={5} justify={isCollapsed ? "center" : "space-between"}>
           <Box overflow="hidden" width={isCollapsed ? "40px" : "auto"}>
-            <Image
+            <NextImage
               src="/images/serum-box.png"
               alt="SerumBox Logo"
-              height="40px"
-              width={isCollapsed ? "40px" : "auto"}
-              objectFit={isCollapsed ? "cover" : "contain"}
-              borderRadius={isCollapsed ? "md" : "none"}
+              width={isCollapsed ? 40 : 140}
+              height={40}
+              style={{
+                width: isCollapsed ? '40px' : '140px',
+                height: '40px',
+                objectFit: isCollapsed ? 'cover' : 'contain',
+                borderRadius: isCollapsed ? '0.375rem' : '0',
+              }}
             />
           </Box>
 

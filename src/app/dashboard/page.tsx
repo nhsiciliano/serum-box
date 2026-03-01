@@ -7,10 +7,8 @@ import {
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { PlanInfo } from '@/components/PlanInfo';
 import { useSession } from 'next-auth/react';
-import { TrialExpirationAlert } from '@/components/TrialExpirationAlert';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 import StockManager from '@/components/StockManager';
 import StockAnalytics from '@/components/StockAnalytics';
@@ -31,11 +29,9 @@ export default function DashboardHome() {
   const router = useRouter();
   const [grillas, setGrillas] = useState<Gradilla[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { restrictions, canCreateGrid } = usePlanRestrictions();
   const toast = useToast();
   const { data: session } = useSession();
   const { fetchWithAuth } = useFetchWithAuth();
-  const planType = session?.user?.planType || 'free';
 
   const fetchGrillas = useCallback(async () => {
     if (!session?.user?.id) return;
@@ -80,16 +76,6 @@ export default function DashboardHome() {
   }, [session?.user?.id, fetchGrillas]);
 
   const handleCreateGrilla = async () => {
-    if (!canCreateGrid(grillas.length)) {
-      toast({
-        title: "Grid limit reached",
-        description: `Your current plan allows a maximum of ${restrictions.maxGrids} grids. Consider upgrading your plan to create more.`,
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
     router.push('/dashboard/create-grilla');
   };
   
@@ -138,17 +124,6 @@ export default function DashboardHome() {
 
   return (
     <Box>
-      {/* Alert for trial users */}
-      {session?.user && (
-        <Box mb={6}>
-          <TrialExpirationAlert 
-            trialEndsAt={session.user.trialEndsAt ? new Date(session.user.trialEndsAt) : null}
-            planType={session.user.planType || 'free'}
-            paypalSubscriptionId={session.user.paypalSubscriptionId}
-          />
-        </Box>
-      )}
-
       {/* Dashboard Overview Section */}
       <Box mb={8}>
         <DashboardOverview />
@@ -166,7 +141,6 @@ export default function DashboardHome() {
       <DashboardSection title="Grid Manager" fullWidth>
         <GridManager 
           grids={grillas} 
-          canCreateGrid={canCreateGrid(grillas.length)}
           onCreateGrid={handleCreateGrilla}
           onDeleteGrid={handleDeleteGrid}
         />
@@ -177,12 +151,9 @@ export default function DashboardHome() {
         <StockManager />
       </DashboardSection>
 
-      {/* Analytics Section (Premium only) */}
-      {planType === 'premium' && (
-        <DashboardSection title="Stock Analytics" fullWidth>
-          <StockAnalytics />
-        </DashboardSection>
-      )}
+      <DashboardSection title="Stock Analytics" fullWidth>
+        <StockAnalytics />
+      </DashboardSection>
       <DashboardSection title="Email Support" fullWidth>
         <EmailSupport />
       </DashboardSection>

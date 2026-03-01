@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import NextImage from 'next/image';
 
 export default function LoginForm({
   onSwitchToRegister,
@@ -17,6 +19,7 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,16 +34,21 @@ export default function LoginForm({
     setIsLoading(false);
 
     if (result?.error) {
+      const lowerError = result.error.toLowerCase();
+      const description = lowerError.includes('verify your email')
+        ? 'Please confirm your email from the Supabase verification link before signing in.'
+        : 'Incorrect email or password. Please try again.';
+
       toast({
         title: "Login Error",
-        description: "Incorrect email or password. Please try again.",
+        description,
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "top",
       });
     } else {
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     }
   };
 
@@ -50,13 +58,16 @@ export default function LoginForm({
   return (
     <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="lg">
       <VStack spacing={6} align="stretch">
-        <Image
-          src="/images/serum-box.png"
-          alt="Serum Box Logo"
-          width="200px"
-          height="auto"
-          margin="auto"
-        />
+        <Box position="relative" width="200px" height="56px" mx="auto">
+          <NextImage
+            src="/images/serum-box.png"
+            alt="Serum Box Logo"
+            fill
+            sizes="200px"
+            priority
+            style={{ objectFit: 'contain' }}
+          />
+        </Box>
         <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
           Start your experience
         </Text>

@@ -1,7 +1,8 @@
 "use client"
 
-import { Box, Flex, Image } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import ResetPasswordForm from '@/components/ResetPasswordForm';
+import NextImage from 'next/image';
 
 export default function ResetPasswordPage() {
     return (
@@ -14,14 +15,16 @@ export default function ResetPasswordPage() {
             <Box 
                 width={{ base: "0%", md: "50%" }} 
                 height="100%" 
+                position="relative"
                 display={{ base: "none", md: "block" }}
             >
-                <Image 
-                    src="/login-image.jpg" 
-                    alt="Login background" 
-                    objectFit="cover" 
-                    width="100%" 
-                    height="100%"
+                <NextImage
+                    src="/login-image.jpg"
+                    alt="Login background"
+                    fill
+                    sizes="50vw"
+                    priority
+                    style={{ objectFit: 'cover' }}
                 />
             </Box>
         </Flex>

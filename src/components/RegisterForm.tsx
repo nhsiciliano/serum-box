@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import NextImage from 'next/image';
 
 export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [email, setEmail] = useState('');
@@ -13,7 +13,6 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const toast = useToast();
 
   const validatePassword = (password: string) => {
@@ -55,21 +54,15 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
       });
 
       if (registerResponse.ok) {
-        await fetch('/api/auth/send-verification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-
         toast({
           title: "Registration successful",
-          description: "Please verify your email",
+          description: "Check your email and confirm your account from the Supabase link.",
           status: "success",
           duration: 5000,
           isClosable: true,
         });
 
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        onSwitchToLogin();
       } else {
         const data = await registerResponse.json();
         throw new Error(data.message || 'Registration error');
@@ -94,13 +87,16 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
   return (
     <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="md">
       <VStack spacing={6} align="stretch">
-        <Image 
-          src="/images/serum-box.png" 
-          alt="Serum Box Logo" 
-          width="200px" 
-          height="auto" 
-          margin="auto"
-        />
+        <Box position="relative" width="200px" height="56px" mx="auto">
+          <NextImage
+            src="/images/serum-box.png"
+            alt="Serum Box Logo"
+            fill
+            sizes="200px"
+            priority
+            style={{ objectFit: 'contain' }}
+          />
+        </Box>
         <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
           Create your account
         </Text>

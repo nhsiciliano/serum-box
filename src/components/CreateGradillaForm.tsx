@@ -23,7 +23,6 @@ import {
     Flex
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
-import { usePlanRestrictions } from '@/hooks/usePlanRestrictions';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 const CreateGradillaForm = () => {
@@ -36,7 +35,6 @@ const CreateGradillaForm = () => {
     const [rowCount, setRowCount] = useState(10);
     const [columnCount, setColumnCount] = useState(10);
     const [fields, setFields] = useState<string[]>(["Name"]);
-    const { restrictions, canCreateGrid } = usePlanRestrictions();
     const { fetchWithAuth } = useFetchWithAuth();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -57,16 +55,6 @@ const CreateGradillaForm = () => {
         setFields(newFields);
     };
 
-    const fetchCurrentGrillasCount = async () => {
-        try {
-            const data = await fetchWithAuth('/api/user-stats');
-            return data.gridCount;
-        } catch (error) {
-            console.error('Error fetching statistics:', error);
-            return 0;
-        }
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -77,19 +65,6 @@ const CreateGradillaForm = () => {
                 description: "Grid name is required.",
                 status: "error",
                 duration: 3000,
-                isClosable: true,
-            });
-            setIsLoading(false);
-            return;
-        }
-
-        const currentGrillas = await fetchCurrentGrillasCount();
-        if (!canCreateGrid(currentGrillas)) {
-            toast({
-                title: "Grid limit reached",
-                description: `Your current plan allows a maximum of ${restrictions.maxGrids} grids. Consider upgrading your plan to create more.`,
-                status: "warning",
-                duration: 5000,
                 isClosable: true,
             });
             setIsLoading(false);

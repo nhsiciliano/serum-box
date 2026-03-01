@@ -22,7 +22,7 @@ const QUICK_QUERIES = [
     'How do I create a new grid?',
     'What do the different stock statuses mean?',
     'How can I edit a reagent?',
-    'I have a billing question.',
+    'I have an account access question.',
     'I found a bug.',
 ];
 

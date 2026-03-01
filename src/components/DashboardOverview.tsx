@@ -240,7 +240,7 @@ export default function DashboardOverview() {
           />
           <QuickAction 
             title="Account Settings"
-            description="Manage your account and plan"
+            description="Manage your account details"
             icon={FiUsers}
             href="/dashboard/admin-cuenta"
             color="gray.500"

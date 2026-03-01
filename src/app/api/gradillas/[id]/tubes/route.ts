@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getActiveUserForAudit } from '@/lib/utils/audit';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     req: Request,
     { params }: { params: { id: string } }
@@ -183,4 +185,3 @@ export async function DELETE(
         return NextResponse.json({ error: 'Error al vaciar la gradilla' }, { status: 500 });
     }
 }
-

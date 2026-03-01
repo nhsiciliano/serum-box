@@ -53,8 +53,6 @@ export default function HomeContent() {
               py={4}
               rounded="full"
               _hover={{ bg: buttonHoverBg }}
-              target="_blank"
-              rel="noopener noreferrer" 
               size="lg"
             >
               {t.home.startTrial}

@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getActiveUserForAudit } from '@/lib/utils/audit';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
 	req: Request,
 	{ params }: { params: { id: string } }

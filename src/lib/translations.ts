@@ -16,51 +16,14 @@ export const translations = {
             discover: "Discover Serum Box's Potential"
         },
         nav: {
-            start: "Get Started",
+            start: "Login",
             language: "Language"
         },
         home: {
             title: "Manage your stock and serum samples with Serum Box",
             subtitle: "Organize, store and analyze your stock and serum samples efficiently",
-            description: "Start your free account and test all features to improve your sample management.",
-            startTrial: "Start Free"
-        },
-        pricing: {
-            title: "Find the perfect plan for your lab",
-            trialSubtitle: "Start with a 30-day free trial of our Premium plan. No credit card required.",
-            forever: "forever",
-            month: "month",
-            year: "year",
-            monthly: "Monthly",
-            yearly: "Yearly",
-            postTrialPlan: "Current Plan after Trial",
-            startTrial: "Start 30-Day Free Trial",
-            features: {
-                free: [
-                    "Perfect for small laboratories",
-                    "Up to 162 samples",
-                    "2 customizable racks",
-                    "Email support"
-                ],
-                standard: [
-                    "Up to 1000 samples",
-                    "5 customizable racks",
-                    "Stock Manager",
-                    "Priority email support"
-                ],
-                premium: [
-                    "Unlimited samples",
-                    "Unlimited racks",
-                    "Stock Manager",
-                    "Stock Analytics",
-                    "Dedicated support"
-                ]
-            },
-            planNames: {
-                free: "Free",
-                standard: "Standard",
-                premium: "Premium"
-            }
+            description: "Log in to access all Serum Box features and improve your sample management.",
+            startTrial: "Go to Login"
         },
         testimonials: {
             title: "What our users say",
@@ -110,8 +73,8 @@ export const translations = {
                     a: "Stock Analytics provides detailed insights into your reagent usage patterns. It shows weekly, monthly, and yearly disposal rates for each reagent, helping you optimize your inventory management. You can track consumption trends, identify frequently used reagents, and make data-driven decisions for stock replenishment."
                 },
                 {
-                    q: "Which plans include Stock Manager and Stock Analytics?",
-                    a: "Stock Manager is available from the Standard plan onwards, while Stock Analytics is exclusively available in the Premium plan. The Free plan does not include these features."
+                    q: "Who can use Stock Manager and Stock Analytics?",
+                    a: "All authenticated users have full access to Stock Manager and Stock Analytics."
                 },
                 {
                     q: "Can I track reagent expiration dates?",
@@ -156,51 +119,14 @@ export const translations = {
             discover: "Descubre el Potencial de Serum Box"
         },
         nav: {
-            start: "Comenzar",
+            start: "Iniciar sesion",
             language: "Idioma"
         },
         home: {
             title: "Gestiona tu stock y muestras de suero con Serum Box",
             subtitle: "Organiza, almacena y analiza tu stock y muestras de suero de manera eficiente",
-            description: "Comienza tu cuenta gratuita y prueba todas las funcionalidades para mejorar la administración de tus muestras.",
-            startTrial: "Comenzar gratis"
-        },
-        pricing: {
-            title: "Encuentra el plan perfecto para tu laboratorio",
-            trialSubtitle: "Comienza con una prueba gratuita de 30 días de nuestro plan Premium. No se requiere tarjeta de crédito.",
-            forever: "para siempre",
-            month: "mes",
-            year: "año",
-            monthly: "Mensual",
-            yearly: "Anual",
-            postTrialPlan: "Plan actual tras la prueba",
-            startTrial: "Comenzar prueba de 30 días",
-            features: {
-                free: [
-                    "Perfecto para pequeños laboratorios",
-                    "Hasta 162 muestras",
-                    "2 gradillas personalizables",
-                    "Soporte por email"
-                ],
-                standard: [
-                    "Hasta 1000 muestras",
-                    "5 gradillas personalizables",
-                    "Stock Manager",
-                    "Soporte por email prioritario"
-                ],
-                premium: [
-                    "Muestras ilimitadas",
-                    "Gradillas ilimitadas",
-                    "Stock Manager",
-                    "Stock Analytics",
-                    "Soporte dedicado"
-                ]
-            },
-            planNames: {
-                free: "Gratis",
-                standard: "Standard",
-                premium: "Premium"
-            }
+            description: "Inicia sesion para acceder a todas las funcionalidades de Serum Box y mejorar la administracion de tus muestras.",
+            startTrial: "Ir a login"
         },
         testimonials: {
             title: "Lo que dicen nuestros usuarios",
@@ -250,8 +176,8 @@ export const translations = {
                     a: "Stock Analytics proporciona información detallada sobre los patrones de uso de tus reactivos. Muestra tasas de eliminación semanales, mensuales y anuales para cada reactivo, ayudándote a optimizar la gestión de tu inventario. Puedes seguir tendencias de consumo, identificar reactivos frecuentemente utilizados y tomar decisiones basadas en datos para la reposición de stock."
                 },
                 {
-                    q: "¿Qué planes incluyen Stock Manager y Stock Analytics?",
-                    a: "Stock Manager está disponible desde el plan Standard en adelante, mientras que Stock Analytics está disponible exclusivamente en el plan Premium. El plan gratuito no incluye estas funcionalidades."
+                    q: "¿Quien puede usar Stock Manager y Stock Analytics?",
+                    a: "Todos los usuarios autenticados tienen acceso completo a Stock Manager y Stock Analytics."
                 },
                 {
                     q: "¿Puedo realizar seguimiento de las fechas de vencimiento de los reactivos?",

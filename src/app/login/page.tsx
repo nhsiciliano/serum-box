@@ -4,7 +4,8 @@ import { useState } from 'react';
 import LoginForm from '../../components/LoginForm';
 import RegisterForm from '../../components/RegisterForm';
 import RecoverPassword from '../../components/RecoverPassword';
-import { Box, Flex, Image } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
+import NextImage from 'next/image';
 
 export default function LoginPage() {
   const [currentView, setCurrentView] = useState<'login' | 'register' | 'recover'>('login');
@@ -33,14 +34,16 @@ export default function LoginPage() {
       <Box 
         width={{ base: "0%", md: "50%" }} 
         height="100%" 
+        position="relative"
         display={{ base: "none", md: "block" }}
       >
-        <Image 
-          src="/login-image.jpg" 
-          alt="Login background" 
-          objectFit="cover" 
-          width="100%" 
-          height="100%"
+        <NextImage
+          src="/login-image.jpg"
+          alt="Login background"
+          fill
+          sizes="50vw"
+          priority
+          style={{ objectFit: 'cover' }}
         />
       </Box>
     </Flex>

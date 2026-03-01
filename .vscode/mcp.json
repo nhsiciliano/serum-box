@@ -1,0 +1,30 @@
+{
+	"servers": {
+		"com.supabase/mcp": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"--registry",
+				"https://registry.npmjs.org",
+				"-y",
+				"@supabase/mcp-server-supabase@0.6.3",
+				"--access-token",
+				"${input:SUPABASE_ACCESS_TOKEN}",
+				"--project-ref",
+				"https://mcp.supabase.com/mcp?project_ref=bjeabfhlwzfqarwobjum",
+				"--features",
+				"docs,account,database,debugging,development,functions,branching,storage"
+			],
+			"gallery": "https://api.mcp.github.com",
+			"version": "0.6.3"
+		}
+	},
+	"inputs": [
+		{
+			"id": "SUPABASE_ACCESS_TOKEN",
+			"type": "promptString",
+			"description": "Supabase Access Token",
+			"password": true
+		}
+	]
+}

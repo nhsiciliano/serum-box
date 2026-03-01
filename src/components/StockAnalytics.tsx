@@ -1,7 +1,6 @@
 import {
     Box,
     VStack,
-    Button,
     Select,
     FormControl,
     FormLabel,
@@ -20,15 +19,9 @@ import {
     Icon,
     useColorModeValue,
     Heading,
-    Alert,
-    AlertIcon,
-    AlertTitle,
-    AlertDescription,
 } from '@chakra-ui/react';
 import { useState, useEffect, useMemo } from 'react';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
-import { useSession } from 'next-auth/react';
-import NextLink from 'next/link';
 import { FiBarChart2, FiCalendar, FiTrendingUp, FiInfo } from 'react-icons/fi';
 
 interface Stock {
@@ -94,8 +87,6 @@ export default function StockAnalytics() {
     const [reagents, setReagents] = useState<Reagent[]>([]);
     const [selectedReagent, setSelectedReagent] = useState<string>('all');
     const { fetchWithAuth } = useFetchWithAuth();
-    const { data: session } = useSession();
-    const planType = session?.user?.planType || 'free';
 
     // Define colors and styles at the top level
     const hoverBg = useColorModeValue('gray.100', 'gray.700');
@@ -103,8 +94,6 @@ export default function StockAnalytics() {
     const selectBg = useColorModeValue('white', 'gray.700');
     const selectBorder = useColorModeValue('gray.300', 'gray.600');
     const emptyStateBg = useColorModeValue('gray.50', 'gray.800');
-    const alertBg = useColorModeValue('blue.50', 'blue.900');
-    const alertColor = useColorModeValue('blue.800', 'blue.100');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -162,36 +151,6 @@ export default function StockAnalytics() {
 
         return result;
     }, [stocks, selectedReagent]);
-
-    if (planType !== 'premium') {
-        return (
-            <Alert
-                status="info"
-                variant="subtle"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                textAlign="center"
-                borderRadius="lg"
-                p={6}
-                bg={alertBg}
-                color={alertColor}
-            >
-                <AlertIcon as={FiBarChart2} boxSize="40px" mr={0} />
-                <AlertTitle mt={4} mb={1} fontSize="lg">
-                    Premium Feature
-                </AlertTitle>
-                <AlertDescription maxWidth="sm">
-                    Detailed stock analytics are available on the Premium plan. Upgrade to unlock valuable insights into your inventory usage.
-                </AlertDescription>
-                <NextLink href="/dashboard/admin-cuenta" passHref>
-                    <Button as="a" mt={4} colorScheme="blue" size="sm">
-                        Upgrade to Premium
-                    </Button>
-                </NextLink>
-            </Alert>
-        );
-    }
 
     return (
         <VStack spacing={6} align="stretch">

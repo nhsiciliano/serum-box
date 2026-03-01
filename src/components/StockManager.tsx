@@ -1,4 +1,3 @@
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import {
     Box,
@@ -8,16 +7,10 @@ import {
     Tab,
     TabPanel,
     VStack,
-    Text,
-    Button,
-    Link,
     Flex,
-    Heading,
     Icon,
     Badge,
     HStack,
-    Card,
-    CardBody,
     useColorModeValue,
     Tooltip
 } from '@chakra-ui/react';
@@ -27,55 +20,12 @@ import StockControl from './StockControl';
 import { DashboardSection } from './ResponsiveContainers';
 
 export default function StockManager() {
-    const { data: session } = useSession();
-    const planType = session?.user?.planType || 'free';
     const [tabIndex, setTabIndex] = useState(0);
 
     // Theme colors for consistency
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.600');
     const tabColor = useColorModeValue('gray.600', 'gray.400');
-
-    if (planType === 'free') {
-        return (
-            <DashboardSection>
-                <Card
-                    bg={bgColor}
-                    borderWidth="1px"
-                    borderColor={borderColor}
-                    borderRadius="lg"
-                    overflow="hidden"
-                    shadow="sm"
-                    transition="all 0.3s"
-                    _hover={{ shadow: 'md' }}
-                >
-                    <CardBody display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={10}>
-                        <Icon as={FiDatabase} boxSize={12} color="gray.400" mb={4} />
-                        <Heading as="h3" size="md" color="gray.700" mb={3}>
-                            Stock Management
-                        </Heading>
-                        <Text color="gray.600" mb={6} fontSize="md" maxW="md" textAlign="center">
-                            Track your reagent inventory, manage stock levels, and get alerts for expiring items with our advanced Stock Manager.
-                        </Text>
-                        <Badge colorScheme="purple" fontSize="0.8em" mb={6} px={3} py={1}>
-                            Standard Plan Feature
-                        </Badge>
-                        <Link href="/dashboard/admin-cuenta" _hover={{ textDecoration: 'none' }}>
-                            <Button
-                                colorScheme="brand"
-                                size="md"
-                                shadow="md"
-                                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
-                                transition="all 0.2s"
-                            >
-                                Upgrade Plan
-                            </Button>
-                        </Link>
-                    </CardBody>
-                </Card>
-            </DashboardSection>
-        );
-    }
 
     return (
         <DashboardSection>
@@ -159,4 +109,3 @@ export default function StockManager() {
         </DashboardSection>
     );
 }
-

@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function PUT(
     req: Request,
     { params }: { params: { id: string } }

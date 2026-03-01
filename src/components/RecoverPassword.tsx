@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, Image, useColorModeValue, Link, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useColorModeValue, Link, useToast } from '@chakra-ui/react';
+import NextImage from 'next/image';
 
 export default function RecoverPassword({ onBackToLogin }: { onBackToLogin: () => void }) {
     const [email, setEmail] = useState('');
@@ -55,13 +56,16 @@ export default function RecoverPassword({ onBackToLogin }: { onBackToLogin: () =
     return (
         <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="lg">
             <VStack spacing={6} align="stretch">
-                <Image
-                    src="/images/serum-box.png"
-                    alt="Serum Box Logo"
-                    width="200px"
-                    height="auto"
-                    margin="auto"
-                />
+                <Box position="relative" width="200px" height="56px" mx="auto">
+                    <NextImage
+                        src="/images/serum-box.png"
+                        alt="Serum Box Logo"
+                        fill
+                        sizes="200px"
+                        priority
+                        style={{ objectFit: 'contain' }}
+                    />
+                </Box>
                 <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
                     Recover Password
                 </Text>

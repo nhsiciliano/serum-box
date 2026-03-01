@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Heading, Text, VStack, Container, Image, Circle, useColorModeValue, HStack } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, Container, Circle, useColorModeValue, HStack } from '@chakra-ui/react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { translations } from '@/lib/translations';
+import NextImage from 'next/image';
 
 export default function FeatureSlider() {
     const { language } = useLanguage();
@@ -61,16 +62,15 @@ export default function FeatureSlider() {
                 <VStack spacing={12} align="center">
                     <Heading as="h2" size="xl" color={headingColor}>{t.features.discover}</Heading>
                     <Box width="full">
-                        <Image 
-                            src={features[currentFeature].image} 
-                            alt={features[currentFeature].title} 
-                            borderRadius="lg" 
-                            boxShadow="lg"
-                            width="100%"
-                            height="auto"
-                            maxHeight="400px"
-                            objectFit="cover"
-                        />
+                        <Box position="relative" width="100%" height={{ base: '240px', md: '400px' }} borderRadius="lg" overflow="hidden" boxShadow="lg">
+                            <NextImage
+                                src={features[currentFeature].image}
+                                alt={features[currentFeature].title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 1200px"
+                                style={{ objectFit: 'cover' }}
+                            />
+                        </Box>
                         <VStack align="center" spacing={4} mt={6}>
                             <Heading as="h3" color={headingColor} size="lg" textAlign="center">{features[currentFeature].title}</Heading>
                             <Text fontSize="lg" color={textColor} textAlign="center" maxWidth="800px">{features[currentFeature].description}</Text>

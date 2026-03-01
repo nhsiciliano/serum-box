@@ -7,6 +7,7 @@ import Script from 'next/script';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://serum-box.com'),
   title: {
     default: 'Serum Box - Laboratory Stock and Sample Management',
     template: '%s | Serum Box'
@@ -16,6 +17,12 @@ export const metadata: Metadata = {
   authors: [{ name: 'Serum Box' }],
   creator: 'Serum Box',
   publisher: 'Serum Box',
+  alternates: {
+    canonical: '/',
+  },
+  icons: {
+    icon: '/favicon.ico',
+  },
   robots: {
     index: true,
     follow: true
@@ -51,11 +58,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="canonical" href="https://serum-box.com" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
       <body className={inter.className}>
         <Providers>
           {children}

@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { getActiveUserForAudit } from '@/lib/utils/audit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.id) {
@@ -64,42 +66,24 @@ export async function GET(req: Request) {
 
     try {
         const includeSecondary = req.headers.get('x-include-secondary') === 'true';
-        
-        if (!session.user.id || session.user.id.length !== 24) {
-            return NextResponse.json({ error: 'ID de usuario inválido' }, { status: 400 });
-        }
 
         const userIds = [session.user.id];
 
         if (includeSecondary) {
             const secondaryUsers = await prisma.user.findMany({
                 where: {
-                    AND: [
-                        { mainUserId: session.user.id },
-                        { id: { not: undefined } },
-                        { isMainUser: false }
-                    ]
+                    mainUserId: session.user.id,
+                    isMainUser: false,
                 },
                 select: { id: true }
             });
 
-            const validSecondaryIds = secondaryUsers
-                .map(user => user.id)
-                .filter(id => id && typeof id === 'string' && id.length === 24);
-            
-            userIds.push(...validSecondaryIds);
-        }
-
-        if (userIds.length === 0) {
-            return NextResponse.json({ error: 'No hay usuarios válidos' }, { status: 400 });
+            userIds.push(...secondaryUsers.map((user) => user.id));
         }
 
         const gradillas = await prisma.gradilla.findMany({
             where: {
-                AND: [
-                    { userId: { in: userIds } },
-                    { userId: { not: undefined } }
-                ]
+                userId: { in: userIds },
             },
             include: { 
                 tubes: true,

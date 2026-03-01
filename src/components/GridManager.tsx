@@ -56,14 +56,12 @@ interface Grid {
 
 interface GridManagerProps {
   grids: Grid[];
-  canCreateGrid: boolean;
   onCreateGrid: () => void;
   onDeleteGrid?: (gridId: string) => void;
 }
 
 export default function GridManager({
   grids,
-  canCreateGrid,
   onCreateGrid,
   onDeleteGrid
 }: GridManagerProps) {
@@ -169,7 +167,7 @@ export default function GridManager({
           
           {/* Create button */}
           <Tooltip 
-            label={canCreateGrid ? "Create a new grid" : "Grid limit reached for your plan"} 
+            label="Create a new grid" 
             placement="top"
           >
             <Button 
@@ -177,7 +175,6 @@ export default function GridManager({
               onClick={onCreateGrid}
               leftIcon={<Icon as={FiPlus} />}
               size={isMobile ? "sm" : "md"}
-              isDisabled={!canCreateGrid}
             >
               Create Grid
             </Button>
@@ -311,7 +308,6 @@ export default function GridManager({
               onClick={onCreateGrid}
               leftIcon={<Icon as={FiPlus} />}
               size="lg"
-              isDisabled={!canCreateGrid}
             >
               Create First Grid
             </Button>

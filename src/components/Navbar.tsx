@@ -4,7 +4,6 @@ import {
   Box, 
   Flex, 
   Button, 
-  Image, 
   Menu, 
   MenuButton, 
   MenuList, 
@@ -18,6 +17,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { translations } from '@/lib/translations';
+import NextImage from 'next/image';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -79,13 +79,13 @@ export default function Navbar() {
             justifyContent="flex-start"
             width="auto"
           >
-            <Image
+            <NextImage
               src="/images/serum-box.png"
               alt="Serum Box Logo"
-              height="50px"
-              width="auto"
-              objectFit="contain"
-              transition="filter 0.3s ease-in-out"
+              width={180}
+              height={50}
+              priority
+              style={{ width: 'auto', height: '50px', objectFit: 'contain', transition: 'filter 0.3s ease-in-out' }}
             />
           </Box>
         </Link>

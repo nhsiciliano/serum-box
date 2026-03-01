@@ -1,38 +1,25 @@
 import { NextAuthOptions, DefaultSession, User } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
 import prisma from '@/lib/prisma'
-import { PlanType } from "@/types/plans"
+import { createSupabaseServerClient } from '@/lib/supabase'
 
 // Extender los tipos de NextAuth
 declare module "next-auth" {
     interface Session {
         user: {
             id: string;
-            planType?: PlanType;
-            trialEndsAt?: string | null;
-            paypalSubscriptionId?: string | null;
             isMainUser?: boolean;
-            planStartDate?: string;
             emailVerified?: boolean;
         } & DefaultSession["user"]
     }
     interface User {
-        planType: PlanType;
-        trialEndsAt?: string | null;
-        paypalSubscriptionId?: string | null;
         isMainUser: boolean;
-        planStartDate: string;
         emailVerified: boolean;
     }
 
     interface JWT {
         id?: string;
-        planType?: PlanType;
-        trialEndsAt?: string | null;
-        paypalSubscriptionId?: string | null;
         isMainUser?: boolean;
-        planStartDate?: string;
         emailVerified?: boolean;
     }
 }
@@ -50,28 +37,73 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('Invalid credentials');
                 }
 
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials.email }
+                const supabase = createSupabaseServerClient();
+                const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                    email: credentials.email,
+                    password: credentials.password,
                 });
 
-                if (!user || !user.emailVerified) {
+                if (signInError || !signInData.user) {
+                    const message = signInError?.message?.toLowerCase() || '';
+                    if (message.includes('email not confirmed')) {
+                        throw new Error('Please verify your email');
+                    }
+                    throw new Error('Invalid credentials');
+                }
+
+                if (!signInData.user.email_confirmed_at) {
                     throw new Error('Please verify your email');
                 }
 
-                const isPasswordValid = await bcrypt.compare(credentials.password, user.password || '')
-                if (!isPasswordValid) {
-                    return null;
+                const authUser = signInData.user;
+                const authEmail = authUser.email;
+
+                if (!authEmail) {
+                    throw new Error('Invalid credentials');
                 }
+
+                const dbUserByAuthId = await prisma.user.findUnique({
+                    where: { supabaseAuthId: authUser.id },
+                });
+
+                const dbUserByEmail = await prisma.user.findUnique({
+                    where: { email: authEmail },
+                });
+
+                const existingUser = dbUserByAuthId || dbUserByEmail;
+
+                const user = existingUser
+                    ? await prisma.user.update({
+                        where: { id: existingUser.id },
+                        data: {
+                            email: authEmail,
+                            supabaseAuthId: authUser.id,
+                            emailVerified: true,
+                            name:
+                                existingUser.name ||
+                                (typeof authUser.user_metadata?.name === 'string'
+                                    ? authUser.user_metadata.name
+                                    : null),
+                        },
+                    })
+                    : await prisma.user.create({
+                        data: {
+                            email: authEmail,
+                            supabaseAuthId: authUser.id,
+                            name:
+                                typeof authUser.user_metadata?.name === 'string'
+                                    ? authUser.user_metadata.name
+                                    : null,
+                            isMainUser: true,
+                            emailVerified: true,
+                        },
+                    });
 
                 return {
                     id: user.id,
                     email: user.email || '',
                     name: user.name || '',
-                    planType: (user.planType as PlanType) || 'free',
-                    trialEndsAt: user.trialEndsAt?.toISOString() || null,
-                    paypalSubscriptionId: user.paypalSubscriptionId || null,
                     isMainUser: user.isMainUser || false,
-                    planStartDate: user.planStartDate?.toISOString() || '',
                     emailVerified: !!user.emailVerified, // Corregido a booleano
                 };
             }
@@ -90,10 +122,6 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.isMainUser = user.isMainUser;
-                token.planType = user.planType;
-                token.trialEndsAt = user.trialEndsAt;
-                token.paypalSubscriptionId = user.paypalSubscriptionId;
-                token.planStartDate = user.planStartDate;
                 token.emailVerified = !!user.emailVerified; // Asegurar que siempre sea booleano
             }
             return token;
@@ -102,10 +130,6 @@ export const authOptions: NextAuthOptions = {
             if (session.user && token) {
                 session.user.id = token.id as string;
                 session.user.isMainUser = token.isMainUser as boolean;
-                session.user.planType = token.planType as PlanType;
-                session.user.trialEndsAt = token.trialEndsAt as string | null;
-                session.user.paypalSubscriptionId = token.paypalSubscriptionId as string | null;
-                session.user.planStartDate = token.planStartDate as string;
                 session.user.emailVerified = token.emailVerified as boolean;
             }
             return session;
