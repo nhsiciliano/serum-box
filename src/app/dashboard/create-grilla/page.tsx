@@ -1,17 +1,21 @@
 "use client"
 
-import { Box, Heading, VStack } from '@chakra-ui/react';
+import { Box, VStack } from '@chakra-ui/react';
 import CreateGradillaForm from '@/components/CreateGradillaForm';
+import { DashboardSection } from '@/components/ResponsiveContainers';
 
 export default function CreateGrillaPage() {
     return (
-        <Box p={{ base: 4, md: 8 }} display="flex" justifyContent="center">
-            <VStack spacing={8} align="stretch" width="100%" maxWidth="800px">
-                <Heading as="h1" size="xl" color="brand.700">
-                    Create a New Grid
-                </Heading>
-                <CreateGradillaForm />
-            </VStack>
+        <Box>
+            <DashboardSection
+                title="Crear una nueva gradilla"
+                subtitle="Definí estructura, metadatos de almacenamiento y campos personalizados en un solo flujo."
+                fullWidth
+            >
+                <VStack spacing={8} align="stretch" width="100%" maxWidth="900px">
+                    <CreateGradillaForm />
+                </VStack>
+            </DashboardSection>
         </Box>
     );
 }

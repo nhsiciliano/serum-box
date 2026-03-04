@@ -103,7 +103,7 @@ export default function ReagentInventory() {
             console.error('Error fetching reagents:', error);
             toast({
                 title: "Error",
-                description: "Could not fetch reagents",
+                description: 'No se pudieron cargar los reactivos',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -153,17 +153,17 @@ export default function ReagentInventory() {
             fetchReagents();
             onClose();
             toast({
-                title: "Success",
-                description: `Reagent ${currentReagent ? 'updated' : 'added'} successfully`,
+                title: 'Éxito',
+                description: `Reactivo ${currentReagent ? 'actualizado' : 'agregado'} correctamente`,
                 status: "success",
                 duration: 3000,
                 isClosable: true,
             });
         } catch (error) {
-            console.error(`Error ${currentReagent ? 'updating' : 'adding'} reagent:`, error);
+            console.error(`Error ${currentReagent ? 'actualizando' : 'agregando'} reactivo:`, error);
             toast({
                 title: "Error",
-                description: `Could not ${currentReagent ? 'update' : 'add'} reagent`,
+                description: `No se pudo ${currentReagent ? 'actualizar' : 'agregar'} el reactivo`,
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -183,8 +183,8 @@ export default function ReagentInventory() {
             try {
                 await fetchWithAuth(`/api/reagents/${reagentToDelete}`, { method: 'DELETE' });
                 toast({
-                    title: 'Reagent Deleted',
-                    description: 'The reagent has been successfully deleted.',
+                    title: 'Reactivo eliminado',
+                    description: 'El reactivo se eliminó correctamente.',
                     status: 'success',
                     duration: 3000,
                     isClosable: true,
@@ -194,7 +194,7 @@ export default function ReagentInventory() {
                 console.error('Error deleting reagent:', error);
                 toast({
                     title: 'Error',
-                    description: 'Could not delete the reagent.',
+                    description: 'No se pudo eliminar el reactivo.',
                     status: 'error',
                     duration: 3000,
                     isClosable: true,
@@ -232,7 +232,7 @@ export default function ReagentInventory() {
         <VStack spacing={6} align="stretch">
             <HStack justify="space-between" wrap="wrap" gap={4}>
                 <Heading as="h2" size="md" fontWeight="semibold" color={textColor}>
-                    Reagent Catalog
+                    Catálogo de reactivos
                 </Heading>
                 <Button
                     leftIcon={<AddIcon />}
@@ -241,7 +241,7 @@ export default function ReagentInventory() {
                     _hover={{ transform: 'translateY(-1px)', shadow: 'md' }}
                     transition="all 0.2s"
                 >
-                    Add New Reagent
+                    Agregar reactivo
                 </Button>
             </HStack>
 
@@ -251,7 +251,7 @@ export default function ReagentInventory() {
                         <HStack align="center">
                             <Icon as={FiDatabase} boxSize={8} color="blue.500" />
                             <Box>
-                                <Text fontSize="sm" color="gray.500">Total Reagents</Text>
+                                <Text fontSize="sm" color="gray.500">Total de reactivos</Text>
                                 <Text fontSize="2xl" fontWeight="bold" color={textColor}>{stats.total}</Text>
                             </Box>
                         </HStack>
@@ -262,7 +262,7 @@ export default function ReagentInventory() {
                         <HStack align="center">
                             <Icon as={FiAlertTriangle} boxSize={8} color="orange.500" />
                             <Box>
-                                <Text fontSize="sm" color="gray.500">Low Stock</Text>
+                                <Text fontSize="sm" color="gray.500">Stock bajo</Text>
                                 <Text fontSize="2xl" fontWeight="bold" color={textColor}>{stats.lowStock}</Text>
                             </Box>
                         </HStack>
@@ -275,7 +275,7 @@ export default function ReagentInventory() {
                     <Icon as={FiSearch} color="gray.400" />
                 </InputLeftElement>
                 <Input
-                    placeholder="Search reagents by name or description..."
+                    placeholder="Buscar reactivos por nombre o descripción..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     focusBorderColor="brand.400"
@@ -289,11 +289,11 @@ export default function ReagentInventory() {
                         <Table variant="simple">
                             <Thead bg={theadBgColor}>
                                 <Tr>
-                                    <Th color={thColor} textTransform="none" fontSize="sm">Name</Th>
-                                    <Th color={thColor} textTransform="none" fontSize="sm">Description</Th>
-                                    <Th color={thColor} textTransform="none" fontSize="sm">Unit</Th>
-                                    <Th color={thColor} textTransform="none" fontSize="sm">Stock Status</Th>
-                                    <Th color={thColor} textTransform="none" fontSize="sm" textAlign="center">Actions</Th>
+                                    <Th color={thColor} textTransform="none" fontSize="sm">Nombre</Th>
+                                    <Th color={thColor} textTransform="none" fontSize="sm">Descripción</Th>
+                                    <Th color={thColor} textTransform="none" fontSize="sm">Unidad</Th>
+                                    <Th color={thColor} textTransform="none" fontSize="sm">Estado de stock</Th>
+                                    <Th color={thColor} textTransform="none" fontSize="sm" textAlign="center">Acciones</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -304,33 +304,33 @@ export default function ReagentInventory() {
                                         transition="background-color 0.2s"
                                     >
                                         <Td color={tdColor} fontWeight="medium">{reagent.name}</Td>
-                                        <Td color={tdColor}>{reagent.description || <Text as="i" color="gray.500" fontSize="sm">No description</Text>}</Td>
+                                        <Td color={tdColor}>{reagent.description || <Text as="i" color="gray.500" fontSize="sm">Sin descripción</Text>}</Td>
                                         <Td>
                                             <Badge colorScheme="blue" fontSize="0.8em">{reagent.unit}</Badge>
                                         </Td>
                                         <Td>
                                             {(reagent.lowStockAlert ?? 0) > 0 && (reagent.totalStock ?? 0) <= (reagent.lowStockAlert ?? 0) ? (
-                                                <Tooltip label={`Stock is at or below the threshold of ${reagent.lowStockAlert}`} hasArrow placement="top">
-                                                    <Badge colorScheme="orange" fontSize="0.8em">Low Stock</Badge>
+                                                <Tooltip label={`El stock está en o por debajo del umbral de ${reagent.lowStockAlert}`} hasArrow placement="top">
+                                                    <Badge colorScheme="orange" fontSize="0.8em">Stock bajo</Badge>
                                                 </Tooltip>
                                             ) : (
-                                                <Badge colorScheme="green" fontSize="0.8em">In Stock</Badge>
+                                                <Badge colorScheme="green" fontSize="0.8em">En stock</Badge>
                                             )}
                                         </Td>
                                         <Td>
                                             <HStack spacing={2} justifyContent="center">
-                                                <Tooltip label="Edit reagent" hasArrow placement="top">
+                                                <Tooltip label="Editar reactivo" hasArrow placement="top">
                                                     <IconButton
-                                                        aria-label="Edit reagent"
+                                                        aria-label="Editar reactivo"
                                                         icon={<EditIcon />}
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() => handleOpenModal(reagent)}
                                                     />
                                                 </Tooltip>
-                                                <Tooltip label="Delete reagent" hasArrow placement="top">
+                                                <Tooltip label="Eliminar reactivo" hasArrow placement="top">
                                                     <IconButton
-                                                        aria-label="Delete reagent"
+                                                        aria-label="Eliminar reactivo"
                                                         icon={<DeleteIcon />}
                                                         size="sm"
                                                         variant="ghost"
@@ -349,7 +349,7 @@ export default function ReagentInventory() {
             ) : (
                 <Alert status="info" borderRadius="md" bg={bgColor} borderColor={borderColor} borderWidth="1px">
                     <AlertIcon color={iconColor} />
-                    <Text color={textColor}>{searchTerm ? "No reagents match your search" : "No reagents added yet. Click 'Add New Reagent' to start."}</Text>
+                    <Text color={textColor}>{searchTerm ? 'No hay reactivos para esa búsqueda' : "Todavía no hay reactivos. Hacé clic en 'Agregar reactivo' para empezar."}</Text>
                 </Alert>
             )}
 
@@ -358,50 +358,50 @@ export default function ReagentInventory() {
                 <ModalContent shadow="xl" borderRadius="lg">
                     <ModalHeader bg={bgColor} borderTopRadius="lg" py={4}>
                         <HStack>
-                            <Icon as={FiDatabase} color="brand.500" />
-                            <Text fontWeight="semibold" fontSize="lg" color={textColor}>
-                                {currentReagent ? `Edit ${currentReagent.name}` : 'Add New Reagent'}
-                            </Text>
-                        </HStack>
+                                <Icon as={FiDatabase} color="brand.500" />
+                                <Text fontWeight="semibold" fontSize="lg" color={textColor}>
+                                    {currentReagent ? `Editar ${currentReagent.name}` : 'Agregar reactivo'}
+                                </Text>
+                            </HStack>
                     </ModalHeader>
                     <ModalCloseButton color="gray.700"/>
                     <ModalBody pt={5} pb={6}>
                         <VStack spacing={5} align="stretch">
                             <FormControl isRequired>
-                                <FormLabel fontWeight="medium" color={labelColor}>Reagent Name</FormLabel>
+                                <FormLabel fontWeight="medium" color={labelColor}>Nombre del reactivo</FormLabel>
                                 <Input 
                                     value={formData.name} 
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                    placeholder="Enter reagent name"
+                                    placeholder="Ingresá el nombre del reactivo"
                                     color={labelColor}
                                     focusBorderColor="brand.500"
                                     size="md"
                                 />
                             </FormControl>
                             <FormControl>
-                                <FormLabel fontWeight="medium" color={labelColor}>Description</FormLabel>
+                                <FormLabel fontWeight="medium" color={labelColor}>Descripción</FormLabel>
                                 <Input 
                                     value={formData.description || ''} 
                                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                                    placeholder="Enter description (optional)"
+                                    placeholder="Ingresá una descripción (opcional)"
                                     color={labelColor}
                                     focusBorderColor="brand.500"
                                     size="md"
                                 />
                             </FormControl>
                             <FormControl isRequired>
-                                <FormLabel fontWeight="medium" color={labelColor}>Unit</FormLabel>
+                                <FormLabel fontWeight="medium" color={labelColor}>Unidad</FormLabel>
                                 <Input 
                                     value={formData.unit} 
                                     onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                                    placeholder="e.g., mL, g, mg"
+                                    placeholder="Ej: mL, g, mg"
                                     color={labelColor}
                                     focusBorderColor="brand.500"
                                     size="md"
                                 />
                             </FormControl>
                             <FormControl>
-                                <FormLabel fontWeight="medium" color={labelColor}>Low Stock Alert</FormLabel>
+                                <FormLabel fontWeight="medium" color={labelColor}>Alerta de stock bajo</FormLabel>
                                 <NumberInput 
                                     value={formData.lowStockAlert}
                                     onChange={(valueString) => setFormData({...formData, lowStockAlert: parseInt(valueString) || 0})}
@@ -414,21 +414,21 @@ export default function ReagentInventory() {
                                         <NumberDecrementStepper />
                                     </NumberInputStepper>
                                 </NumberInput>
-                                <Text fontSize="xs" color="gray.400" mt={1}>Set a threshold to get a warning when stock is low.</Text>
+                                <Text fontSize="xs" color="gray.400" mt={1}>Definí un umbral para recibir alerta cuando el stock sea bajo.</Text>
                             </FormControl>
                         </VStack>
                     </ModalBody>
                     <ModalFooter bg={bgColor} borderBottomRadius="lg" gap={3}>
-                        <Button onClick={onClose} variant="outline">Cancel</Button>
+                        <Button onClick={onClose} variant="outline">Cancelar</Button>
                         <Button 
                             colorScheme="brand" 
                             onClick={handleSubmit} 
                             isLoading={isSubmitting}
-                            loadingText={currentReagent ? "Updating" : "Adding"}
+                            loadingText={currentReagent ? 'Actualizando' : 'Agregando'}
                             _hover={{ transform: 'translateY(-1px)', shadow: 'md' }}
                             transition="all 0.2s"
                         >
-                            {currentReagent ? 'Update' : 'Add'}
+                            {currentReagent ? 'Actualizar' : 'Agregar'}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -443,19 +443,19 @@ export default function ReagentInventory() {
                 <AlertDialogOverlay>
                     <AlertDialogContent>
                         <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                            Delete Reagent
+                            Eliminar reactivo
                         </AlertDialogHeader>
 
                         <AlertDialogBody>
-                            Are you sure you want to delete this reagent? All associated stock will also be deleted. This action cannot be undone.
+                            ¿Seguro que querés eliminar este reactivo? También se eliminará todo el stock asociado. Esta acción no se puede deshacer.
                         </AlertDialogBody>
 
                         <AlertDialogFooter>
                             <Button ref={cancelRef} onClick={onAlertClose}>
-                                Cancel
+                                Cancelar
                             </Button>
                             <Button colorScheme="red" onClick={confirmDelete} ml={3}>
-                                Delete
+                                Eliminar
                             </Button>
                         </AlertDialogFooter>
                     </AlertDialogContent>

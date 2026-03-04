@@ -38,8 +38,8 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
         } catch (error) {
             console.error('Error fetching secondary users:', error);
             toast({
-                title: 'Error fetching users',
-                description: 'Could not load the list of secondary users.',
+                title: 'Error al cargar usuarios',
+                description: 'No se pudo cargar la lista de usuarios secundarios.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -60,8 +60,8 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
         e.preventDefault();
         if (secondaryUsers.length >= 4) {
             toast({
-                title: "Limit reached",
-                description: "You cannot add more than 4 secondary users",
+                title: 'Límite alcanzado',
+                description: 'No podés agregar más de 4 usuarios secundarios',
                 status: "warning",
                 duration: 3000,
                 isClosable: true,
@@ -77,8 +77,8 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
             });
 
             toast({
-                title: "User added",
-                description: "User added successfully",
+                title: 'Usuario agregado',
+                description: 'El usuario se agregó correctamente',
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -91,7 +91,7 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
             console.error('Error adding secondary user:', error);
             toast({
                 title: "Error",
-                description: "Could not add the user",
+                description: 'No se pudo agregar el usuario',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -116,8 +116,8 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
             });
 
             toast({
-                title: 'User deleted',
-                description: `The user ${userToDelete.name} has been successfully removed.`,
+                title: 'Usuario eliminado',
+                description: `El usuario ${userToDelete.name} se eliminó correctamente.`,
                 status: 'success',
                 duration: 3000,
                 isClosable: true,
@@ -128,8 +128,8 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
         } catch (error) {
             console.error('Error deleting secondary user:', error);
             toast({
-                title: 'Deletion Error',
-                description: 'Could not delete the user. Please try again.',
+                title: 'Error al eliminar',
+                description: 'No se pudo eliminar el usuario. Intentá nuevamente.',
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -146,12 +146,12 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
             <Modal isOpen={isOpen} onClose={onClose} size="3xl" isCentered>
                 <ModalOverlay />
                 <ModalContent borderRadius="xl">
-                    <ModalHeader color="gray.700" fontWeight="bold">Manage Users</ModalHeader>
+                    <ModalHeader color="gray.700" fontWeight="bold">Gestionar usuarios</ModalHeader>
                     <ModalCloseButton color="gray.700"/>
                     <ModalBody p={6}>
                         <VStack spacing={6} align="stretch">
                             <Box p={5} borderWidth="1px" borderRadius="lg" borderColor="gray.200">
-                                <Heading as="h3" size="md" mb={4} color="gray.600">Add New User</Heading>
+                                <Heading as="h3" size="md" mb={4} color="gray.600">Agregar nuevo usuario</Heading>
                                 <HStack as="form" onSubmit={handleAddUser} spacing={4}>
                                     <FormControl isRequired>
                                         <FormLabel htmlFor='name' srOnly>Name</FormLabel>
@@ -163,7 +163,7 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                                                 id='name'
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
-                                                placeholder="User's Name"
+                                                placeholder="Nombre del usuario"
                                                 focusBorderColor="brand.500"
                                                 color="gray.600"
                                             />
@@ -179,7 +179,7 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                                                 id='email'
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="email@example.com"
+                                                placeholder="correo@ejemplo.com"
                                                 type="email"
                                                 focusBorderColor="brand.500"
                                                 color="gray.600"
@@ -191,10 +191,10 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                                         colorScheme="brand"
                                         type="submit"
                                         isLoading={isAdding}
-                                        loadingText="Adding..."
+                                        loadingText="Agregando..."
                                         px={8}
                                     >
-                                        Add
+                                        Agregar
                                     </Button>
                                 </HStack>
                             </Box>
@@ -203,9 +203,9 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                                 <Table variant="simple">
                                     <Thead>
                                         <Tr>
-                                            <Th>User</Th>
-                                            <Th>Creation Date</Th>
-                                            <Th isNumeric>Actions</Th>
+                                            <Th>Usuario</Th>
+                                            <Th>Fecha de creación</Th>
+                                            <Th isNumeric>Acciones</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -222,11 +222,11 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                                                 <Td colSpan={3}>
                                                     <Center p={8} flexDirection="column">
                                                         <Icon as={FiUsers} w={12} h={12} color="gray.300" />
-                                                        <Text mt={4} fontWeight="medium" color="gray.500">No secondary users yet.</Text>
-                                                        <Text fontSize="sm" color="gray.400">Use the form above to add one.</Text>
-                                                    </Center>
-                                                </Td>
-                                            </Tr>
+                                                            <Text mt={4} fontWeight="medium" color="gray.500">Todavía no hay usuarios secundarios.</Text>
+                                                            <Text fontSize="sm" color="gray.400">Usá el formulario de arriba para agregar uno.</Text>
+                                                        </Center>
+                                                    </Td>
+                                                </Tr>
                                         ) : (
                                             secondaryUsers.map(user => (
                                                 <Tr key={user.id}>
@@ -242,7 +242,7 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                                                     <Td color="gray.600">{new Date(user.createdAt).toLocaleDateString()}</Td>
                                                     <Td isNumeric>
                                                         <IconButton
-                                                            aria-label="Delete user"
+                                                            aria-label="Eliminar usuario"
                                                             icon={<FiTrash2 />}
                                                             variant="ghost"
                                                             colorScheme="red"
@@ -270,20 +270,20 @@ export const UserManagement = ({ isOpen, onClose }: { isOpen: boolean, onClose: 
                 <AlertDialogOverlay>
                     <AlertDialogContent borderRadius="xl">
                         <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                            Delete User
+                            Eliminar usuario
                         </AlertDialogHeader>
 
                         <AlertDialogBody>
-                            Are you sure you want to delete <Text as="span" fontWeight="bold">{userToDelete?.name}</Text>?
-                            This action cannot be undone.
+                            ¿Seguro que querés eliminar a <Text as="span" fontWeight="bold">{userToDelete?.name}</Text>?
+                            Esta acción no se puede deshacer.
                         </AlertDialogBody>
 
                         <AlertDialogFooter>
                             <Button ref={cancelRef} onClick={onAlertClose}>
-                                Cancel
+                                Cancelar
                             </Button>
                             <Button colorScheme="red" onClick={confirmDeleteUser} ml={3} isLoading={!!deletingUserId}>
-                                Delete
+                                Eliminar
                             </Button>
                         </AlertDialogFooter>
                     </AlertDialogContent>

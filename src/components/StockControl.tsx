@@ -112,7 +112,7 @@ export default function StockControl() {
                 console.error('Error fetching data:', error);
                 toast({
                     title: "Error",
-                    description: "Could not fetch stock data",
+                    description: 'No se pudieron cargar los datos de stock',
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -173,8 +173,8 @@ export default function StockControl() {
             });
             
             toast({
-                title: "Success",
-                description: `${response.length} stock entries added successfully`,
+                title: 'Éxito',
+                description: `Se agregaron ${response.length} registros de stock correctamente`,
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -183,7 +183,7 @@ export default function StockControl() {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "Could not add stock entries",
+                description: 'No se pudieron agregar los registros de stock',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -196,8 +196,8 @@ export default function StockControl() {
     const handleDispose = async (stockId: string) => {
         try {
             toast({
-                title: "Confirm Disposal",
-                description: "Are you sure you want to dispose this stock entry?",
+                title: 'Confirmar descarte',
+                description: '¿Seguro que querés descartar este registro de stock?',
                 status: "warning",
                 duration: null,
                 isClosable: true,
@@ -205,7 +205,7 @@ export default function StockControl() {
                 render: ({ onClose }) => (
                     <Box p={3} bg="white" borderRadius="md" boxShadow="md">
                         <VStack spacing={4}>
-                            <Text color="gray.700">Are you sure you want to dispose this stock entry?</Text>
+                            <Text color="gray.700">¿Seguro que querés descartar este registro de stock?</Text>
                             <HStack spacing={4}>
                                 <Button
                                     colorScheme="red"
@@ -220,20 +220,20 @@ export default function StockControl() {
                                             setStocks(prev => prev.filter(stock => stock.id !== stockId));
                                             
                                             toast({
-                                                title: "Success",
-                                                description: "Stock disposed successfully",
+                                                title: 'Éxito',
+                                                description: 'Stock descartado correctamente',
                                                 status: "success",
                                                 duration: 3000,
                                                 isClosable: true,
                                             });
                                         } else {
-                                            throw new Error('Failed to dispose stock');
+                                            throw new Error('No se pudo descartar el stock');
                                         }
                                     }}
                                 >
-                                    Dispose
+                                    Descartar
                                 </Button>
-                                <Button onClick={onClose}>Cancel</Button>
+                                <Button onClick={onClose}>Cancelar</Button>
                             </HStack>
                         </VStack>
                     </Box>
@@ -243,7 +243,7 @@ export default function StockControl() {
             console.error('Error:', error);
             toast({
                 title: "Error",
-                description: "Could not dispose stock",
+                description: 'No se pudo descartar el stock',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -271,7 +271,7 @@ export default function StockControl() {
             {/* Header con título y botón de añadir */}
             <Flex justifyContent="space-between" alignItems="center">
                 <Heading as="h4" size="md" color={tdColor}>
-                    Stock Control
+                    Control de stock
                 </Heading>
                 
                 <HStack spacing={2}>
@@ -280,7 +280,7 @@ export default function StockControl() {
                             <SearchIcon color="gray.400" />
                         </InputLeftElement>
                         <Input
-                            placeholder="Search stocks..."
+                            placeholder="Buscar stock..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             size="md"
@@ -288,7 +288,7 @@ export default function StockControl() {
                         />
                     </InputGroup>
                     
-                    <Tooltip label="Add new stock entry" hasArrow placement="top">
+                    <Tooltip label="Agregar registro de stock" hasArrow placement="top">
                         <Button
                             leftIcon={<AddIcon />}
                             colorScheme="brand"
@@ -297,7 +297,7 @@ export default function StockControl() {
                             _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
                             transition="all 0.2s"
                         >
-                            Add
+                            Agregar
                         </Button>
                     </Tooltip>
                 </HStack>
@@ -318,7 +318,7 @@ export default function StockControl() {
                     <CardBody p={0} display="flex" alignItems="center">
                         <Icon as={FiDatabase} boxSize={8} color="blue.500" mr={4} />
                         <Box>
-                            <Text fontSize="sm" color={thColor}>Active Stock</Text>
+                            <Text fontSize="sm" color={thColor}>Stock activo</Text>
                             <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.total}</Text>
                         </Box>
                     </CardBody>
@@ -337,7 +337,7 @@ export default function StockControl() {
                     <CardBody p={0} display="flex" alignItems="center">
                         <Icon as={FiAlertTriangle} boxSize={8} color="yellow.500" mr={4} />
                         <Box>
-                            <Text fontSize="sm" color={thColor}>Expiring Soon</Text>
+                            <Text fontSize="sm" color={thColor}>Próximos a vencer</Text>
                             <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.expiringSoon}</Text>
                         </Box>
                     </CardBody>
@@ -356,7 +356,7 @@ export default function StockControl() {
                     <CardBody p={0} display="flex" alignItems="center">
                         <Icon as={FiClock} boxSize={8} color="red.500" mr={4} />
                         <Box>
-                            <Text fontSize="sm" color={thColor}>Expired</Text>
+                            <Text fontSize="sm" color={thColor}>Vencidos</Text>
                             <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.expired}</Text>
                         </Box>
                     </CardBody>
@@ -375,7 +375,7 @@ export default function StockControl() {
                     <CardBody p={0} display="flex" alignItems="center">
                         <Icon as={FiPackage} boxSize={8} color="gray.500" mr={4} />
                         <Box>
-                            <Text fontSize="sm" color={thColor}>Disposed</Text>
+                            <Text fontSize="sm" color={thColor}>Descartados</Text>
                             <Text fontSize="2xl" fontWeight="bold" color={tdColor}>{stats.disposed}</Text>
                         </Box>
                     </CardBody>
@@ -386,7 +386,7 @@ export default function StockControl() {
             <Flex wrap="wrap" gap={4} mb={4}>
                 <Box>
                     <VStack direction="row" spacing={2} align="center">
-                        <Text fontWeight="medium" color={labelColor}>Status:</Text>
+                        <Text fontWeight="medium" color={labelColor}>Estado:</Text>
                         <Select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'disposed')}
@@ -395,16 +395,16 @@ export default function StockControl() {
                             color={labelColor}
                             borderRadius="md"
                         >
-                            <option value="all">All</option>
-                            <option value="active">Active</option>
-                            <option value="disposed">Disposed</option>
+                            <option value="all">Todos</option>
+                            <option value="active">Activos</option>
+                            <option value="disposed">Descartados</option>
                         </Select>
                     </VStack>
                 </Box>
                 
                 <Box>
                     <VStack direction="row" spacing={2} align="center">
-                        <Text fontWeight="medium" color={labelColor}>Reagent:</Text>
+                        <Text fontWeight="medium" color={labelColor}>Reactivo:</Text>
                         <Select
                             value={reagentFilter}
                             onChange={(e) => setReagentFilter(e.target.value)}
@@ -413,7 +413,7 @@ export default function StockControl() {
                             color={labelColor}
                             borderRadius="md"
                         >
-                            <option value="all">All Reagents</option>
+                            <option value="all">Todos los reactivos</option>
                             {reagents.map(reagent => (
                                 <option key={reagent.id} value={reagent.id}>{reagent.name}</option>
                             ))}
@@ -425,7 +425,7 @@ export default function StockControl() {
                 {statusFilter !== 'all' && (
                     <Tag size="sm" variant="subtle" colorScheme={statusFilter === 'active' ? 'green' : 'red'} borderRadius="md">
                         <TagLeftIcon as={statusFilter === 'active' ? CheckIcon : DeleteIcon} />
-                        <TagLabel>{statusFilter === 'active' ? 'Active Only' : 'Disposed Only'}</TagLabel>
+                        <TagLabel>{statusFilter === 'active' ? 'Solo activos' : 'Solo descartados'}</TagLabel>
                     </Tag>
                 )}
                 
@@ -433,7 +433,7 @@ export default function StockControl() {
                     <Tag size="sm" variant="subtle" colorScheme="blue" borderRadius="md">
                         <TagLeftIcon as={FiPackage} />
                         <TagLabel>
-                            {reagents.find(r => r.id === reagentFilter)?.name || 'Selected Reagent'}
+                            {reagents.find(r => r.id === reagentFilter)?.name || 'Reactivo seleccionado'}
                         </TagLabel>
                     </Tag>
                 )}
@@ -457,12 +457,12 @@ export default function StockControl() {
                         <Table variant="simple" size="md">
                             <Thead bg={hoverBg}>
                                 <Tr>
-                                    <Th color={thColor}>Reagent</Th>
-                                    <Th color={thColor}>Quantity</Th>
-                                    <Th color={thColor}>Lot Number</Th>
-                                    <Th color={thColor}>Expiration Date</Th>
-                                    <Th color={thColor}>Status</Th>
-                                    <Th color={thColor} width="80px" textAlign="center">Actions</Th>
+                                    <Th color={thColor}>Reactivo</Th>
+                                    <Th color={thColor}>Cantidad</Th>
+                                    <Th color={thColor}>Número de lote</Th>
+                                    <Th color={thColor}>Fecha de vencimiento</Th>
+                                    <Th color={thColor}>Estado</Th>
+                                    <Th color={thColor} width="80px" textAlign="center">Acciones</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -478,7 +478,7 @@ export default function StockControl() {
                                             _hover={{ bg: hoverBg }}
                                             transition="background-color 0.2s"
                                         >
-                                            <Td fontWeight="medium" color={tdColor}>{stock.reagent?.name || 'Unknown'}</Td>
+                                            <Td fontWeight="medium" color={tdColor}>{stock.reagent?.name || 'Desconocido'}</Td>
                                             <Td color={tdColor}>{stock.quantity} {stock.reagent?.unit || ''}</Td>
                                             <Td color={tdColor}>{stock.lotNumber}</Td>
                                             <Td color={tdColor}>
@@ -488,12 +488,12 @@ export default function StockControl() {
                                                     
                                                     {daysToExpire && daysToExpire < 30 && daysToExpire > 0 && (
                                                         <Badge colorScheme="yellow" variant="subtle" borderRadius="full" px={2}>
-                                                            {daysToExpire} days left
+                                                            Faltan {daysToExpire} días
                                                         </Badge>
                                                     )}
                                                     {daysToExpire && daysToExpire <= 0 && (
                                                         <Badge colorScheme="red" variant="subtle" borderRadius="full" px={2}>
-                                                            Expired
+                                                            Vencido
                                                         </Badge>
                                                     )}
                                                 </HStack>
@@ -505,14 +505,14 @@ export default function StockControl() {
                                                     borderRadius="full"
                                                     px={2}
                                                 >
-                                                    {stock.isActive ? 'Active' : 'Disposed'}
+                                                    {stock.isActive ? 'Activo' : 'Descartado'}
                                                 </Badge>
                                             </Td>
                                             <Td color={tdColor} textAlign="center">
                                                 {stock.isActive && (
-                                                    <Tooltip label="Dispose stock" hasArrow placement="top">
+                                                    <Tooltip label="Descartar stock" hasArrow placement="top">
                                                         <IconButton
-                                                            aria-label="Dispose stock"
+                                                            aria-label="Descartar stock"
                                                             icon={<DeleteIcon />}
                                                             size="sm"
                                                             colorScheme="red"
@@ -533,8 +533,8 @@ export default function StockControl() {
                 <Alert status="info" borderRadius="md" color="gray.600">
                     <AlertIcon />
                     {searchTerm || statusFilter !== 'all' || reagentFilter !== 'all' ? 
-                        "No stock entries match your filters" : 
-                        "No stock entries added yet"}
+                        'No hay registros de stock para esos filtros' : 
+                        'Todavía no hay registros de stock'}
                 </Alert>
             )}
 
@@ -546,20 +546,20 @@ export default function StockControl() {
             >
                 <ModalOverlay backdropFilter="blur(4px)" />
                 <ModalContent borderRadius="lg" shadow="xl">
-                    <ModalHeader color="gray.700">Add Stock Entry</ModalHeader>
+                    <ModalHeader color="gray.700">Agregar registro de stock</ModalHeader>
                     <ModalCloseButton color="gray.700"/>
                     <ModalBody pb={6}>
                         <form id="add-stock-form" onSubmit={handleSubmit}>
                             <VStack spacing={4} align="stretch">
                                 <FormControl isRequired>
-                                    <FormLabel fontWeight="medium" color={labelColor}>Reagent</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Reactivo</FormLabel>
                                     <Select
                                         value={formData.reagentId}
                                         onChange={(e) => setFormData(prev => ({
                                             ...prev,
                                             reagentId: e.target.value
                                         }))}
-                                        placeholder="Select reagent"
+                                        placeholder="Seleccionar reactivo"
                                         color={labelColor}
                                         focusBorderColor="brand.500"
                                         size="md"
@@ -573,7 +573,7 @@ export default function StockControl() {
                                     </Select>
                                 </FormControl>
                                 <FormControl isRequired>
-                                    <FormLabel fontWeight="medium" color={labelColor}>Quantity</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Cantidad</FormLabel>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -589,7 +589,7 @@ export default function StockControl() {
                                     />
                                 </FormControl>
                                 <FormControl isRequired>
-                                    <FormLabel fontWeight="medium" color={labelColor}>Lot Number</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Número de lote</FormLabel>
                                     <Input
                                         value={formData.lotNumber}
                                         borderRadius="md"
@@ -603,7 +603,7 @@ export default function StockControl() {
                                     />
                                 </FormControl>
                                 <FormControl isRequired>
-                                    <FormLabel fontWeight="medium" color={labelColor}>Expiration Date</FormLabel>
+                                    <FormLabel fontWeight="medium" color={labelColor}>Fecha de vencimiento</FormLabel>
                                     <Input
                                         type="date"
                                         borderRadius="md"
@@ -621,16 +621,16 @@ export default function StockControl() {
                         </form>
                     </ModalBody>
                     <ModalFooter gap={2}>
-                        <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                        <Button variant="ghost" onClick={onClose}>Cancelar</Button>
                         <Button 
                             type="submit" 
                             form="add-stock-form"
                             colorScheme="teal" 
                             isLoading={isSubmitting} 
-                            loadingText="Adding"
+                            loadingText="Agregando"
                             leftIcon={<AddIcon />}
                         >
-                            Add Entry
+                            Agregar registro
                         </Button>
                     </ModalFooter>
                 </ModalContent>

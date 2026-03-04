@@ -63,6 +63,7 @@ export const AuditLogViewer = () => {
     const [entityType, setEntityType] = useState<string>('');
     const bgColor = useColorModeValue('white', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.200');
+    const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.200');
     const { fetchWithAuth } = useFetchWithAuth();
     const [isLoading, setIsLoading] = useState(true);
 
@@ -104,38 +105,39 @@ export const AuditLogViewer = () => {
 
     const getActionText = (action: string): string => {
         const actions: Record<string, string> = {
-            CREATE_GRID: 'Create Grid',
-            DELETE_GRID: 'Delete Grid',
-            CREATE_TUBE: 'Add Tube',
-            DELETE_TUBE: 'Remove Tube',
-            CREATE_SECONDARY_USER: 'Create User',
-            DELETE_SECONDARY_USER: 'Delete User',
-            EMPTY_GRID: 'Empty Grid'
+            CREATE_GRID: 'Crear gradilla',
+            DELETE_GRID: 'Eliminar gradilla',
+            CREATE_TUBE: 'Agregar tubo',
+            DELETE_TUBE: 'Quitar tubo',
+            CREATE_SECONDARY_USER: 'Crear usuario',
+            DELETE_SECONDARY_USER: 'Eliminar usuario',
+            EMPTY_GRID: 'Vaciar gradilla'
         };
         return actions[action] || action;
     };
 
     return (
-        <Box bg={bgColor} p={4} borderRadius="lg" shadow="sm">
+        <Box bg={bgColor} p={4} borderRadius="xl" border="1px solid" borderColor={borderColor}>
             <HStack mb={4} spacing={4}>
                 <Select
                     value={entityType}
                     onChange={(e) => setEntityType(e.target.value)}
-                    placeholder="Filter by type"
-                    color="gray.500"
+                    placeholder="Filtrar por tipo"
+                    color="gray.600"
                     w="200px"
+                    focusBorderColor="teal.400"
                 >
-                    <option value="GRID">Grids</option>
-                    <option value="TUBE">Tubes</option>
-                    <option value="USER">Users</option>
+                    <option value="GRID">Gradillas</option>
+                    <option value="TUBE">Tubos</option>
+                    <option value="USER">Usuarios</option>
                 </Select>
             </HStack>
 
             {isLoading ? (
                 <Center py={8}>
                     <VStack spacing={4}>
-                        <Spinner size="xl" color="blue.500" thickness="4px" />
-                        <Text color="gray.500">Loading audit logs...</Text>
+                        <Spinner size="xl" color="teal.500" thickness="4px" />
+                        <Text color="gray.500">Cargando registros de auditoría...</Text>
                     </VStack>
                 </Center>
             ) : (
@@ -143,10 +145,10 @@ export const AuditLogViewer = () => {
                     <Table variant="simple">
                         <Thead>
                             <Tr>
-                                <Th>Date</Th>
-                                <Th>Applied by</Th>
-                                <Th>Action</Th>
-                                <Th>Details</Th>
+                                <Th>Fecha</Th>
+                                <Th>Aplicado por</Th>
+                                <Th>Acción</Th>
+                                <Th>Detalle</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -158,7 +160,7 @@ export const AuditLogViewer = () => {
                                     <Td color="gray.600">
                                         <Text>
                                             {log.appliedBy}
-                                            {log.isSecondaryUser && " (Secondary)"}
+                                            {log.isSecondaryUser && ' (Secundario)'}
                                         </Text>
                                     </Td>
                                     <Td>

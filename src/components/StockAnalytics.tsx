@@ -156,10 +156,10 @@ export default function StockAnalytics() {
         <VStack spacing={6} align="stretch">
             <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ base: 'stretch', md: 'center' }} mb={2}>
                 <Heading as="h3" size="md" color={textColor} mb={{ base: 4, md: 0 }}>
-                    Disposal Overview
+                    Resumen de descartes
                 </Heading>
                 <FormControl maxW={{ base: '100%', md: '300px' }}>
-                    <FormLabel htmlFor='reagent-filter' srOnly>Filter by Reagent</FormLabel>
+                    <FormLabel htmlFor='reagent-filter' srOnly>Filtrar por reactivo</FormLabel>
                     <Select
                         id='reagent-filter'
                         value={selectedReagent}
@@ -169,7 +169,7 @@ export default function StockAnalytics() {
                         color={textColor}
                         focusBorderColor="brand.500"
                     >
-                        <option value="all">All Reagents</option>
+                        <option value="all">Todos los reactivos</option>
                         {reagents.map(reagent => (
                             <option key={reagent.id} value={reagent.id}>
                                 {reagent.name}
@@ -181,22 +181,22 @@ export default function StockAnalytics() {
 
             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
                 <StatCard 
-                    title="Weekly Disposals" 
+                    title="Descartes semanales" 
                     value={Object.values(analytics).reduce((sum, curr) => sum + curr.weekly, 0)}
                     icon={FiCalendar}
-                    color="blue"
+                    color="teal"
                 />
                 <StatCard 
-                    title="Monthly Disposals" 
+                    title="Descartes mensuales" 
                     value={Object.values(analytics).reduce((sum, curr) => sum + curr.monthly, 0)}
                     icon={FiTrendingUp}
-                    color="green"
+                    color="teal"
                 />
                 <StatCard 
-                    title="Yearly Disposals" 
+                    title="Descartes anuales" 
                     value={Object.values(analytics).reduce((sum, curr) => sum + curr.yearly, 0)}
                     icon={FiBarChart2}
-                    color="purple"
+                    color="teal"
                 />
             </SimpleGrid>
 
@@ -204,19 +204,19 @@ export default function StockAnalytics() {
                 <Table variant="simple">
                     <Thead>
                         <Tr>
-                            <Th>Reagent</Th>
-                            <Th isNumeric>Weekly</Th>
-                            <Th isNumeric>Monthly</Th>
-                            <Th isNumeric>Yearly</Th>
+                            <Th>Reactivo</Th>
+                            <Th isNumeric>Semanal</Th>
+                            <Th isNumeric>Mensual</Th>
+                            <Th isNumeric>Anual</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
                         {Object.entries(analytics).map(([reagentName, data]) => (
                             <Tr key={reagentName} _hover={{ bg: hoverBg }}>
                                 <Td fontWeight="medium" color={textColor}>{reagentName}</Td>
-                                <Td isNumeric color="blue.500">{data.weekly}</Td>
-                                <Td isNumeric color="green.500">{data.monthly}</Td>
-                                <Td isNumeric color="purple.500">{data.yearly}</Td>
+                                <Td isNumeric color="teal.600">{data.weekly}</Td>
+                                <Td isNumeric color="teal.600">{data.monthly}</Td>
+                                <Td isNumeric color="teal.600">{data.yearly}</Td>
                             </Tr>
                         ))}
                     </Tbody>
@@ -226,8 +226,8 @@ export default function StockAnalytics() {
             {Object.keys(analytics).length === 0 && (
                 <Flex direction="column" align="center" justify="center" p={10} bg={emptyStateBg} borderRadius="lg">
                     <Icon as={FiInfo} boxSize={8} color="gray.400" />
-                    <Text mt={4} fontSize="lg" color="gray.500">No Disposal Data</Text>
-                    <Text color="gray.500">There is no disposal data available for the selected filter.</Text>
+                    <Text mt={4} fontSize="lg" color="gray.500">Sin datos de descarte</Text>
+                    <Text color="gray.500">No hay datos de descarte para el filtro seleccionado.</Text>
                 </Flex>
             )}
         </VStack>

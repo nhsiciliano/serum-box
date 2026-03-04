@@ -93,8 +93,8 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
                 onTubeAdd(response.tube);
                 
                 toast({
-                    title: "Tube added",
-                    description: "The tube has been successfully added.",
+                    title: 'Tubo agregado',
+                    description: 'El tubo se agregó correctamente.',
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -115,7 +115,7 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
             console.error('Error adding tube:', error);
             toast({
                 title: "Error",
-                description: "Could not add tube. Please try again.",
+                description: 'No se pudo agregar el tubo. Intentá nuevamente.',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -139,8 +139,8 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
                 
                 // Opcional: Mostrar un toast de éxito
                 toast({
-                    title: "Tube removed",
-                    description: "The tube has been successfully removed.",
+                    title: 'Tubo eliminado',
+                    description: 'El tubo se eliminó correctamente.',
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -151,7 +151,7 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
             // Opcional: Mostrar un toast de error
             toast({
                 title: "Error",
-                description: "Could not remove tube. Please try again.",
+                description: 'No se pudo eliminar el tubo. Intentá nuevamente.',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -223,4 +223,3 @@ const GrillaVisualization: React.FC<GrillaVisualizationProps> = ({
 };
 
 export default GrillaVisualization;
-

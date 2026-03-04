@@ -1,11 +1,25 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  HStack,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Link,
+  Text,
+  VStack,
+  useColorModeValue,
+  useToast,
+} from '@chakra-ui/react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import NextImage from 'next/image';
+import AuthCard from '@/components/auth/AuthCard';
 
 export default function LoginForm({
   onSwitchToRegister,
@@ -20,6 +34,21 @@ export default function LoginForm({
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const fieldBg = useColorModeValue('gray.50', 'gray.700');
+  const fieldBorder = useColorModeValue('gray.200', 'gray.600');
+  const labelColor = useColorModeValue('gray.700', 'gray.200');
+  const helperColor = useColorModeValue('gray.500', 'gray.400');
+  const inputTextColor = useColorModeValue('gray.800', 'whiteAlpha.900');
+  const inputPlaceholderColor = useColorModeValue('gray.500', 'gray.400');
+
+  const inputStyles = {
+    bg: fieldBg,
+    color: inputTextColor,
+    borderColor: fieldBorder,
+    focusBorderColor: 'teal.400',
+    _hover: { borderColor: 'teal.300' },
+    _placeholder: { color: inputPlaceholderColor, opacity: 1 },
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,63 +65,92 @@ export default function LoginForm({
     if (result?.error) {
       const lowerError = result.error.toLowerCase();
       const description = lowerError.includes('verify your email')
-        ? 'Please confirm your email from the Supabase verification link before signing in.'
-        : 'Incorrect email or password. Please try again.';
+        ? 'Antes de iniciar sesión, confirmá tu correo desde el enlace de verificación de Supabase.'
+        : 'El correo o la contraseña no son correctos. Probá de nuevo.';
 
       toast({
-        title: "Login Error",
+        title: 'Error de inicio de sesión',
         description,
-        status: "error",
+        status: 'error',
         duration: 5000,
         isClosable: true,
-        position: "top",
+        position: 'top',
       });
     } else {
       router.push('/dashboard');
     }
   };
 
-  const bgColor = useColorModeValue('white', 'gray.700');
-  const textColor = useColorModeValue('gray.800', 'white');
-
   return (
-    <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="lg">
-      <VStack spacing={6} align="stretch">
-        <Box position="relative" width="200px" height="56px" mx="auto">
-          <NextImage
-            src="/images/serum-box.png"
-            alt="Serum Box Logo"
-            fill
-            sizes="200px"
-            priority
-            style={{ objectFit: 'contain' }}
-          />
-        </Box>
-        <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
-          Start your experience
-        </Text>
+    <AuthCard
+      badge="Acceso"
+      title="Iniciá sesión en tu espacio"
+      description="Accedé con tus credenciales para seguir gestionando inventario y trazabilidad de muestras."
+      footer={
+        <VStack spacing={2} align="stretch">
+          <Text textAlign="center" color={helperColor} fontSize="sm">
+            ¿Te olvidaste tu contraseña?{' '}
+            <Link color="teal.600" fontWeight="semibold" onClick={onSwitchToRecover}>
+              Recuperar acceso
+            </Link>
+          </Text>
+          <Text textAlign="center" color={helperColor} fontSize="sm">
+            ¿No tenés cuenta?{' '}
+            <Link color="teal.600" fontWeight="semibold" onClick={onSwitchToRegister}>
+              Registrate
+            </Link>
+          </Text>
+        </VStack>
+      }
+    >
+      <VStack spacing={4} align="stretch">
+        <HStack
+          px={3}
+          py={2.5}
+          bg={fieldBg}
+          border="1px solid"
+          borderColor={fieldBorder}
+          borderRadius="lg"
+          justify="space-between"
+        >
+          <Text fontSize="xs" color={helperColor} textTransform="uppercase" letterSpacing="0.08em" fontWeight="semibold">
+            Paso del protocolo
+          </Text>
+          <Text fontSize="sm" color={labelColor} fontWeight="medium">
+            Autenticación
+          </Text>
+        </HStack>
+
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
-            <FormControl>
-              <FormLabel color="black">Email</FormLabel>
-              <Input type="email" textColor="gray.800" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <FormControl isRequired>
+              <FormLabel color={labelColor} fontSize="sm" fontWeight="semibold">Correo electrónico</FormLabel>
+              <Input
+                type="email"
+                value={email}
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                {...inputStyles}
+              />
             </FormControl>
-            <FormControl>
-              <FormLabel color="black">Password</FormLabel>
+            <FormControl isRequired>
+              <FormLabel color={labelColor} fontSize="sm" fontWeight="semibold">Contraseña</FormLabel>
               <InputGroup>
                 <Input
                   type={showPassword ? 'text' : 'password'}
-                  textColor="gray.800"
                   value={password}
+                  autoComplete="current-password"
                   onChange={(e) => setPassword(e.target.value)}
-                  required
+                  {...inputStyles}
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
                     onClick={() => setShowPassword(!showPassword)}
                     variant="ghost"
+                    color={helperColor}
+                    _hover={{ bg: 'blackAlpha.100' }}
                   />
                 </InputRightElement>
               </InputGroup>
@@ -102,19 +160,13 @@ export default function LoginForm({
               colorScheme="teal"
               width="full"
               isLoading={isLoading}
-              loadingText="Signing in"
+              loadingText="Ingresando"
             >
-              Sign In
+              Iniciar sesión
             </Button>
-            <Text textAlign="center" color="gray.500" fontSize="sm">
-              Forgot your password? <Link color="teal.500" onClick={onSwitchToRecover}>Recover here</Link>
-            </Text>
-            <Text textAlign="center" color="gray.500" fontSize="sm">
-              Don&apos;t have an account? <Link color="teal.500" onClick={onSwitchToRegister}>Register here</Link>
-            </Text>
           </VStack>
         </form>
       </VStack>
-    </Box>
+    </AuthCard>
   );
 }

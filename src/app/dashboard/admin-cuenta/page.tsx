@@ -43,50 +43,50 @@ function InfoRow({ label, value, icon: Icon }: InfoRowProps) {
 export default function AdminCuenta() {
     const { data: session } = useSession();
 
-    const pageBg = useColorModeValue('gray.50', 'gray.800');
+    const pageBg = useColorModeValue('transparent', 'transparent');
     const headingColor = useColorModeValue('gray.700', 'gray.200');
     const mutedColor = useColorModeValue('gray.600', 'gray.400');
     const cardBg = useColorModeValue('white', 'gray.700');
 
-    const userName = session?.user?.name || 'User';
-    const userEmail = session?.user?.email || 'No email';
-    const emailVerified = session?.user?.emailVerified ? 'Verified' : 'Pending verification';
-    const accountType = session?.user?.isMainUser ? 'Main account' : 'Secondary account';
+    const userName = session?.user?.name || 'Usuario';
+    const userEmail = session?.user?.email || 'Sin correo';
+    const emailVerified = session?.user?.emailVerified ? 'Verificado' : 'Pendiente de verificación';
+    const accountType = session?.user?.isMainUser ? 'Cuenta principal' : 'Cuenta secundaria';
 
     return (
-        <Box bg={pageBg} py={{ base: 8, md: 12 }}>
+        <Box bg={pageBg} py={{ base: 2, md: 4 }}>
             <Container maxW="container.lg">
                 <VStack spacing={8} align="stretch">
                     <VStack spacing={2} textAlign="center">
                         <Heading as="h1" size="xl" color={headingColor}>
-                            Account Settings
+                            Configuración de cuenta
                         </Heading>
                         <Text color={mutedColor}>
-                            Manage your account details and access information.
+                            Gestioná los datos de tu cuenta y la información de acceso.
                         </Text>
                     </VStack>
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                         <Card bg={cardBg} boxShadow="md" borderRadius="lg">
                             <CardHeader pb={2}>
-                                <Heading size="md" color={headingColor}>Profile</Heading>
+                                <Heading size="md" color={headingColor}>Perfil</Heading>
                             </CardHeader>
                             <CardBody>
-                                <InfoRow label="Name" value={userName} icon={FiUser} />
+                                <InfoRow label="Nombre" value={userName} icon={FiUser} />
                                 <Divider />
-                                <InfoRow label="Email" value={userEmail} icon={FiMail} />
+                                <InfoRow label="Correo" value={userEmail} icon={FiMail} />
                             </CardBody>
                         </Card>
 
                         <Card bg={cardBg} boxShadow="md" borderRadius="lg">
                             <CardHeader pb={2}>
-                                <Heading size="md" color={headingColor}>Access</Heading>
+                                <Heading size="md" color={headingColor}>Acceso</Heading>
                             </CardHeader>
                             <CardBody>
-                                <InfoRow label="Role" value={accountType} icon={FiUsers} />
+                                <InfoRow label="Rol" value={accountType} icon={FiUsers} />
                                 <Divider />
                                 <HStack justify="space-between" align="center" py={2}>
-                                    <Text color={mutedColor} fontSize="sm">Email status</Text>
+                                    <Text color={mutedColor} fontSize="sm">Estado del correo</Text>
                                     <Badge colorScheme={session?.user?.emailVerified ? 'green' : 'orange'}>
                                         {emailVerified}
                                     </Badge>

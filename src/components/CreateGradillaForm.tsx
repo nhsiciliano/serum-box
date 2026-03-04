@@ -20,7 +20,8 @@ import {
     SimpleGrid,
     Divider,
     Text,
-    Flex
+    Flex,
+    useColorModeValue,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
@@ -34,9 +35,12 @@ const CreateGradillaForm = () => {
     const [temperature, setTemperature] = useState('');
     const [rowCount, setRowCount] = useState(10);
     const [columnCount, setColumnCount] = useState(10);
-    const [fields, setFields] = useState<string[]>(["Name"]);
+    const [fields, setFields] = useState<string[]>(['Nombre']);
     const { fetchWithAuth } = useFetchWithAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.200');
+    const inputBg = useColorModeValue('gray.50', 'gray.700');
+    const focusBorderColor = 'teal.400';
 
     const handleAddField = () => {
         if (fields.length < 5) {
@@ -62,7 +66,7 @@ const CreateGradillaForm = () => {
         if (!name.trim()) {
             toast({
                 title: "Error",
-                description: "Grid name is required.",
+                description: 'El nombre de la gradilla es obligatorio.',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -81,13 +85,13 @@ const CreateGradillaForm = () => {
                     temperature,
                     rows: Array.from({ length: rowCount }, (_, i) => String.fromCharCode(65 + i)),
                     columns: Array.from({ length: columnCount }, (_, i) => i + 1),
-                    fields: fields.length > 0 ? fields : ['Name']
+                    fields: fields.length > 0 ? fields : ['Nombre']
                 })
             });
 
             toast({
-                title: "Grid Created",
-                description: "The new grid has been created successfully.",
+                title: 'Gradilla creada',
+                description: 'La nueva gradilla se creó correctamente.',
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -97,8 +101,8 @@ const CreateGradillaForm = () => {
         } catch (error) {
             console.error('Error creating grid:', error);
             toast({
-                title: "Error Creating Grid",
-                description: "An unexpected error occurred. Please try again.",
+                title: 'Error al crear la gradilla',
+                description: 'Ocurrió un error inesperado. Intentá nuevamente.',
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -109,53 +113,59 @@ const CreateGradillaForm = () => {
     };
 
     return (
-        <Card as="form" onSubmit={handleSubmit} borderRadius="lg" borderWidth="1px" borderColor="gray.200" _hover={{ boxShadow: 'lg' }} transition="box-shadow 0.2s ease-in-out">
+        <Card as="form" onSubmit={handleSubmit} borderRadius="xl" borderWidth="1px" borderColor={borderColor} transition="box-shadow 0.2s ease-in-out">
             <CardBody p={{ base: 4, md: 6 }}>
                 <VStack spacing={6} align="stretch">
                     <FormControl isRequired>
-                        <FormLabel>Grid Name</FormLabel>
-                        <Input value={name} placeholder="e.g., Main Antibody Stock" onChange={(e) => setName(e.target.value)} />
+                        <FormLabel>Nombre de la gradilla</FormLabel>
+                        <Input bg={inputBg} focusBorderColor={focusBorderColor} value={name} placeholder="Ej: Stock principal de anticuerpos" onChange={(e) => setName(e.target.value)} />
                     </FormControl>
 
                     <FormControl>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Descripción</FormLabel>
                         <Textarea
+                            bg={inputBg}
+                            focusBorderColor={focusBorderColor}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="A brief description of the grid's contents or purpose."
+                            placeholder="Breve descripción del contenido o propósito de la gradilla."
                         />
                     </FormControl>
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                         <FormControl>
-                            <FormLabel>Storage Place</FormLabel>
+                            <FormLabel>Lugar de almacenamiento</FormLabel>
                             <Input
+                                bg={inputBg}
+                                focusBorderColor={focusBorderColor}
                                 value={storagePlace}
                                 onChange={(e) => setStoragePlace(e.target.value)}
-                                placeholder="e.g., Lab Freezer #3, Shelf 2"
+                                placeholder="Ej: Freezer del laboratorio #3, estante 2"
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel>Storage Temperature</FormLabel>
+                            <FormLabel>Temperatura de almacenamiento</FormLabel>
                             <Input
+                                bg={inputBg}
+                                focusBorderColor={focusBorderColor}
                                 value={temperature}
                                 onChange={(e) => setTemperature(e.target.value)}
-                                placeholder="e.g., -20°C, 4°C, Room Temp"
+                                placeholder="Ej: -20°C, 4°C, temperatura ambiente"
                             />
                         </FormControl>
                     </SimpleGrid>
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                         <FormControl isRequired>
-                            <FormLabel>Rows</FormLabel>
+                            <FormLabel>Filas</FormLabel>
                             <NumberInput min={1} max={26} value={rowCount} onChange={(_, value) => setRowCount(value)}>
-                                <NumberInputField />
+                                <NumberInputField bg={inputBg} />
                             </NumberInput>
                         </FormControl>
                         <FormControl isRequired>
-                            <FormLabel>Columns</FormLabel>
+                            <FormLabel>Columnas</FormLabel>
                             <NumberInput min={1} max={50} value={columnCount} onChange={(_, value) => setColumnCount(value)}>
-                                <NumberInputField />
+                                <NumberInputField bg={inputBg} />
                             </NumberInput>
                         </FormControl>
                     </SimpleGrid>
@@ -163,18 +173,20 @@ const CreateGradillaForm = () => {
                     <Divider my={4} />
 
                     <FormControl>
-                        <FormLabel>Custom Tube Fields</FormLabel>
-                        <Text fontSize="sm" color="gray.500" mb={4}>Define the data fields for each tube in the grid (max 5). &apos;Name&apos; is included by default.</Text>
+                        <FormLabel>Campos personalizados de tubo</FormLabel>
+                        <Text fontSize="sm" color="gray.500" mb={4}>Definí los campos de datos de cada tubo (máximo 5). &apos;Nombre&apos; se incluye por defecto.</Text>
                         <VStack spacing={4} align="stretch">
                             {fields.map((field, index) => (
                                 <HStack key={index}>
                                     <Input
+                                        bg={inputBg}
+                                        focusBorderColor={focusBorderColor}
                                         value={field}
                                         onChange={(e) => handleFieldChange(index, e.target.value)}
-                                        placeholder={`Field ${index + 1}`}
+                                        placeholder={`Campo ${index + 1}`}
                                     />
                                     <IconButton
-                                        aria-label="Delete field"
+                                        aria-label="Eliminar campo"
                                         icon={<DeleteIcon />}
                                         variant="ghost"
                                         onClick={() => handleRemoveField(index)}
@@ -182,24 +194,24 @@ const CreateGradillaForm = () => {
                                 </HStack>
                             ))}
                             {fields.length < 5 && (
-                                <Button leftIcon={<AddIcon />} onClick={handleAddField} variant="outline" size="sm" align-self="flex-start">
-                                    Add Field
+                                <Button leftIcon={<AddIcon />} onClick={handleAddField} variant="outline" size="sm" alignSelf="flex-start">
+                                    Agregar campo
                                 </Button>
                             )}
                         </VStack>
                     </FormControl>
                 </VStack>
             </CardBody>
-            <CardFooter borderTopWidth="1px" borderColor="gray.200" p={{ base: 4, md: 6 }}>
+            <CardFooter borderTopWidth="1px" borderColor={borderColor} p={{ base: 4, md: 6 }}>
                 <Flex justify="flex-end" width="100%">
                     <Button
                         type="submit"
-                        colorScheme="blue"
+                        colorScheme="teal"
                         isLoading={isLoading}
-                        loadingText="Creating..."
+                        loadingText="Creando..."
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Create Grid
+                        Crear gradilla
                     </Button>
                 </Flex>
             </CardFooter>

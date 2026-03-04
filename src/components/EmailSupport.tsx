@@ -19,11 +19,11 @@ import {
 import { useSession } from 'next-auth/react';
 
 const QUICK_QUERIES = [
-    'How do I create a new grid?',
-    'What do the different stock statuses mean?',
-    'How can I edit a reagent?',
-    'I have an account access question.',
-    'I found a bug.',
+    '¿Cómo creo una nueva gradilla?',
+    '¿Qué significa cada estado del stock?',
+    '¿Cómo edito un reactivo?',
+    'Tengo una consulta sobre acceso a la cuenta.',
+    'Encontré un error en la app.',
 ];
 
 export const EmailSupport = () => {
@@ -40,7 +40,7 @@ export const EmailSupport = () => {
 
     const handleQuickQueryClick = (query: string) => {
         setSubject(query);
-        setMessage(`Regarding: ${query}\n\n`);
+        setMessage(`Consulta sobre: ${query}\n\n`);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +48,7 @@ export const EmailSupport = () => {
         if (!subject || !message) {
             toast({
                 title: 'Missing fields',
-                description: 'Please fill in both subject and message.',
+                description: 'Completá el asunto y el mensaje.',
                 status: 'warning',
                 duration: 5000,
                 isClosable: true,
@@ -76,8 +76,8 @@ export const EmailSupport = () => {
             }
 
             toast({
-                title: 'Message Sent!',
-                description: "We've received your query and will get back to you shortly.",
+                title: '¡Mensaje enviado!',
+                description: 'Recibimos tu consulta y te vamos a responder a la brevedad.',
                 status: 'success',
                 duration: 5000,
                 isClosable: true,
@@ -88,7 +88,7 @@ export const EmailSupport = () => {
             console.error('Failed to send support email:', e);
             toast({
                 title: 'Error',
-                description: 'Something went wrong. Please try again later.',
+                description: 'Algo salió mal. Intentá nuevamente más tarde.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -101,14 +101,14 @@ export const EmailSupport = () => {
     return (
         <Box p={6} bg={cardBg} borderRadius="lg" boxShadow="md" w="100%">
             <Text mb={6} color={textColor} fontSize="lg">
-                Have a question or need help? Send us a message.
+                ¿Tenés una consulta o necesitás ayuda? Escribinos.
             </Text>
 
             <form onSubmit={handleSubmit}>
                 <VStack spacing={6} align="stretch">
                     <Box>
                         <Text mb={2} fontSize="sm" fontWeight="medium" color={textColor}>
-                            Quick Queries
+                            Consultas rápidas
                         </Text>
                         <Wrap spacing={2}>
                             {QUICK_QUERIES.map((query) => (
@@ -130,23 +130,23 @@ export const EmailSupport = () => {
                     </Box>
 
                     <FormControl isRequired>
-                        <FormLabel htmlFor="subject" color={headingColor}>Subject</FormLabel>
+                        <FormLabel htmlFor="subject" color={headingColor}>Asunto</FormLabel>
                         <Input 
                             id="subject" 
                             value={subject} 
                             onChange={(e) => setSubject(e.target.value)} 
-                            placeholder="How can we help?"
+                            placeholder="¿Cómo te podemos ayudar?"
                             color={textColor}
                         />
                     </FormControl>
 
                     <FormControl isRequired>
-                        <FormLabel htmlFor="message" color={headingColor}>Message</FormLabel>
+                        <FormLabel htmlFor="message" color={headingColor}>Mensaje</FormLabel>
                         <Textarea 
                             id="message" 
                             value={message} 
                             onChange={(e) => setMessage(e.target.value)} 
-                            placeholder="Describe your issue or question in detail..."
+                            placeholder="Describí tu consulta o problema en detalle..."
                             rows={6}
                             color={textColor}
                         />
@@ -158,7 +158,7 @@ export const EmailSupport = () => {
                         isLoading={isLoading}
                         alignSelf="flex-start"
                     >
-                        Send Message
+                        Enviar mensaje
                     </Button>
                 </VStack>
             </form>

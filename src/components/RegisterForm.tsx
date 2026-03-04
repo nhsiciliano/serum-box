@@ -1,9 +1,23 @@
 "use client"
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useColorModeValue, Link, useToast, InputGroup, InputRightElement, IconButton } from '@chakra-ui/react';
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  HStack,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Link,
+  Text,
+  VStack,
+  useColorModeValue,
+  useToast,
+} from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import NextImage from 'next/image';
+import AuthCard from '@/components/auth/AuthCard';
 
 export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [email, setEmail] = useState('');
@@ -14,10 +28,25 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+  const fieldBg = useColorModeValue('gray.50', 'gray.700');
+  const fieldBorder = useColorModeValue('gray.200', 'gray.600');
+  const labelColor = useColorModeValue('gray.700', 'gray.200');
+  const helperColor = useColorModeValue('gray.500', 'gray.400');
+  const inputTextColor = useColorModeValue('gray.800', 'whiteAlpha.900');
+  const inputPlaceholderColor = useColorModeValue('gray.500', 'gray.400');
 
-  const validatePassword = (password: string) => {
+  const inputStyles = {
+    bg: fieldBg,
+    color: inputTextColor,
+    borderColor: fieldBorder,
+    focusBorderColor: 'teal.400',
+    _hover: { borderColor: 'teal.300' },
+    _placeholder: { color: inputPlaceholderColor, opacity: 1 },
+  };
+
+  const validatePassword = (currentPassword: string) => {
     const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/;
-    return regex.test(password);
+    return regex.test(currentPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,26 +55,28 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
 
     if (password !== confirmPassword) {
       toast({
-        title: "Error",
-        description: "Passwords do not match",
-        status: "error",
+        title: 'Error',
+        description: 'Las contraseñas no coinciden',
+        status: 'error',
         duration: 3000,
         isClosable: true,
       });
       setIsLoading(false);
       return;
     }
+
     if (!validatePassword(password)) {
       toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long and include letters, numbers, and at least one special character",
-        status: "error",
+        title: 'Error',
+        description: 'La contraseña debe tener al menos 6 caracteres e incluir letras, números y al menos un símbolo',
+        status: 'error',
         duration: 5000,
         isClosable: true,
       });
+      setIsLoading(false);
       return;
     }
-    setIsLoading(true);
+
     try {
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
@@ -55,9 +86,9 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
 
       if (registerResponse.ok) {
         toast({
-          title: "Registration successful",
-          description: "Check your email and confirm your account from the Supabase link.",
-          status: "success",
+          title: 'Registro exitoso',
+          description: 'Revisá tu correo y confirmá tu cuenta desde el enlace de Supabase.',
+          status: 'success',
           duration: 5000,
           isClosable: true,
         });
@@ -70,9 +101,9 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
     } catch (error) {
       console.error(error);
       toast({
-        title: "Error",
-        description: "Registration could not be completed",
-        status: "error",
+        title: 'Error',
+        description: 'No se pudo completar el registro',
+        status: 'error',
         duration: 3000,
         isClosable: true,
       });
@@ -81,98 +112,122 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
     }
   };
 
-  const bgColor = useColorModeValue('white', 'gray.700');
-  const textColor = useColorModeValue('gray.800', 'white');
-
   return (
-    <Box maxWidth="400px" margin="auto" p={6} bg={bgColor} borderRadius="md" boxShadow="md">
-      <VStack spacing={6} align="stretch">
-        <Box position="relative" width="200px" height="56px" mx="auto">
-          <NextImage
-            src="/images/serum-box.png"
-            alt="Serum Box Logo"
-            fill
-            sizes="200px"
-            priority
-            style={{ objectFit: 'contain' }}
-          />
-        </Box>
-        <Text fontSize="xl" fontWeight="bold" textAlign="center" color={textColor}>
-          Create your account
+    <AuthCard
+      badge="Registro"
+      title="Creá tu cuenta"
+      description="Configurá un acceso seguro a tu espacio de laboratorio y empezá a organizar muestras."
+      footer={
+        <Text textAlign="center" color={helperColor} fontSize="sm">
+          ¿Ya tenés cuenta?{' '}
+          <Link color="teal.600" fontWeight="semibold" onClick={onSwitchToLogin}>
+            Iniciar sesión
+          </Link>
         </Text>
+      }
+    >
+      <VStack spacing={4} align="stretch">
+        <HStack
+          px={3}
+          py={2.5}
+          bg={fieldBg}
+          border="1px solid"
+          borderColor={fieldBorder}
+          borderRadius="lg"
+          justify="space-between"
+        >
+          <Text fontSize="xs" color={helperColor} textTransform="uppercase" letterSpacing="0.08em" fontWeight="semibold">
+            Paso del protocolo
+          </Text>
+          <Text fontSize="sm" color={labelColor} fontWeight="medium">
+            Alta de identidad
+          </Text>
+        </HStack>
+
         <form onSubmit={handleSubmit}>
           <VStack spacing={4}>
-            <FormControl>
-              <FormLabel color="black">Name/Company</FormLabel>
-              <Input 
-                type="text" 
+            <FormControl isRequired>
+              <FormLabel color={labelColor} fontSize="sm" fontWeight="semibold">Nombre o empresa</FormLabel>
+              <Input
+                type="text"
                 placeholder="Michael Scott"
-                textColor="gray.800" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                required 
+                value={name}
+                autoComplete="name"
+                onChange={(e) => setName(e.target.value)}
+                {...inputStyles}
               />
             </FormControl>
-            <FormControl>
-              <FormLabel color="black">Email</FormLabel>
-              <Input 
-                type="email" 
+
+            <FormControl isRequired>
+              <FormLabel color={labelColor} fontSize="sm" fontWeight="semibold">Correo electrónico</FormLabel>
+              <Input
+                type="email"
                 placeholder="michaelscott@gmail.com"
-                textColor="gray.800" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                required 
+                value={email}
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                {...inputStyles}
               />
             </FormControl>
-            <FormControl>
-              <FormLabel color="black">Password</FormLabel>
+
+            <FormControl isRequired>
+              <FormLabel color={labelColor} fontSize="sm" fontWeight="semibold">Contraseña</FormLabel>
               <InputGroup>
                 <Input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder='********'
-                  textColor="gray.800"
+                  placeholder="********"
                   value={password}
+                  autoComplete="new-password"
                   onChange={(e) => setPassword(e.target.value)}
-                  required
+                  {...inputStyles}
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
                     onClick={() => setShowPassword(!showPassword)}
                     variant="ghost"
+                    color={helperColor}
+                    _hover={{ bg: 'blackAlpha.100' }}
                   />
                 </InputRightElement>
               </InputGroup>
             </FormControl>
-            <FormControl>
-              <FormLabel color="black">Confirm Password</FormLabel>
+
+            <FormControl isRequired>
+              <FormLabel color={labelColor} fontSize="sm" fontWeight="semibold">Confirmar contraseña</FormLabel>
               <InputGroup>
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder='********'
-                  textColor="gray.800"
+                  placeholder="********"
                   value={confirmPassword}
+                  autoComplete="new-password"
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
+                  {...inputStyles}
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     variant="ghost"
+                    color={helperColor}
+                    _hover={{ bg: 'blackAlpha.100' }}
                   />
                 </InputRightElement>
               </InputGroup>
             </FormControl>
-            <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading}>Register</Button>
+
+            <Text fontSize="sm" color={helperColor}>
+              Usá al menos 6 caracteres con letras, números y un símbolo.
+            </Text>
+
+            <Button type="submit" colorScheme="teal" width="full" isLoading={isLoading} loadingText="Creando cuenta">
+              Registrarme
+            </Button>
           </VStack>
         </form>
-        <Text textAlign="center" color="gray.500" fontSize="sm">
-          Already have an account? <Link color="teal.500" onClick={onSwitchToLogin}>Sign in here</Link>
-        </Text>
       </VStack>
-    </Box>
+    </AuthCard>
   );
 }

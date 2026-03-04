@@ -35,7 +35,7 @@ import {
 import { FiPlus, FiDatabase, FiSearch, FiMoreVertical, FiEdit, FiTrash2, FiShare2, FiGrid } from 'react-icons/fi';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { DashboardSection, EmptyState } from './ResponsiveContainers';
+import { EmptyState } from './ResponsiveContainers';
 
 // Utilizamos el componente Card básico para combinar con NextLink
 // y aplicamos animaciones con CSS
@@ -132,21 +132,21 @@ export default function GridManager({
   };
 
   return (
-    <DashboardSection>
+    <Box>
       {/* Header with actions */}
       <Flex justifyContent="space-between" alignItems="center" mb={6} flexWrap="wrap" gap={3}>
         <Heading as="h3" size="md" color="gray.700">
-          Your Grids
+          Tus gradillas
         </Heading>
         
         <HStack spacing={3}>
           {/* Search input */}
-          <InputGroup maxW="200px" size={isMobile ? "sm" : "md"}>
+            <InputGroup maxW="200px" size={isMobile ? "sm" : "md"}>
             <InputLeftElement pointerEvents="none">
               <Icon as={FiSearch} color="gray.400" />
             </InputLeftElement>
             <Input 
-              placeholder="Search grids" 
+              placeholder="Buscar gradillas" 
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)}
               borderRadius="md"
@@ -154,29 +154,29 @@ export default function GridManager({
           </InputGroup>
           
           {/* Sort dropdown */}
-          <Select 
+            <Select 
             size={isMobile ? "sm" : "md"} 
             maxW="150px" 
             value={sortBy} 
             onChange={(e) => setSortBy(e.target.value)}
           >
-            <option value="name">By Name</option>
-            <option value="tubes">By Tubes Count</option>
-            <option value="recent">Most Recent</option>
-          </Select>
+              <option value="name">Por nombre</option>
+              <option value="tubes">Por cantidad de tubos</option>
+              <option value="recent">Más recientes</option>
+            </Select>
           
           {/* Create button */}
-          <Tooltip 
-            label="Create a new grid" 
-            placement="top"
-          >
+            <Tooltip 
+              label="Crear una nueva gradilla" 
+              placement="top"
+            >
             <Button 
               colorScheme="brand" 
               onClick={onCreateGrid}
               leftIcon={<Icon as={FiPlus} />}
               size={isMobile ? "sm" : "md"}
             >
-              Create Grid
+              Crear gradilla
             </Button>
           </Tooltip>
         </HStack>
@@ -231,7 +231,7 @@ export default function GridManager({
                   variant="solid"
                   size="sm"
                 >
-                  {grid.tubes?.length || 0} tubes
+                  {grid.tubes?.length || 0} tubos
                 </Badge>
                 
                 {/* Content */}
@@ -259,7 +259,7 @@ export default function GridManager({
                       </Text>
                     </Flex>
                     <Text fontSize="xs" mt={1} color="gray.500">
-                      Capacity used
+                      Capacidad usada
                     </Text>
                   </Box>
                 </CardBody>
@@ -269,7 +269,7 @@ export default function GridManager({
               <Menu isLazy>
                 <MenuButton
                   as={IconButton}
-                  aria-label="Grid options"
+                  aria-label="Opciones de gradilla"
                   icon={<FiMoreVertical />}
                   variant="ghost"
                   size="sm"
@@ -280,13 +280,13 @@ export default function GridManager({
                 />
                 <MenuList>
                   <MenuItem icon={<FiEdit />} color="brand.500" onClick={(e) => handleActionClick(e, grid.id, 'edit')}>
-                    Edit Grid
+                    Editar gradilla
                   </MenuItem>
                   <MenuItem icon={<FiShare2 />} color="brand.500" onClick={(e) => handleActionClick(e, grid.id, 'share')}>
-                    Share Grid
+                    Compartir gradilla
                   </MenuItem>
                   <MenuItem icon={<FiTrash2 />} color="red.500" onClick={(e) => handleActionClick(e, grid.id, 'delete')}>
-                    Delete Grid
+                    Eliminar gradilla
                   </MenuItem>
                 </MenuList>
               </Menu>
@@ -299,8 +299,8 @@ export default function GridManager({
           <Icon as={FiDatabase} boxSize={12} color="gray.400" mb={4} />
           <Text fontSize="xl" color="gray.500" mb={6}>
             {searchTerm 
-              ? "No grids found matching your search" 
-              : "No grids yet. Start creating your custom grids."}
+              ? 'No se encontraron gradillas para tu búsqueda'
+              : 'Todavía no hay gradillas. Empezá creando la primera.'}
           </Text>
           {!searchTerm && (
             <Button 
@@ -309,7 +309,7 @@ export default function GridManager({
               leftIcon={<Icon as={FiPlus} />}
               size="lg"
             >
-              Create First Grid
+              Crear primera gradilla
             </Button>
           )}
         </EmptyState>
@@ -319,27 +319,27 @@ export default function GridManager({
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader color="brand.700">Confirm Deletion</ModalHeader>
+          <ModalHeader color="brand.700">Confirmar eliminación</ModalHeader>
           <ModalCloseButton />
           <ModalBody color="gray.700">
-            Are you sure you want to delete this grid? This action cannot be undone.
-            All associated tubes and data will be permanently removed.
+            ¿Seguro que querés eliminar esta gradilla? Esta acción no se puede deshacer.
+            Todos los tubos y datos asociados se eliminarán de forma permanente.
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancel
+              Cancelar
             </Button>
             <Button 
               colorScheme="red" 
               onClick={handleDeleteConfirm}
               isLoading={isDeleting}
-              loadingText="Deleting..."
+              loadingText="Eliminando..."
             >
-              Delete Grid
+              Eliminar gradilla
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </DashboardSection>
+    </Box>
   );
 }

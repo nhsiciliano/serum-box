@@ -43,11 +43,11 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
     // Definir todos los valores de color para evitar hooks condicionales
     const bgWhite = useColorModeValue('white', 'gray.800');
     const borderColorValue = useColorModeValue('gray.200', 'gray.700');
-    const headerBg = useColorModeValue('purple.50', 'purple.900');
-    const headerBorderColor = useColorModeValue('purple.100', 'purple.800');
-    const headingColor = useColorModeValue('purple.600', 'purple.200');
+    const headerBg = useColorModeValue('teal.50', 'teal.900');
+    const headerBorderColor = useColorModeValue('teal.100', 'teal.700');
+    const headingColor = useColorModeValue('teal.700', 'teal.100');
     const cardBg = useColorModeValue('gray.50', 'gray.700');
-    const infoIconColor = useColorModeValue('blue.500', 'blue.300');
+    const infoIconColor = useColorModeValue('teal.500', 'teal.300');
     const mapPinColor = useColorModeValue('green.500', 'green.300');
     const thermometerColor = useColorModeValue('orange.500', 'orange.300');
     const labelColor = useColorModeValue('gray.600', 'gray.300');
@@ -55,7 +55,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
     const modalHeaderColor = useColorModeValue('gray.700', 'gray.200');
     const searchIconColor = useColorModeValue('gray.300', 'gray.500');
     const inputTextColor = useColorModeValue('gray.800', 'gray.100');
-    const tableHeaderColor = useColorModeValue('blue.700', 'blue.300');
+    const tableHeaderColor = useColorModeValue('teal.700', 'teal.300');
     const tableCellColor = useColorModeValue('gray.700', 'gray.300');
     const noResultsColor = useColorModeValue('gray.500', 'gray.400');
 
@@ -123,8 +123,8 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             });
             setGradilla(prev => prev ? { ...prev, tubes: [] } : null);
             toast({
-                title: "Grid emptied",
-                description: "All tubes have been removed from the grid.",
+                title: 'Gradilla vaciada',
+                description: 'Se quitaron todos los tubos de la gradilla.',
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -158,7 +158,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
         });
     }, [gradilla, searchTerm]);
 
-    if (!gradilla) return <Text color={contentColor}>Loading...</Text>;
+    if (!gradilla) return <Text color={contentColor}>Cargando...</Text>;
 
     return (
         <Container maxW="container.xl" py={6}>
@@ -308,34 +308,34 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                         colorScheme="red"
                         onClick={handleDeleteGrilla}
                         isLoading={isDeleting}
-                        loadingText="Deleting"
+                        loadingText="Eliminando"
                         spinner={<Spinner />}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Delete Grid
+                        Eliminar gradilla
                     </Button>
                     <Button
                         colorScheme="orange"
                         onClick={handleEmptyGradilla}
                         isLoading={isEmptying}
-                        loadingText="Emptying"
+                        loadingText="Vaciando"
                         spinner={<Spinner />}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Empty Grid
+                        Vaciar gradilla
                     </Button>
                     <Button
-                        colorScheme="blue"
+                        colorScheme="teal"
                         onClick={onOpen}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Tubes Table
+                        Tabla de tubos
                     </Button>
                     <Button
                         onClick={() => router.push('/dashboard')}
                         width={{ base: '100%', md: 'auto' }}
                     >
-                        Back to Dashboard
+                        Volver al panel
                     </Button>
                 </Flex>
             </VStack>
@@ -344,7 +344,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
             <Modal isOpen={isOpen} onClose={onClose} size="xl">
                 <ModalOverlay />
                 <ModalContent maxWidth="90vw">
-                    <ModalHeader color={modalHeaderColor}>Tubes Table</ModalHeader>
+                    <ModalHeader color={modalHeaderColor}>Tabla de tubos</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <VStack spacing={4} align="stretch">
@@ -354,7 +354,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                         <SearchIcon color={searchIconColor} />
                                     </InputLeftElement>
                                     <Input
-                                        placeholder='Search in all fields...'
+                                        placeholder='Buscar en todos los campos...'
                                         color={inputTextColor}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -366,7 +366,7 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                 <Table variant="simple">
                                     <Thead>
                                         <Tr>
-                                            <Th color={tableHeaderColor}>Position</Th>
+                                                <Th color={tableHeaderColor}>Posición</Th>
                                             {gradilla.fields.map(field => (
                                                 <Th color={tableHeaderColor} key={field}>{field}</Th>
                                             ))}
@@ -387,15 +387,15 @@ export default function GradillaDetail({ params }: { params: { id: string } }) {
                                 </Table>
                                 {filteredTubes.length === 0 && (
                                     <Text textAlign="center" py={4} color={noResultsColor}>
-                                        No tubes found matching the search
+                                        No se encontraron tubos para la búsqueda
                                     </Text>
                                 )}
                             </Box>
                         </VStack>
                     </ModalBody>
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={onClose}>
-                            Close
+                        <Button colorScheme="teal" mr={3} onClick={onClose}>
+                            Cerrar
                         </Button>
                     </ModalFooter>
                 </ModalContent>

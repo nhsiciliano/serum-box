@@ -73,7 +73,7 @@ const TubeModal: React.FC<TubeModalProps> = ({
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader color="gray.800">Add tube at position {position}</ModalHeader>
+                <ModalHeader color="gray.800">Agregar tubo en la posición {position}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                     <VStack spacing={4}>
@@ -84,7 +84,7 @@ const TubeModal: React.FC<TubeModalProps> = ({
                                     value={tubeData[field] || ''}
                                     color="black"
                                     onChange={(e) => handleInputChange(field, e.target.value)}
-                                    placeholder={`Enter ${field}`}
+                                    placeholder={`Ingresá ${field}`}
                                 />
                             </FormControl>
                         ))}
@@ -94,23 +94,23 @@ const TubeModal: React.FC<TubeModalProps> = ({
                                 onChange={(e) => setContinueToNext(e.target.checked)}
                                 color="gray.800"
                             >
-                                Continue to position {nextPosition}
+                                Continuar en la posición {nextPosition}
                             </Checkbox>
                         )}
                     </VStack>
                 </ModalBody>
                 <ModalFooter>
                     <Button 
-                        colorScheme="blue" 
+                        colorScheme="teal" 
                         mr={3} 
                         onClick={handleSubmit}
                         isLoading={isSaving}
-                        loadingText="Saving"
+                        loadingText="Guardando"
                         spinner={<Spinner />}
                     >
-                        Save
+                        Guardar
                     </Button>
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancelar</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

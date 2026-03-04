@@ -3,111 +3,55 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { 
-    Box, 
-    Flex, 
-    ChakraProvider, 
-    extendTheme,
-    Spinner,
-    Center 
-} from '@chakra-ui/react';
+import { Box, Center, Spinner, useColorModeValue } from '@chakra-ui/react';
 import DashboardHeader from '@/components/DashboardHeader';
 
-// Extended theme with enhanced styling
-const theme = extendTheme({
-    colors: {
-        brand: {
-            100: "#e0fff4",
-            200: "#c2ffe7",
-            300: "#99ffdb",
-            400: "#66ffcd",
-            500: "#00a86b",
-            600: "#008656",
-            700: "#006642",
-            800: "#00442d",
-            900: "#002219",
-        },
-        gray: {
-            50: "#f9fafb",
-            100: "#f3f4f6",
-            800: "#1f2937",
-            900: "#111827",
-        }
-    },
-    components: {
-        Button: {
-            baseStyle: {
-                _focus: {
-                    boxShadow: '0 0 0 3px rgba(0, 168, 107, 0.6)',
-                }
-            },
-        },
-        Tooltip: {
-            baseStyle: {
-                bg: 'gray.800',
-                color: 'white',
-            }
-        }
-    },
-});
-
-
-
 export default function DashboardLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    const { data: session, status } = useSession();
-    const router = useRouter();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/login');
-        }
-    }, [status, router]);
+  const pageBg = useColorModeValue('gray.50', 'gray.900');
+  const radialBg = useColorModeValue(
+    'radial-gradient(1200px circle at 6% -10%, rgba(23, 176, 127, 0.12), transparent 45%), radial-gradient(1000px circle at 95% -20%, rgba(15, 23, 42, 0.09), transparent 40%)',
+    'radial-gradient(1200px circle at 6% -10%, rgba(23, 176, 127, 0.14), transparent 45%), radial-gradient(1000px circle at 95% -20%, rgba(148, 163, 184, 0.1), transparent 40%)'
+  );
 
-    // Show loading state
-    if (status === 'loading') {
-        return (
-            <ChakraProvider theme={theme}>
-                <Center h="100vh">
-                    <Spinner 
-                        thickness="4px"
-                        speed="0.65s"
-                        emptyColor="gray.200"
-                        color="brand.500"
-                        size="xl"
-                    />
-                </Center>
-            </ChakraProvider>
-        );
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
     }
+  }, [status, router]);
 
-    // Protection against unauthenticated access
-    if (!session) {
-        return null;
-    }
-
+  if (status === 'loading') {
     return (
-        <ChakraProvider theme={theme}>
-            <Flex h="100vh" bg="white" overflow="hidden">
-                {/* Main content */}
-                <Box 
-                    flex={1}
-                    position="relative"
-                    h="100vh"
-                    overflowY="auto"
-                    className="main-content"
-                >
-                    <Box p={{ base: 4, md: 8 }} bg="gray.50" minH="100%">
-                        <DashboardHeader />
-                        <Box mt={6}>
-                            {children}
-                        </Box>
-                    </Box>
-                </Box>
-            </Flex>
-        </ChakraProvider>
+      <Center h="100vh" bg={pageBg}>
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="brand.500"
+          size="xl"
+        />
+      </Center>
     );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  return (
+    <Box minH="100vh" bg={pageBg} bgImage={radialBg}>
+      <Box maxW="8xl" mx="auto" px={{ base: 4, md: 6, xl: 8 }} py={{ base: 4, md: 6 }}>
+        <DashboardHeader />
+        <Box mt={6}>
+          {children}
+        </Box>
+      </Box>
+    </Box>
+  );
 }

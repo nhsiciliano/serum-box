@@ -3,6 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { 
   Box, 
+  Text,
+  VStack,
+  useColorModeValue,
   useToast, 
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
@@ -32,6 +35,8 @@ export default function DashboardHome() {
   const toast = useToast();
   const { data: session } = useSession();
   const { fetchWithAuth } = useFetchWithAuth();
+  const headingColor = useColorModeValue('gray.800', 'gray.100');
+  const bodyColor = useColorModeValue('gray.500', 'gray.400');
 
   const fetchGrillas = useCallback(async () => {
     if (!session?.user?.id) return;
@@ -96,8 +101,8 @@ export default function DashboardHome() {
       setGrillas(prev => prev.filter(g => g.id !== gridId));
       
       toast({
-        title: "Grid Deleted",
-        description: "The grid has been successfully removed.",
+        title: 'Gradilla eliminada',
+        description: 'La gradilla se eliminó correctamente.',
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -106,7 +111,7 @@ export default function DashboardHome() {
       console.error('Error deleting grid:', error);
       toast({
         title: "Error",
-        description: "Could not delete grid. Please try again.",
+        description: 'No se pudo eliminar la gradilla. Intentá nuevamente.',
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -124,13 +129,20 @@ export default function DashboardHome() {
 
   return (
     <Box>
-      {/* Dashboard Overview Section */}
+      <VStack align="stretch" spacing={1} mb={6}>
+        <Text fontSize={{ base: '2xl', md: '3xl' }} color={headingColor} fontWeight="semibold" lineHeight="1.1">
+          Operación diaria
+        </Text>
+        <Text color={bodyColor}>
+          Seguimiento de inventario, gestión de capacidad y control de acciones del laboratorio desde un solo espacio.
+        </Text>
+      </VStack>
+
       <Box mb={8}>
         <DashboardOverview />
       </Box>
-      
-      {/* Plan Info Card */}
-      <Box mb={8} bg="white" borderRadius="lg" boxShadow="md" p={4}>
+
+      <Box mb={8}>
         <PlanInfo 
           currentGrids={grillas.length}
           currentTubes={grillas.reduce((total, grilla) => total + (grilla.tubes?.length || 0), 0)}
@@ -138,7 +150,7 @@ export default function DashboardHome() {
       </Box>
 
       {/* Grid Manager Section */}
-      <DashboardSection title="Grid Manager" fullWidth>
+      <DashboardSection title="Gestión de gradillas" fullWidth>
         <GridManager 
           grids={grillas} 
           onCreateGrid={handleCreateGrilla}
@@ -147,14 +159,14 @@ export default function DashboardHome() {
       </DashboardSection>
 
       {/* Stock Manager Section */}
-      <DashboardSection title="Stock Manager" fullWidth>
+      <DashboardSection title="Gestión de stock" fullWidth>
         <StockManager />
       </DashboardSection>
 
-      <DashboardSection title="Stock Analytics" fullWidth>
+      <DashboardSection title="Analítica de stock" fullWidth>
         <StockAnalytics />
       </DashboardSection>
-      <DashboardSection title="Email Support" fullWidth>
+      <DashboardSection title="Soporte por correo" fullWidth>
         <EmailSupport />
       </DashboardSection>
     </Box>

@@ -17,7 +17,6 @@ import {
 import { FiDatabase, FiActivity } from 'react-icons/fi';
 import ReagentInventory from './ReagentInventory';
 import StockControl from './StockControl';
-import { DashboardSection } from './ResponsiveContainers';
 
 export default function StockManager() {
     const [tabIndex, setTabIndex] = useState(0);
@@ -28,20 +27,20 @@ export default function StockManager() {
     const tabColor = useColorModeValue('gray.600', 'gray.400');
 
     return (
-        <DashboardSection>
+        <Box>
             {/* Header with title */}
             <Flex justifyContent="space-between" alignItems="center" mb={6}>
 
                 
                 <HStack spacing={2}>
-                    <Tooltip label="Overview of your current stock status" hasArrow placement="top">
+                    <Tooltip label="Resumen del estado actual de stock" hasArrow placement="top">
                         <Badge colorScheme={tabIndex === 0 ? 'green' : 'gray'} px={2} py={1}>
-                            {tabIndex === 0 ? 'Inventory View' : ''}
+                            {tabIndex === 0 ? 'Vista de inventario' : ''}
                         </Badge>
                     </Tooltip>
-                    <Tooltip label="Detailed stock control by lot and expiration" hasArrow placement="top">
+                    <Tooltip label="Control detallado por lote y vencimiento" hasArrow placement="top">
                         <Badge colorScheme={tabIndex === 1 ? 'blue' : 'gray'} px={2} py={1}>
-                            {tabIndex === 1 ? 'Stock Control' : ''}
+                            {tabIndex === 1 ? 'Control de stock' : ''}
                         </Badge>
                     </Tooltip>
                 </HStack>
@@ -75,7 +74,7 @@ export default function StockManager() {
                             >
                                 <Flex align="center">
                                     <Icon as={FiActivity} mr={2} />
-                                    Reagent Inventory
+                                    Inventario de reactivos
                                 </Flex>
                             </Tab>
                             <Tab 
@@ -86,7 +85,7 @@ export default function StockManager() {
                             >
                                 <Flex align="center">
                                     <Icon as={FiDatabase} mr={2} />
-                                    Stock Control
+                                    Control de stock
                                 </Flex>
                             </Tab>
                         </TabList>
@@ -106,6 +105,6 @@ export default function StockManager() {
                     </Tabs>
                 </VStack>
             </Box>
-        </DashboardSection>
+        </Box>
     );
 }

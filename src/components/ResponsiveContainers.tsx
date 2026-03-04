@@ -4,6 +4,8 @@ import {
   Flex, 
   useBreakpointValue,
   Container,
+  Text,
+  useColorModeValue,
   BoxProps,
   FlexProps,
   HeadingProps
@@ -31,26 +33,31 @@ export function DashboardSection({
   fullWidth,
   ...rest
 }: SectionProps) {
-  // Call hooks at the top level of the component
   const padding = useBreakpointValue({ base: 4, md: 6 });
-  const spacing = useBreakpointValue({ base: 4, md: 6 });
-  const headingSize = useBreakpointValue({ base: "md", md: "lg" });
+  const spacing = useBreakpointValue({ base: 5, md: 6 });
+  const headingSize = useBreakpointValue({ base: 'md', md: 'lg' });
+  const sectionBg = useColorModeValue('white', 'gray.800');
+  const sectionBorder = useColorModeValue('blackAlpha.100', 'whiteAlpha.200');
+  const titleColor = useColorModeValue('gray.800', 'gray.100');
+  const subtitleColor = useColorModeValue('gray.500', 'gray.400');
   
   const content = (
-    <Box 
-      bg="white" 
-      borderRadius="lg" 
-      boxShadow="sm"
+    <Box
+      bg={sectionBg}
+      borderRadius="xl"
+      border="1px solid"
+      borderColor={sectionBorder}
+      boxShadow="0 8px 24px rgba(15, 23, 42, 0.04)"
       p={padding}
       mb={spacing}
       {...rest}
     >
       {title && (
-        <Heading 
-          as="h2" 
+        <Heading
+          as="h2"
           size={headingSize}
           mb={subtitle ? 1 : 4}
-          color="gray.700"
+          color={titleColor}
           {...titleProps}
         >
           {title}
@@ -58,15 +65,15 @@ export function DashboardSection({
       )}
       
       {subtitle && (
-        <Heading
-          as="h3"
-          size="sm"
-          fontWeight="normal"
-          color="gray.500"
+        <Text
+          as="p"
+          fontSize="sm"
+          fontWeight="medium"
+          color={subtitleColor}
           mb={4}
         >
           {subtitle}
-        </Heading>
+        </Text>
       )}
       
       {children}
@@ -148,16 +155,19 @@ export function EmptyState({
   children,
   ...rest
 }: BoxProps) {
+  const emptyBg = useColorModeValue('gray.50', 'gray.700');
+  const borderColor = useColorModeValue('blackAlpha.200', 'whiteAlpha.300');
+
   return (
     <Box
       textAlign="center"
       py={12}
       px={4}
-      bg="gray.50"
-      borderRadius="md"
+      bg={emptyBg}
+      borderRadius="xl"
       borderStyle="dashed"
       borderWidth="1px"
-      borderColor="gray.300"
+      borderColor={borderColor}
       {...rest}
     >
       {children}

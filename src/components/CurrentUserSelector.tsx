@@ -51,7 +51,7 @@ export const CurrentUserSelector = ({ isOpen, onClose }: CurrentUserSelectorProp
             const allUsers = [
                 {
                     id: session.user.id,
-                    name: session.user.name || 'Main User',
+                    name: session.user.name || 'Usuario principal',
                     email: session.user.email || ''
                 },
                 ...secondaryUsers
@@ -109,8 +109,8 @@ export const CurrentUserSelector = ({ isOpen, onClose }: CurrentUserSelectorProp
         window.dispatchEvent(new Event('userChanged'));
         
         toast({
-            title: "User changed",
-            description: `Now you are operating as: ${selectedUser?.name}`,
+            title: 'Usuario cambiado',
+            description: `Ahora estás operando como: ${selectedUser?.name}`,
             status: "success",
             duration: 3000,
             isClosable: true,
@@ -123,14 +123,14 @@ export const CurrentUserSelector = ({ isOpen, onClose }: CurrentUserSelectorProp
         <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
             <ModalOverlay />
             <ModalContent borderRadius="xl">
-                <ModalHeader color="gray.700" fontWeight="bold">Switch Active User</ModalHeader>
+                <ModalHeader color="gray.700" fontWeight="bold">Cambiar usuario activo</ModalHeader>
                 <ModalCloseButton color="gray.700"/>
                 <ModalBody pb={6}>
                     {isLoading ? (
                         <Center py={8}>
                             <VStack spacing={4}>
                                 <Spinner size="xl" color="brand.500" thickness="4px" />
-                                <Text color="gray.500" fontWeight="medium">Loading Users...</Text>
+                                <Text color="gray.500" fontWeight="medium">Cargando usuarios...</Text>
                             </VStack>
                         </Center>
                     ) : (
@@ -166,7 +166,7 @@ export const CurrentUserSelector = ({ isOpen, onClose }: CurrentUserSelectorProp
                                                 colorScheme="green"
                                                 variant="subtle"
                                             >
-                                                Main User
+                                                Usuario principal
                                             </Badge>
                                         )}
                                         {isSelected && (
