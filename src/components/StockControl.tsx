@@ -35,6 +35,8 @@ import {
     useColorModeValue,
     Alert,
     AlertIcon,
+    AlertTitle,
+    AlertDescription,
     Heading,
     SimpleGrid,
     Spinner,
@@ -45,7 +47,7 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon, SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiDatabase, FiCalendar, FiAlertTriangle, FiPackage, FiClock } from 'react-icons/fi';
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useFetchWithAuth } from '@/hooks/useFetchWithAuth';
 
 interface Stock {
@@ -69,6 +71,8 @@ interface Reagent {
     name: string;
     unit: string;
 }
+
+const EXPIRING_THRESHOLD_DAYS = 60;
 
 export default function StockControl() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -126,20 +130,23 @@ export default function StockControl() {
     }, [fetchWithAuth, toast]);
 
     useEffect(() => {
-        const now = new Date();
-        const thirtyDaysFromNow = new Date();
-        thirtyDaysFromNow.setDate(now.getDate() + 30);
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const thresholdDate = new Date(startOfToday);
+        thresholdDate.setDate(startOfToday.getDate() + EXPIRING_THRESHOLD_DAYS);
+        thresholdDate.setHours(23, 59, 59, 999);
 
         const activeStocks = stocks.filter(s => s.isActive);
 
         const expiringSoonCount = activeStocks.filter(stock => {
             const expirationDate = new Date(stock.expirationDate);
-            return expirationDate >= now && expirationDate <= thirtyDaysFromNow;
+            return expirationDate >= startOfToday && expirationDate <= thresholdDate;
         }).length;
 
         const expiredCount = stocks.filter(stock => {
             const expirationDate = new Date(stock.expirationDate);
-            return expirationDate < now;
+            return expirationDate < startOfToday;
         }).length;
 
         const disposedCount = stocks.filter(s => !s.isActive).length;
@@ -264,6 +271,41 @@ export default function StockControl() {
         return matchesStatus && matchesReagent;
     });
 
+    const expiringReagentNotifications = useMemo(() => {
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const thresholdDate = new Date(startOfToday);
+        thresholdDate.setDate(startOfToday.getDate() + EXPIRING_THRESHOLD_DAYS);
+        thresholdDate.setHours(23, 59, 59, 999);
+
+        const uniqueByReagent = new Map<string, { reagentName: string; daysRemaining: number; lotNumber: string }>();
+
+        stocks
+            .filter((stock) => stock.isActive)
+            .forEach((stock) => {
+                const expirationDate = new Date(stock.expirationDate);
+                if (expirationDate < startOfToday || expirationDate > thresholdDate) {
+                    return;
+                }
+
+                if (!uniqueByReagent.has(stock.reagentId)) {
+                    const msPerDay = 1000 * 60 * 60 * 24;
+                    const daysRemaining = Math.ceil(
+                        (expirationDate.getTime() - startOfToday.getTime()) / msPerDay
+                    );
+
+                    uniqueByReagent.set(stock.reagentId, {
+                        reagentName: stock.reagent?.name || 'Reactivo',
+                        daysRemaining,
+                        lotNumber: stock.lotNumber,
+                    });
+                }
+            });
+
+        return Array.from(uniqueByReagent.values()).sort((a, b) => a.daysRemaining - b.daysRemaining);
+    }, [stocks]);
+
 
     
     return (
@@ -303,6 +345,26 @@ export default function StockControl() {
                 </HStack>
             </Flex>
             
+            {/* Tarjetas de estadísticas */}
+            {expiringReagentNotifications.length > 0 && (
+                <Alert status="warning" borderRadius="lg" borderWidth="1px" borderColor="orange.200" bg={bgColor}>
+                    <AlertIcon />
+                    <Box>
+                        <AlertTitle color={tdColor}>
+                            {expiringReagentNotifications.length === 1
+                                ? 'Tenés 1 reactivo próximo a vencer'
+                                : `Tenés ${expiringReagentNotifications.length} reactivos próximos a vencer`}
+                        </AlertTitle>
+                        <AlertDescription color={labelColor}>
+                            {expiringReagentNotifications
+                                .slice(0, 3)
+                                .map((item) => `${item.reagentName} (lote ${item.lotNumber}, ${item.daysRemaining} días)`)
+                                .join(' - ')}
+                        </AlertDescription>
+                    </Box>
+                </Alert>
+            )}
+
             {/* Tarjetas de estadísticas */}
             <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={4}>
                 <Card
@@ -468,9 +530,12 @@ export default function StockControl() {
                             <Tbody>
                                 {filteredStocks.map(stock => {
                                     // Calcular días hasta expiración
-                                    const daysToExpire = stock.expirationDate ? 
-                                        Math.ceil((new Date(stock.expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
-                                        null;
+                                    const todayStart = new Date();
+                                    todayStart.setHours(0, 0, 0, 0);
+
+                                    const daysToExpire = stock.expirationDate
+                                        ? Math.ceil((new Date(stock.expirationDate).getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24))
+                                        : null;
                                     
                                     return (
                                         <Tr 
@@ -486,12 +551,12 @@ export default function StockControl() {
                                                     <Icon as={FiCalendar} color="gray.500" />
                                                     <Text>{stock.expirationDate ? new Date(stock.expirationDate).toLocaleDateString() : '-'}</Text>
                                                     
-                                                    {daysToExpire && daysToExpire < 30 && daysToExpire > 0 && (
+                                                    {daysToExpire !== null && daysToExpire <= EXPIRING_THRESHOLD_DAYS && daysToExpire > 0 && (
                                                         <Badge colorScheme="yellow" variant="subtle" borderRadius="full" px={2}>
                                                             Faltan {daysToExpire} días
                                                         </Badge>
                                                     )}
-                                                    {daysToExpire && daysToExpire <= 0 && (
+                                                    {daysToExpire !== null && daysToExpire <= 0 && (
                                                         <Badge colorScheme="red" variant="subtle" borderRadius="full" px={2}>
                                                             Vencido
                                                         </Badge>

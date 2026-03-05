@@ -35,6 +35,7 @@
 - `DashboardSection` as the standard content container.
 - Stat cards + quick-action cards with consistent border and spacing.
 - Form controls: neutral field background, soft border, teal focus.
+- Header notifications with bell + unread badge; mark-as-read is per user and tied to a server signature.
 
 ## Localization Rule
 - Authentication and user access flows are written in Spanish (Argentina).

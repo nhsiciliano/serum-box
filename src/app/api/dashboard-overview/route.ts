@@ -5,6 +5,8 @@ import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
+const EXPIRING_THRESHOLD_DAYS = 60;
+
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
@@ -45,17 +47,20 @@ export async function GET() {
             return reagent.lowStockAlert && reagent.lowStockAlert > 0 && totalStock <= reagent.lowStockAlert;
         }).length;
 
-        const today = new Date();
-        const thirtyDaysFromNow = new Date();
-        thirtyDaysFromNow.setDate(today.getDate() + 30);
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const thresholdDate = new Date(startOfToday);
+        thresholdDate.setDate(startOfToday.getDate() + EXPIRING_THRESHOLD_DAYS);
+        thresholdDate.setHours(23, 59, 59, 999);
 
         const expiringSoon = await prisma.stock.count({
             where: {
                 userId,
                 isActive: true,
                 expirationDate: {
-                    gte: today,
-                    lte: thirtyDaysFromNow,
+                    gte: startOfToday,
+                    lte: thresholdDate,
                 },
             },
         });
