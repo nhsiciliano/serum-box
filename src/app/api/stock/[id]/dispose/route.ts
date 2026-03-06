@@ -15,6 +15,8 @@ export async function POST(
     }
 
     try {
+        const body = await req.json().catch(() => ({}));
+
         const stock = await prisma.stock.findFirst({
             where: { 
                 id: params.id,
@@ -26,16 +28,27 @@ export async function POST(
             return NextResponse.json({ error: 'Stock not found' }, { status: 404 });
         }
 
-        const disposalDate = new Date();
+        const usageStartedAt = body?.usageStartedAt ? new Date(body.usageStartedAt) : stock.entryDate;
+        const usageEndedAt = body?.usageEndedAt ? new Date(body.usageEndedAt) : new Date();
+
+        if (Number.isNaN(usageStartedAt.getTime()) || Number.isNaN(usageEndedAt.getTime())) {
+            return NextResponse.json({ error: 'Fechas inválidas' }, { status: 400 });
+        }
+
+        if (usageStartedAt > usageEndedAt) {
+            return NextResponse.json({ error: 'La fecha de inicio no puede ser posterior a la fecha final' }, { status: 400 });
+        }
+
         const durationDays = Math.floor(
-            (disposalDate.getTime() - stock.entryDate.getTime()) / (1000 * 60 * 60 * 24)
+            (usageEndedAt.getTime() - usageStartedAt.getTime()) / (1000 * 60 * 60 * 24)
         );
 
         const updatedStock = await prisma.stock.update({
             where: { id: params.id },
             data: {
                 isActive: false,
-                disposalDate,
+                entryDate: usageStartedAt,
+                disposalDate: usageEndedAt,
                 durationDays
             }
         });

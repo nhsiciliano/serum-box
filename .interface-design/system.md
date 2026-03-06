@@ -36,6 +36,9 @@
 - Stat cards + quick-action cards with consistent border and spacing.
 - Form controls: neutral field background, soft border, teal focus.
 - Header notifications with bell + unread badge; mark-as-read is per user and tied to a server signature.
+- Stock disposal flow captures "inicio de uso" and "final de uso" dates before closing a lot entry.
+- Stock analytics includes monthly `reactivo + lote` history with month filter and usage date range.
+- Monthly stock history table includes "Rendimiento (días corridos)" and a footer summary of total discarded units by reagent.
 
 ## Localization Rule
 - Authentication and user access flows are written in Spanish (Argentina).

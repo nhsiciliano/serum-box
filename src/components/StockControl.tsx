@@ -76,6 +76,11 @@ const EXPIRING_THRESHOLD_DAYS = 60;
 
 export default function StockControl() {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const {
+        isOpen: isDisposeModalOpen,
+        onOpen: onDisposeModalOpen,
+        onClose: onDisposeModalClose,
+    } = useDisclosure();
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [reagents, setReagents] = useState<Reagent[]>([]);
     const [formData, setFormData] = useState({
@@ -93,6 +98,12 @@ export default function StockControl() {
     const [reagentFilter, setReagentFilter] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedStockForDispose, setSelectedStockForDispose] = useState<Stock | null>(null);
+    const [disposeForm, setDisposeForm] = useState({
+        usageStartedAt: '',
+        usageEndedAt: '',
+    });
+    const [isDisposing, setIsDisposing] = useState(false);
     
     // Theme colors
     const bgColor = useColorModeValue('white', 'gray.800');
@@ -200,61 +211,96 @@ export default function StockControl() {
         }
     };
 
-    const handleDispose = async (stockId: string) => {
-        try {
-            toast({
-                title: 'Confirmar descarte',
-                description: '¿Seguro que querés descartar este registro de stock?',
-                status: "warning",
-                duration: null,
-                isClosable: true,
-                position: "top",
-                render: ({ onClose }) => (
-                    <Box p={3} bg="white" borderRadius="md" boxShadow="md">
-                        <VStack spacing={4}>
-                            <Text color="gray.700">¿Seguro que querés descartar este registro de stock?</Text>
-                            <HStack spacing={4}>
-                                <Button
-                                    colorScheme="red"
-                                    onClick={async () => {
-                                        onClose();
-                                        const response = await fetchWithAuth(`/api/stock/${stockId}/dispose`, {
-                                            method: 'POST'
-                                        });
+    const openDisposeModal = (stock: Stock) => {
+        const today = new Date().toISOString().slice(0, 10);
+        const entryDate = stock.entryDate
+            ? new Date(stock.entryDate).toISOString().slice(0, 10)
+            : today;
 
-                                        if (response.success) {
-                                            // Eliminar el elemento de la lista
-                                            setStocks(prev => prev.filter(stock => stock.id !== stockId));
-                                            
-                                            toast({
-                                                title: 'Éxito',
-                                                description: 'Stock descartado correctamente',
-                                                status: "success",
-                                                duration: 3000,
-                                                isClosable: true,
-                                            });
-                                        } else {
-                                            throw new Error('No se pudo descartar el stock');
-                                        }
-                                    }}
-                                >
-                                    Descartar
-                                </Button>
-                                <Button onClick={onClose}>Cancelar</Button>
-                            </HStack>
-                        </VStack>
-                    </Box>
+        setSelectedStockForDispose(stock);
+        setDisposeForm({
+            usageStartedAt: entryDate,
+            usageEndedAt: today,
+        });
+        onDisposeModalOpen();
+    };
+
+    const handleDisposeSubmit = async () => {
+        if (!selectedStockForDispose) {
+            return;
+        }
+
+        if (!disposeForm.usageStartedAt || !disposeForm.usageEndedAt) {
+            toast({
+                title: 'Error',
+                description: 'Completá fecha de inicio y fecha de finalización.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        if (new Date(disposeForm.usageStartedAt) > new Date(disposeForm.usageEndedAt)) {
+            toast({
+                title: 'Error',
+                description: 'La fecha de inicio no puede ser posterior a la fecha de finalización.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        setIsDisposing(true);
+        try {
+            const response = await fetchWithAuth(`/api/stock/${selectedStockForDispose.id}/dispose`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    usageStartedAt: disposeForm.usageStartedAt,
+                    usageEndedAt: disposeForm.usageEndedAt,
+                }),
+            });
+
+            if (!response.success) {
+                throw new Error('No se pudo descartar el stock');
+            }
+
+            setStocks((prev) =>
+                prev.map((stock) =>
+                    stock.id === selectedStockForDispose.id
+                        ? {
+                            ...stock,
+                            isActive: false,
+                            entryDate: response.stock.entryDate,
+                            disposalDate: response.stock.disposalDate,
+                            durationDays: response.stock.durationDays,
+                        }
+                        : stock
                 )
+            );
+
+            onDisposeModalClose();
+            setSelectedStockForDispose(null);
+
+            toast({
+                title: 'Éxito',
+                description: 'Stock descartado correctamente',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
             });
         } catch (error) {
             console.error('Error:', error);
             toast({
-                title: "Error",
+                title: 'Error',
                 description: 'No se pudo descartar el stock',
-                status: "error",
+                status: 'error',
                 duration: 3000,
                 isClosable: true,
             });
+        } finally {
+            setIsDisposing(false);
         }
     };
 
@@ -306,6 +352,65 @@ export default function StockControl() {
         return Array.from(uniqueByReagent.values()).sort((a, b) => a.daysRemaining - b.daysRemaining);
     }, [stocks]);
 
+    const handleExportActiveStockCsv = () => {
+        const separator = ';';
+        const escapeCell = (value: string | number) => {
+            const text = String(value ?? '');
+            const escaped = text.replace(/"/g, '""');
+            return `"${escaped}"`;
+        };
+
+        const activeStocks = stocks
+            .filter((stock) => stock.isActive)
+            .sort(
+                (a, b) =>
+                    new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()
+            );
+
+        const lines: string[] = [];
+        lines.push(
+            [
+                'Reactivo',
+                'Unidad',
+                'Cantidad',
+                'Número de lote',
+                'Fecha de vencimiento',
+                'Estado',
+            ]
+                .map(escapeCell)
+                .join(separator)
+        );
+
+        activeStocks.forEach((stock) => {
+            lines.push(
+                [
+                    stock.reagent?.name || 'Desconocido',
+                    stock.reagent?.unit || '',
+                    stock.quantity,
+                    stock.lotNumber,
+                    stock.expirationDate
+                        ? new Date(stock.expirationDate).toLocaleDateString('es-AR')
+                        : '-',
+                    'Activo',
+                ]
+                    .map(escapeCell)
+                    .join(separator)
+            );
+        });
+
+        const csvContent = `\uFEFF${lines.join('\n')}`;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.setAttribute('download', `stock_activo_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
 
     
     return (
@@ -340,6 +445,18 @@ export default function StockControl() {
                             transition="all 0.2s"
                         >
                             Agregar
+                        </Button>
+                    </Tooltip>
+
+                    <Tooltip label="Exportar stock activo" hasArrow placement="top">
+                        <Button
+                            variant="outline"
+                            colorScheme="teal"
+                            size="md"
+                            onClick={handleExportActiveStockCsv}
+                            isDisabled={stocks.filter((stock) => stock.isActive).length === 0}
+                        >
+                            Exportar stock activo (.csv)
                         </Button>
                     </Tooltip>
                 </HStack>
@@ -582,7 +699,7 @@ export default function StockControl() {
                                                             size="sm"
                                                             colorScheme="red"
                                                             variant="ghost"
-                                                            onClick={() => handleDispose(stock.id)}
+                                                            onClick={() => openDisposeModal(stock)}
                                                         />
                                                     </Tooltip>
                                                 )}
@@ -696,6 +813,62 @@ export default function StockControl() {
                             leftIcon={<AddIcon />}
                         >
                             Agregar registro
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            <Modal isOpen={isDisposeModalOpen} onClose={onDisposeModalClose} isCentered>
+                <ModalOverlay backdropFilter="blur(4px)" />
+                <ModalContent borderRadius="lg" shadow="xl">
+                    <ModalHeader color="gray.700">Finalizar uso de lote</ModalHeader>
+                    <ModalCloseButton color="gray.700" />
+                    <ModalBody>
+                        <VStack spacing={4} align="stretch">
+                            <Text color={labelColor} fontSize="sm">
+                                {selectedStockForDispose
+                                    ? `${selectedStockForDispose.reagent.name} - Lote ${selectedStockForDispose.lotNumber}`
+                                    : ''}
+                            </Text>
+
+                            <FormControl isRequired>
+                                <FormLabel color={labelColor}>Se comenzó su uso</FormLabel>
+                                <Input
+                                    type="date"
+                                    value={disposeForm.usageStartedAt}
+                                    onChange={(e) =>
+                                        setDisposeForm((prev) => ({
+                                            ...prev,
+                                            usageStartedAt: e.target.value,
+                                        }))
+                                    }
+                                />
+                            </FormControl>
+
+                            <FormControl isRequired>
+                                <FormLabel color={labelColor}>Se finalizó su uso</FormLabel>
+                                <Input
+                                    type="date"
+                                    value={disposeForm.usageEndedAt}
+                                    onChange={(e) =>
+                                        setDisposeForm((prev) => ({
+                                            ...prev,
+                                            usageEndedAt: e.target.value,
+                                        }))
+                                    }
+                                />
+                            </FormControl>
+                        </VStack>
+                    </ModalBody>
+                    <ModalFooter gap={2}>
+                        <Button variant="ghost" onClick={onDisposeModalClose}>Cancelar</Button>
+                        <Button
+                            colorScheme="red"
+                            onClick={handleDisposeSubmit}
+                            isLoading={isDisposing}
+                            loadingText="Guardando"
+                        >
+                            Confirmar descarte
                         </Button>
                     </ModalFooter>
                 </ModalContent>
