@@ -1,10 +1,15 @@
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Cormorant_Garamond, Manrope } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import Script from 'next/script';
 
-const inter = Inter({ subsets: ['latin'] });
+const bodyFont = Manrope({ subsets: ['latin'], variable: '--font-body' });
+const displayFont = Cormorant_Garamond({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['400', '500', '600', '700'],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://serum-box.com'),
@@ -58,7 +63,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${bodyFont.variable} ${displayFont.variable}`}>
         <Providers>
           {children}
         </Providers>

@@ -1,29 +1,30 @@
 export const translations = {
     en: {
         features: {
-            title1: "Serum Sample Management",
-            description1: "Efficiently organize and manage your human serum samples for research.",
-            title2: "Customizable Racks",
-            description2: "Create custom racks with flexible locations, such as A-J and 1-10.",
-            title3: "Detailed Sample Information",
-            description3: "Record important data such as patient name, birth date, sample date, and protocol number.",
-            title4: "Advanced Search",
-            description4: "Quickly locate specific samples with our advanced search system.",
-            title5: "Stock Manager",
-            description5: "Control your reagent inventory efficiently with lot tracking and expiration date monitoring.",
-            title6: "Stock Analytics",
-            description6: "Analyze reagent usage patterns and optimize your inventory with detailed disposal statistics.",
-            discover: "Discover Serum Box's Potential"
+            title1: "Serum Sample Traceability",
+            description1: "Track every sample through a structured chain of custody built for clinical and research environments.",
+            title2: "Configurable Rack Architecture",
+            description2: "Design rack layouts that match your real storage logic, from custom coordinates to flexible capacities.",
+            title3: "Complete Sample Context",
+            description3: "Capture patient metadata, protocol details, and time-critical sample information in one controlled record.",
+            title4: "Precision Search",
+            description4: "Find exact samples in seconds with filters designed for high-volume laboratory operations.",
+            title5: "Inventory Command Center",
+            description5: "Manage reagent stock with lot-level visibility, expiration alerts, and usage history.",
+            title6: "Operational Analytics",
+            description6: "Convert disposal and consumption data into clear trends for planning and optimization.",
+            discover: "Explore Serum Box Capabilities",
+            intro: "A platform engineered for labs that require compliance, speed, and complete operational visibility."
         },
         nav: {
             start: "Login",
             language: "Language"
         },
         home: {
-            title: "Manage your stock and serum samples with Serum Box",
-            subtitle: "Organize, store and analyze your stock and serum samples efficiently",
-            description: "Log in to access all Serum Box features and improve your sample management.",
-            startTrial: "Go to Login"
+            title: "Operational intelligence for serum and reagent workflows",
+            subtitle: "Run sample traceability and inventory control from one secure laboratory platform.",
+            description: "Serum Box gives clinical and research teams the rigor they need to manage samples, control stock, and make faster decisions with confidence.",
+            startTrial: "Enter Platform"
         },
         testimonials: {
             title: "What our users say",
@@ -104,29 +105,30 @@ export const translations = {
     },
     es: {
         features: {
-            title1: "Gestión de Muestras de Suero",
-            description1: "Organiza y gestiona eficientemente tus muestras de suero humano para investigación.",
-            title2: "Gradillas Personalizables",
-            description2: "Crea gradillas personalizadas con ubicaciones flexibles, como A-J y 1-10.",
-            title3: "Información Detallada de Muestras",
-            description3: "Registra datos importantes como nombre del paciente, fecha de nacimiento, fecha de muestra y número de protocolo.",
-            title4: "Búsqueda Avanzada",
-            description4: "Localiza rápidamente muestras específicas con nuestro sistema de búsqueda avanzada.",
-            title5: "Stock Manager",
-            description5: "Controla tu inventario de reactivos eficientemente con seguimiento de lotes y monitoreo de fechas de vencimiento.",
-            title6: "Stock Analytics",
-            description6: "Analiza patrones de uso de reactivos y optimiza tu inventario con estadísticas detalladas de eliminación.",
-            discover: "Descubre el Potencial de Serum Box"
+            title1: "Trazabilidad de Muestras de Suero",
+            description1: "Sigue cada muestra con una cadena de custodia estructurada para entornos clínicos y de investigación.",
+            title2: "Arquitectura de Gradillas Configurable",
+            description2: "Diseña gradillas alineadas con tu lógica real de almacenamiento, con coordenadas y capacidades flexibles.",
+            title3: "Contexto Completo de la Muestra",
+            description3: "Centraliza metadatos del paciente, detalles de protocolo e información crítica de tiempo en un solo registro.",
+            title4: "Búsqueda de Precisión",
+            description4: "Encuentra muestras exactas en segundos con filtros pensados para operaciones de alto volumen.",
+            title5: "Centro de Control de Inventario",
+            description5: "Gestiona reactivos con visibilidad por lote, alertas de vencimiento e historial de uso.",
+            title6: "Analítica Operativa",
+            description6: "Convierte datos de consumo y descarte en tendencias claras para planificar y optimizar.",
+            discover: "Explora las Capacidades de Serum Box",
+            intro: "Una plataforma diseñada para laboratorios que exigen cumplimiento, velocidad y visibilidad operativa total."
         },
         nav: {
             start: "Iniciar sesion",
             language: "Idioma"
         },
         home: {
-            title: "Gestiona tu stock y muestras de suero con Serum Box",
-            subtitle: "Organiza, almacena y analiza tu stock y muestras de suero de manera eficiente",
-            description: "Inicia sesion para acceder a todas las funcionalidades de Serum Box y mejorar la administracion de tus muestras.",
-            startTrial: "Ir a login"
+            title: "Inteligencia operativa para flujos de suero y reactivos",
+            subtitle: "Gestiona trazabilidad de muestras y control de inventario en una sola plataforma segura.",
+            description: "Serum Box brinda a equipos clínicos y de investigación el rigor necesario para gestionar muestras, controlar stock y tomar decisiones más rápidas con confianza.",
+            startTrial: "Entrar a la Plataforma"
         },
         testimonials: {
             title: "Lo que dicen nuestros usuarios",
