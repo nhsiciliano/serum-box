@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/navigation';
-import type { Session } from '@supabase/supabase-js';
+import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import AuthCard from '@/components/auth/AuthCard';
 import { createSupabaseBrowserClient } from '@/lib/supabase';
 
@@ -31,10 +31,11 @@ export default function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [canReset, setCanReset] = useState(false);
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+  const [envError, setEnvError] = useState<string | null>(null);
 
   const toast = useToast();
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
   const fieldBg = useColorModeValue('gray.50', 'gray.700');
   const fieldBorder = useColorModeValue('gray.200', 'gray.600');
   const labelColor = useColorModeValue('gray.700', 'gray.200');
@@ -52,6 +53,22 @@ export default function ResetPasswordForm() {
   };
 
   useEffect(() => {
+    try {
+      const client = createSupabaseBrowserClient();
+      setSupabase(client);
+      setEnvError(null);
+    } catch (error) {
+      console.error('Error creating Supabase browser client:', error);
+      setEnvError('Faltan variables de entorno de Supabase para esta instancia.');
+      setIsCheckingSession(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     const initializeRecoverySession = async () => {
       const { data, error } = await supabase.auth.getSession();
 
@@ -73,7 +90,7 @@ export default function ResetPasswordForm() {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const validatePassword = (currentPassword: string) => {
     const minLength = 8;
@@ -93,6 +110,18 @@ export default function ResetPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!supabase) {
+      toast({
+        title: 'Configuración incompleta',
+        description: 'No se pudo inicializar Supabase en el navegador.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top',
+      });
+      return;
+    }
 
     if (!validatePassword(password)) {
       toast({
@@ -165,8 +194,11 @@ export default function ResetPasswordForm() {
     return (
       <AuthCard
         badge="Recuperación"
-        title="Se requiere enlace de recuperación"
-        description="Abrí el enlace de recuperación que recibiste por correo para definir una nueva contraseña."
+        title={envError ? 'Configuración de entorno incompleta' : 'Se requiere enlace de recuperación'}
+        description={
+          envError ||
+          'Abrí el enlace de recuperación que recibiste por correo para definir una nueva contraseña.'
+        }
       >
         <Button colorScheme="teal" onClick={() => router.push('/login')}>
           Volver al inicio de sesión
