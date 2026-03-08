@@ -10,7 +10,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Link,
   Text,
   VStack,
   useColorModeValue,
@@ -90,15 +89,15 @@ export default function LoginForm({
         <VStack spacing={2} align="stretch">
           <Text textAlign="center" color={helperColor} fontSize="sm">
             ¿Te olvidaste tu contraseña?{' '}
-            <Link color="teal.600" fontWeight="semibold" onClick={onSwitchToRecover}>
+            <Button variant="link" color="teal.600" fontWeight="semibold" onClick={onSwitchToRecover}>
               Recuperar acceso
-            </Link>
+            </Button>
           </Text>
           <Text textAlign="center" color={helperColor} fontSize="sm">
             ¿No tenés cuenta?{' '}
-            <Link color="teal.600" fontWeight="semibold" onClick={onSwitchToRegister}>
+            <Button variant="link" color="teal.600" fontWeight="semibold" onClick={onSwitchToRegister}>
               Registrate
-            </Link>
+            </Button>
           </Text>
         </VStack>
       }

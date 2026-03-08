@@ -12,7 +12,7 @@ const displayFont = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://serum-box.com'),
+  metadataBase: new URL('https://serum-box.vercel.app'),
   title: {
     default: 'Serum Box - Laboratory Stock and Sample Management',
     template: '%s | Serum Box'
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://serum-box.com',
+    url: 'https://serum-box.vercel.app',
     siteName: 'Serum Box',
     title: 'Serum Box - Laboratory Sample Management System',
     description: 'Professional serum and plasma sample management for laboratories and clinical research institutions',
@@ -63,15 +63,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://tracker.metricool.com" crossOrigin="" />
+      </head>
       <body className={`${bodyFont.variable} ${displayFont.variable}`}>
         <Providers>
           {children}
         </Providers>
-        <Script id="metricool-tracker" strategy="afterInteractive">
-          {`
-            function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"28960ca2e51d80f2e3f34a842e352b17"})});
-          `}
-        </Script>
+        {process.env.NODE_ENV === 'production' ? (
+          <Script id="metricool-tracker" strategy="lazyOnload">
+            {`
+              function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"28960ca2e51d80f2e3f34a842e352b17"})});
+            `}
+          </Script>
+        ) : null}
       </body>
     </html>
   );

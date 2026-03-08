@@ -16,11 +16,13 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { translations } from '@/lib/translations';
+import { featureCopy, homeCopy, LandingLanguage } from '@/lib/landingTranslations';
 
 export default function HomeContent() {
   const { language } = useLanguage();
-  const t = translations[language as 'en' | 'es'];
+  const locale: LandingLanguage = language === 'es' ? 'es' : 'en';
+  const home = homeCopy[locale];
+  const features = featureCopy[locale];
 
   const bg = useColorModeValue('#f6f3ee', '#0f171c');
   const panelBg = useColorModeValue('rgba(255, 253, 249, 0.82)', 'rgba(21, 30, 35, 0.9)');
@@ -87,7 +89,7 @@ export default function HomeContent() {
                 fontSize={{ base: '3.1rem', sm: '3.6rem', md: '4.6rem' }}
                 maxW="14ch"
               >
-                {t.home.title}
+                {home.title}
               </Heading>
 
               <Text
@@ -97,11 +99,11 @@ export default function HomeContent() {
                 color={bodyColor}
                 maxW="58ch"
               >
-                {t.home.subtitle}
+                {home.subtitle}
               </Text>
 
               <Text data-reveal color={bodyColor} maxW="62ch" lineHeight="1.8">
-                {t.home.description}
+                {home.description}
               </Text>
 
               <HStack data-reveal spacing={4} pt={2} flexWrap="wrap">
@@ -118,7 +120,7 @@ export default function HomeContent() {
                     _hover={{ transform: 'translateY(-2px)', bg: useColorModeValue('#0f4f61', '#6fc9e5') }}
                     transition="all 0.25s ease"
                   >
-                    {t.home.startTrial}
+                    {home.startTrial}
                   </Button>
                 </Link>
               </HStack>
@@ -161,7 +163,7 @@ export default function HomeContent() {
               >
                 <NextImage
                   src="/images/gestion-muestras.jpg"
-                  alt={t.features.title1}
+                  alt={features.title1}
                   fill
                   sizes="(max-width: 768px) 100vw, 42vw"
                   style={{ objectFit: 'cover' }}
@@ -187,10 +189,10 @@ export default function HomeContent() {
                   {language === 'es' ? 'Flujo integral' : 'Integrated flow'}
                 </Text>
                 <Heading as="h2" mt={2} size="md" color={titleColor} lineHeight="1.2" fontWeight="500">
-                  {t.features.title2}
+                  {features.title2}
                 </Heading>
                 <Text mt={3} color={bodyColor} lineHeight="1.75" fontSize="sm">
-                  {t.features.description2}
+                  {features.description2}
                 </Text>
               </Box>
             </Box>

@@ -17,11 +17,12 @@ import {
 } from '@chakra-ui/react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { translations } from '@/lib/translations';
+import { faqCopy, LandingLanguage } from '@/lib/landingTranslations';
 
 export default function FAQSection() {
   const { language } = useLanguage();
-  const t = translations[language as 'en' | 'es'];
+  const locale: LandingLanguage = language === 'es' ? 'es' : 'en';
+  const t = faqCopy[locale];
 
   const bg = useColorModeValue('#e5efe8', '#102025');
   const line = useColorModeValue('rgba(21, 62, 53, 0.2)', 'rgba(159, 226, 206, 0.24)');
@@ -61,7 +62,7 @@ export default function FAQSection() {
                 FAQ
               </Text>
               <Heading data-reveal as="h2" size="2xl" color={heading} lineHeight="1.05" fontWeight="500">
-                {t.faq.title}
+              {t.title}
               </Heading>
               <Text data-reveal color={text} maxW="42ch" lineHeight="1.85">
                 {language === 'es'
@@ -73,7 +74,7 @@ export default function FAQSection() {
 
           <GridItem>
             <Accordion allowToggle>
-              {t.faq.questions.map((faq) => (
+              {t.questions.map((faq) => (
                 <AccordionItem
                   data-reveal
                   key={faq.q}

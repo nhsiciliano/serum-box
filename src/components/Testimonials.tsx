@@ -14,11 +14,12 @@ import {
 } from '@chakra-ui/react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { translations } from '@/lib/translations';
+import { LandingLanguage, testimonialsCopy } from '@/lib/landingTranslations';
 
 export default function Testimonials() {
   const { language } = useLanguage();
-  const t = translations[language as 'en' | 'es'];
+  const locale: LandingLanguage = language === 'es' ? 'es' : 'en';
+  const t = testimonialsCopy[locale];
 
   const bg = useColorModeValue('#fffaf0', '#131920');
   const line = useColorModeValue('rgba(54, 39, 14, 0.2)', 'rgba(241, 210, 162, 0.2)');
@@ -56,12 +57,12 @@ export default function Testimonials() {
               {language === 'es' ? 'Confianza validada' : 'Validated trust'}
             </Text>
             <Heading data-reveal as="h2" size="2xl" color={text} lineHeight="1.05" fontWeight="500">
-              {t.testimonials.title}
+              {t.title}
             </Heading>
           </VStack>
 
           <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={{ base: 6, md: 7 }}>
-            {t.testimonials.testimonials.map((testimonial, index) => (
+            {t.testimonials.map((testimonial, index) => (
               <GridItem key={testimonial.name}>
                 <Box
                   data-reveal

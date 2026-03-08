@@ -7,7 +7,6 @@ import {
   FormLabel,
   HStack,
   Input,
-  Link,
   Text,
   VStack,
   useColorModeValue,
@@ -75,9 +74,9 @@ export default function RecoverPassword({ onBackToLogin }: { onBackToLogin: () =
       footer={
         <Text textAlign="center" color={helperColor} fontSize="sm">
           ¿Recordás tu contraseña?{' '}
-          <Link color="teal.600" fontWeight="semibold" onClick={onBackToLogin}>
+          <Button variant="link" color="teal.600" fontWeight="semibold" onClick={onBackToLogin}>
             Volver al inicio de sesión
-          </Link>
+          </Button>
         </Text>
       }
     >

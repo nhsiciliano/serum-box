@@ -6,11 +6,13 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
             disallow: [
+                '/dashboard',
                 '/dashboard/',
                 '/api/',
-                '/admin-cuenta'
+                '/dashboard/admin-cuenta',
+                '/reset-password'
             ]
         },
-        sitemap: 'https://serum-box.com/sitemap.xml'
+        sitemap: 'https://serum-box.vercel.app/sitemap.xml'
     }
 }

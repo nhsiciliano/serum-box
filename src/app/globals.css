@@ -33,6 +33,27 @@ h6 {
   font-family: var(--font-display), serif;
 }
 
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  z-index: 2000;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #103847;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 12px;
+  outline: 2px solid #8cdaf1;
+  outline-offset: 2px;
+}
+
 .landing-grain {
   position: relative;
 }

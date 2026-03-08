@@ -4,6 +4,8 @@ import {
   Box,
   Button,
   Container,
+  FormControl,
+  FormLabel,
   Grid,
   GridItem,
   Heading,
@@ -128,47 +130,64 @@ export default function Footer() {
                 backdropFilter="blur(8px)"
               >
                 <VStack spacing={4} align="stretch">
-                  <Input
-                    placeholder={t.footer.contact.name}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    bg={fieldBg}
-                    border="1px solid"
-                    borderColor={line}
-                    color={text}
-                    _placeholder={{ color: muted }}
-                    _hover={{ borderColor: fieldHover }}
-                    _focusVisible={{ borderColor: accent, boxShadow: `0 0 0 1px ${accent}` }}
-                    required
-                  />
-                  <Input
-                    placeholder={t.footer.contact.email}
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    bg={fieldBg}
-                    border="1px solid"
-                    borderColor={line}
-                    color={text}
-                    _placeholder={{ color: muted }}
-                    _hover={{ borderColor: fieldHover }}
-                    _focusVisible={{ borderColor: accent, boxShadow: `0 0 0 1px ${accent}` }}
-                    required
-                  />
-                  <Textarea
-                    placeholder={t.footer.contact.message}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    bg={fieldBg}
-                    border="1px solid"
-                    borderColor={line}
-                    color={text}
-                    _placeholder={{ color: muted }}
-                    _hover={{ borderColor: fieldHover }}
-                    _focusVisible={{ borderColor: accent, boxShadow: `0 0 0 1px ${accent}` }}
-                    minH="136px"
-                    required
-                  />
+                  <FormControl isRequired>
+                    <FormLabel htmlFor="contact-name" color={text} fontSize="sm">
+                      {t.footer.contact.name}
+                    </FormLabel>
+                    <Input
+                      id="contact-name"
+                      placeholder={t.footer.contact.name}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      bg={fieldBg}
+                      border="1px solid"
+                      borderColor={line}
+                      color={text}
+                      _placeholder={{ color: muted }}
+                      _hover={{ borderColor: fieldHover }}
+                      _focusVisible={{ borderColor: accent, boxShadow: `0 0 0 1px ${accent}` }}
+                    />
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel htmlFor="contact-email" color={text} fontSize="sm">
+                      {t.footer.contact.email}
+                    </FormLabel>
+                    <Input
+                      id="contact-email"
+                      placeholder={t.footer.contact.email}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      bg={fieldBg}
+                      border="1px solid"
+                      borderColor={line}
+                      color={text}
+                      _placeholder={{ color: muted }}
+                      _hover={{ borderColor: fieldHover }}
+                      _focusVisible={{ borderColor: accent, boxShadow: `0 0 0 1px ${accent}` }}
+                    />
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel htmlFor="contact-message" color={text} fontSize="sm">
+                      {t.footer.contact.message}
+                    </FormLabel>
+                    <Textarea
+                      id="contact-message"
+                      placeholder={t.footer.contact.message}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      bg={fieldBg}
+                      border="1px solid"
+                      borderColor={line}
+                      color={text}
+                      _placeholder={{ color: muted }}
+                      _hover={{ borderColor: fieldHover }}
+                      _focusVisible={{ borderColor: accent, boxShadow: `0 0 0 1px ${accent}` }}
+                      minH="136px"
+                    />
+                  </FormControl>
                   <Button
                     type="submit"
                     isLoading={isSubmitting}

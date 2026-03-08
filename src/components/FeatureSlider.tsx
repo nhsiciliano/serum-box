@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
+  Button,
   Container,
   Grid,
   GridItem,
@@ -11,46 +12,48 @@ import {
   Text,
   VStack,
   useColorModeValue,
+  usePrefersReducedMotion,
 } from '@chakra-ui/react';
 import NextImage from 'next/image';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { translations } from '@/lib/translations';
+import { featureCopy, LandingLanguage } from '@/lib/landingTranslations';
 
 export default function FeatureSlider() {
   const { language } = useLanguage();
-  const t = translations[language as 'en' | 'es'];
+  const locale: LandingLanguage = language === 'es' ? 'es' : 'en';
+  const t = featureCopy[locale];
 
   const features = useMemo(
     () => [
       {
-        title: t.features.title1,
-        description: t.features.description1,
+        title: t.title1,
+        description: t.description1,
         image: '/images/gestion-muestras.jpg',
       },
       {
-        title: t.features.title2,
-        description: t.features.description2,
+        title: t.title2,
+        description: t.description2,
         image: '/images/gradillas-personalizables.jpg',
       },
       {
-        title: t.features.title3,
-        description: t.features.description3,
+        title: t.title3,
+        description: t.description3,
         image: '/images/informacion-detallada.jpg',
       },
       {
-        title: t.features.title4,
-        description: t.features.description4,
+        title: t.title4,
+        description: t.description4,
         image: '/images/busqueda-avanzada.jpg',
       },
       {
-        title: t.features.title5,
-        description: t.features.description5,
+        title: t.title5,
+        description: t.description5,
         image: '/images/stock-manager.jpg',
       },
       {
-        title: t.features.title6,
-        description: t.features.description6,
+        title: t.title6,
+        description: t.description6,
         image: '/images/stock-analytics.jpg',
       },
     ],
@@ -58,14 +61,20 @@ export default function FeatureSlider() {
   );
 
   const [currentFeature, setCurrentFeature] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    if (prefersReducedMotion || isPaused) {
+      return;
+    }
+
     const timer = setInterval(() => {
       setCurrentFeature((prev) => (prev + 1) % features.length);
     }, 8000);
 
     return () => clearInterval(timer);
-  }, [features.length]);
+  }, [features.length, isPaused, prefersReducedMotion]);
 
   const sectionBg = useColorModeValue('#e8f1f4', '#0e1d25');
   const sectionLine = useColorModeValue('rgba(11, 55, 71, 0.22)', 'rgba(149, 213, 237, 0.28)');
@@ -114,11 +123,34 @@ export default function FeatureSlider() {
                 {language === 'es' ? 'Módulos principales' : 'Core modules'}
               </Text>
               <Heading data-reveal as="h2" size="2xl" fontWeight="500" lineHeight="1.05" color={text}>
-                {t.features.discover}
+                {t.discover}
               </Heading>
               <Text data-reveal color={muted} lineHeight="1.8" maxW="44ch">
-                {t.features.intro}
+                {t.intro}
               </Text>
+
+              <Button
+                data-reveal
+                variant="outline"
+                size="sm"
+                borderColor={sectionLine}
+                color={text}
+                _hover={{ borderColor: accent, color: accent }}
+                onClick={() => setIsPaused((prev) => !prev)}
+                alignSelf="start"
+              >
+                {prefersReducedMotion
+                  ? language === 'es'
+                    ? 'Animación desactivada'
+                    : 'Animation disabled'
+                  : isPaused
+                    ? language === 'es'
+                      ? 'Reanudar carrusel'
+                      : 'Resume carousel'
+                    : language === 'es'
+                      ? 'Pausar carrusel'
+                      : 'Pause carousel'}
+              </Button>
 
               <VStack align="stretch" spacing={2} w="full" pt={3}>
                 {features.map((feature, index) => {
@@ -185,7 +217,7 @@ export default function FeatureSlider() {
                   bg={accent}
                   w="100%"
                   key={currentFeature}
-                  sx={{ animation: 'feature-progress 8s linear forwards' }}
+                  sx={{ animation: prefersReducedMotion || isPaused ? 'none' : 'feature-progress 8s linear forwards' }}
                 />
               </Box>
 

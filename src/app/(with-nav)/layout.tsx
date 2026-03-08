@@ -9,8 +9,11 @@ export default function LayoutWithNav({
 }) {
   return (
     <Flex direction="column" minHeight="100vh">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <Navbar />
-      <Box flex="1">
+      <Box as="main" id="main-content" flex="1">
         {children}
       </Box>
       <Footer />

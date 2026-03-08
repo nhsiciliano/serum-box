@@ -1,13 +1,18 @@
-import { Box } from '@chakra-ui/react';
+import { Metadata } from 'next';
 
-export default function ResetPasswordLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return (
-        <Box minHeight="100vh" bg="white">
-            {children}
-        </Box>
-    );
-} 
+export const metadata: Metadata = {
+  title: 'Reset Password | Serum Box',
+  description:
+    'Reset your Serum Box password securely and recover access to your laboratory workflows.',
+  alternates: {
+    canonical: '/reset-password',
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export default function ResetPasswordLayout({ children }: { children: React.ReactNode }) {
+  return children;
+}

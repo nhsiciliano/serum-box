@@ -10,7 +10,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Link,
   Text,
   VStack,
   useColorModeValue,
@@ -120,9 +119,9 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
       footer={
         <Text textAlign="center" color={helperColor} fontSize="sm">
           ¿Ya tenés cuenta?{' '}
-          <Link color="teal.600" fontWeight="semibold" onClick={onSwitchToLogin}>
+          <Button variant="link" color="teal.600" fontWeight="semibold" onClick={onSwitchToLogin}>
             Iniciar sesión
-          </Link>
+          </Button>
         </Text>
       }
     >
